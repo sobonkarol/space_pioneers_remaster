@@ -1,0 +1,80 @@
+{
+  "_comment": "Definicje budynkow. Koszt poziomu L = baseCost * costFactor^(L-1). Wartosci sa rekonstrukcja (zrodlo: docs/GAME_RULES.md) i moga zostac podmienione danymi z oryginalu.",
+  "buildings": [
+    {
+      "key": "metal_mine", "category": "resource", "baseCost": {"metal": 60, "crystal": 15, "tritium": 0}, "costFactor": 1.5,
+      "production": {"resource": "metal", "base": 30, "growth": 1.1},
+      "energyUse": {"base": 10, "growth": 1.1},
+      "requirements": {}
+    },
+    {
+      "key": "crystal_mine", "category": "resource", "baseCost": {"metal": 48, "crystal": 24, "tritium": 0}, "costFactor": 1.6,
+      "production": {"resource": "crystal", "base": 20, "growth": 1.1},
+      "energyUse": {"base": 10, "growth": 1.1},
+      "requirements": {}
+    },
+    {
+      "key": "tritium_synthesizer", "category": "resource", "baseCost": {"metal": 225, "crystal": 75, "tritium": 0}, "costFactor": 1.5,
+      "production": {"resource": "tritium", "base": 10, "growth": 1.1, "temperatureDependent": true},
+      "energyUse": {"base": 20, "growth": 1.1},
+      "requirements": {}
+    },
+    {
+      "key": "solar_plant", "category": "resource", "baseCost": {"metal": 75, "crystal": 30, "tritium": 0}, "costFactor": 1.5,
+      "energyProduction": {"base": 20, "growth": 1.1},
+      "requirements": {}
+    },
+    {
+      "key": "fusion_plant", "category": "resource", "baseCost": {"metal": 900, "crystal": 360, "tritium": 180}, "costFactor": 1.8,
+      "energyProduction": {"base": 30, "growth": 1.05, "techBonusKey": "energy_tech", "techBonusPerLevel": 0.01},
+      "tritiumUse": {"base": 10, "growth": 1.1},
+      "requirements": {"buildings": {"tritium_synthesizer": 5}, "research": {"energy_tech": 3}}
+    },
+    {
+      "key": "robotics_factory", "category": "facility", "baseCost": {"metal": 400, "crystal": 120, "tritium": 200}, "costFactor": 2.0,
+      "requirements": {}
+    },
+    {
+      "key": "nanite_factory", "category": "facility", "baseCost": {"metal": 1000000, "crystal": 500000, "tritium": 100000}, "costFactor": 2.0,
+      "requirements": {"buildings": {"robotics_factory": 10}, "research": {"computer_tech": 10}}
+    },
+    {
+      "key": "shipyard", "category": "facility", "baseCost": {"metal": 400, "crystal": 200, "tritium": 100}, "costFactor": 2.0,
+      "requirements": {"buildings": {"robotics_factory": 2}}
+    },
+    {
+      "key": "metal_storage", "category": "storage", "baseCost": {"metal": 1000, "crystal": 0, "tritium": 0}, "costFactor": 2.0,
+      "storage": {"resource": "metal"},
+      "requirements": {}
+    },
+    {
+      "key": "crystal_storage", "category": "storage", "baseCost": {"metal": 1000, "crystal": 500, "tritium": 0}, "costFactor": 2.0,
+      "storage": {"resource": "crystal"},
+      "requirements": {}
+    },
+    {
+      "key": "tritium_tank", "category": "storage", "baseCost": {"metal": 1000, "crystal": 1000, "tritium": 0}, "costFactor": 2.0,
+      "storage": {"resource": "tritium"},
+      "requirements": {}
+    },
+    {
+      "key": "research_lab", "category": "facility", "baseCost": {"metal": 200, "crystal": 400, "tritium": 200}, "costFactor": 2.0,
+      "requirements": {}
+    },
+    {
+      "key": "terraformer", "category": "facility", "baseCost": {"metal": 0, "crystal": 50000, "tritium": 100000}, "costFactor": 2.0,
+      "fieldsBonus": 5,
+      "requirements": {"buildings": {"nanite_factory": 1}, "research": {"energy_tech": 12}}
+    },
+    {
+      "key": "trade_center", "category": "facility", "branch": "TRADER", "baseCost": {"metal": 2000, "crystal": 2000, "tritium": 1000}, "costFactor": 2.0,
+      "maxLevel": 10,
+      "requirements": {"buildings": {"robotics_factory": 2}}
+    },
+    {
+      "key": "war_academy", "category": "facility", "branch": "WARRIOR", "baseCost": {"metal": 2000, "crystal": 1000, "tritium": 1000}, "costFactor": 2.0,
+      "maxLevel": 10,
+      "requirements": {"buildings": {"shipyard": 2}}
+    }
+  ]
+}
