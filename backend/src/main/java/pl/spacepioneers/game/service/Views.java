@@ -66,7 +66,8 @@ public final class Views {
             int unreadMessages,
             String branch,
             boolean canChooseBranch,
-            boolean vacation
+            boolean vacation,
+            int forumUnread
     ) {
     }
 

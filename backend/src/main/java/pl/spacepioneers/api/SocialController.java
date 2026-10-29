@@ -21,6 +21,7 @@ import pl.spacepioneers.game.model.Message;
 import pl.spacepioneers.game.model.Player;
 import pl.spacepioneers.game.model.Treaty;
 import pl.spacepioneers.game.service.AllianceService;
+import pl.spacepioneers.game.service.ForumService;
 import pl.spacepioneers.game.service.Game;
 import pl.spacepioneers.game.service.MarketService;
 import pl.spacepioneers.game.service.Views;
@@ -53,10 +54,10 @@ public class SocialController {
 
     /** Wiadomosc z raportem przekazanym jako zagniezdzony obiekt JSON. */
     public record MessageDto(long id, Long senderId, String senderName, String type, String subject, String body,
-                             @JsonRawValue String payload, Instant createdAt, boolean read) {
+                             @JsonRawValue String payload, Instant createdAt, boolean read, boolean archived) {
         static MessageDto of(Message m) {
             return new MessageDto(m.id(), m.senderId(), m.senderName(), m.type().name(), m.subject(), m.body(),
-                    m.payload(), m.createdAt(), m.read());
+                    m.payload(), m.createdAt(), m.read(), m.archived());
         }
     }
 
@@ -90,6 +91,111 @@ public class SocialController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMessage(@AuthenticationPrincipal PlayerPrincipal me, @PathVariable long id) {
         game.messages().delete(me.playerId(), id);
+    }
+
+    public record ArchiveRequest(boolean archived) {
+    }
+
+    @GetMapping("/messages/archive")
+    public List<MessageDto> archive(@AuthenticationPrincipal PlayerPrincipal me) {
+        return game.messages().archive(me.playerId()).stream().map(MessageDto::of).toList();
+    }
+
+    @PostMapping("/messages/{id}/archive")
+    public MessageDto setArchived(@AuthenticationPrincipal PlayerPrincipal me, @PathVariable long id,
+                                  @RequestBody ArchiveRequest req) {
+        return MessageDto.of(game.messages().setArchived(me.playerId(), id, req.archived()));
+    }
+
+    /** Usuwa wszystkie wiadomosci danego rodzaju (bez archiwum). */
+    @DeleteMapping("/messages")
+    public Map<String, Integer> deleteAll(@AuthenticationPrincipal PlayerPrincipal me,
+                                          @RequestParam(required = false) Message.Type type) {
+        return Map.of("deleted", game.messages().deleteAll(me.playerId(), type));
+    }
+
+    // --- notatki
+
+    public record NoteRequest(String title, String text, int priority) {
+    }
+
+    @GetMapping("/notes")
+    public List<pl.spacepioneers.game.model.Note> notes(@AuthenticationPrincipal PlayerPrincipal me) {
+        return game.notes().list(me.playerId());
+    }
+
+    @PostMapping("/notes")
+    public pl.spacepioneers.game.model.Note createNote(@AuthenticationPrincipal PlayerPrincipal me, @RequestBody NoteRequest req) {
+        return game.notes().save(me.playerId(), null, req.title(), req.text(), req.priority());
+    }
+
+    @PutMapping("/notes/{id}")
+    public pl.spacepioneers.game.model.Note updateNote(@AuthenticationPrincipal PlayerPrincipal me, @PathVariable long id,
+                                                       @RequestBody NoteRequest req) {
+        return game.notes().save(me.playerId(), id, req.title(), req.text(), req.priority());
+    }
+
+    @DeleteMapping("/notes/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteNote(@AuthenticationPrincipal PlayerPrincipal me, @PathVariable long id) {
+        game.notes().delete(me.playerId(), id);
+    }
+
+    // --- forum sojuszu
+
+    public record ThreadRequest(String title, String text) {
+    }
+
+    public record PostRequest(String text) {
+    }
+
+    public record ModerateRequest(Boolean pinned, Boolean locked) {
+    }
+
+    @GetMapping("/forum")
+    public ForumService.ForumView forum(@AuthenticationPrincipal PlayerPrincipal me) {
+        return game.forum().threads(me.playerId());
+    }
+
+    @PostMapping("/forum/threads")
+    public ForumService.ThreadView createThread(@AuthenticationPrincipal PlayerPrincipal me, @RequestBody ThreadRequest req) {
+        return game.forum().create(me.playerId(), req.title(), req.text());
+    }
+
+    @GetMapping("/forum/threads/{id}")
+    public ForumService.ThreadPage thread(@AuthenticationPrincipal PlayerPrincipal me, @PathVariable long id,
+                                          @RequestParam(defaultValue = "1") int page) {
+        return game.forum().read(me.playerId(), id, page);
+    }
+
+    @PostMapping("/forum/threads/{id}/posts")
+    public ForumService.PostView reply(@AuthenticationPrincipal PlayerPrincipal me, @PathVariable long id,
+                                       @RequestBody PostRequest req) {
+        return game.forum().reply(me.playerId(), id, req.text());
+    }
+
+    @PutMapping("/forum/threads/{id}")
+    public ForumService.ThreadView moderate(@AuthenticationPrincipal PlayerPrincipal me, @PathVariable long id,
+                                            @RequestBody ModerateRequest req) {
+        return game.forum().moderate(me.playerId(), id, req.pinned(), req.locked());
+    }
+
+    @DeleteMapping("/forum/threads/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteThread(@AuthenticationPrincipal PlayerPrincipal me, @PathVariable long id) {
+        game.forum().deleteThread(me.playerId(), id);
+    }
+
+    @PutMapping("/forum/posts/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editPost(@AuthenticationPrincipal PlayerPrincipal me, @PathVariable long id, @RequestBody PostRequest req) {
+        game.forum().edit(me.playerId(), id, req.text());
+    }
+
+    @DeleteMapping("/forum/posts/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePost(@AuthenticationPrincipal PlayerPrincipal me, @PathVariable long id) {
+        game.forum().deletePost(me.playerId(), id);
     }
 
     @PostMapping("/messages")

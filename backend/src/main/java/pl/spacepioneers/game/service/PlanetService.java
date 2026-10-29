@@ -76,7 +76,7 @@ public final class PlanetService extends ServiceBase {
                     Math.floor(player.getScore().total()), player.getRank(), playerCount,
                     store.unreadCount(playerId), player.getBranch().name(),
                     player.getBranch() == Branch.NONE && player.getScore().total() >= Rules.BRANCH_MIN_POINTS,
-                    player.inVacation());
+                    player.inVacation(), forumUnread(player));
         });
     }
 
@@ -122,6 +122,15 @@ public final class PlanetService extends ServiceBase {
 
     static Views.BuildQueueItem queueItem(BuildOrder o) {
         return new Views.BuildQueueItem(o.id(), o.building(), o.level(), o.demolish(), o.cost(), o.start(), o.end());
+    }
+
+    private int forumUnread(Player p) {
+        if (p.getAllianceId() == null) return 0;
+        return (int) ctx.store().threads(p.getAllianceId()).stream()
+                .filter(t -> {
+                    var seen = p.getForumRead().get(t.id());
+                    return seen == null || seen < t.lastPostId();
+                }).count();
     }
 
     static Views.FleetMovement movement(Fleet f, boolean own, String ownerName) {

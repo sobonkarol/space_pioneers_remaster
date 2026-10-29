@@ -13,6 +13,9 @@ import pl.spacepioneers.game.model.Buddy;
 import pl.spacepioneers.game.model.BuildOrder;
 import pl.spacepioneers.game.model.DebrisField;
 import pl.spacepioneers.game.model.Fleet;
+import pl.spacepioneers.game.model.ForumPost;
+import pl.spacepioneers.game.model.ForumThread;
+import pl.spacepioneers.game.model.Note;
 import pl.spacepioneers.game.model.Message;
 import pl.spacepioneers.game.model.Planet;
 import pl.spacepioneers.game.model.Player;
@@ -37,7 +40,7 @@ public class JdbcGameStore implements GameStore {
 
     private static final long GAME_LOCK = 0x5350_4C4F_434BL; // "SPLOCK"
     private static final Set<String> SEQUENCES = Set.of("player", "planet", "fleet", "message", "alliance",
-            "application", "treaty", "build", "shipyard", "union", "buddy");
+            "application", "treaty", "build", "shipyard", "union", "buddy", "note", "thread", "post");
 
     private final JdbcTemplate jdbc;
     private final TransactionTemplate tx;
@@ -314,7 +317,7 @@ public class JdbcGameStore implements GameStore {
             rs.getObject("sender_id") == null ? null : rs.getLong("sender_id"),
             rs.getString("sender_name"), Message.Type.valueOf(rs.getString("type")),
             rs.getString("subject"), rs.getString("body"), rs.getString("payload"),
-            rs.getTimestamp("created_at").toInstant(), rs.getBoolean("is_read"));
+            rs.getTimestamp("created_at").toInstant(), rs.getBoolean("is_read"), rs.getBoolean("is_archived"));
 
     @Override
     public Optional<Message> message(long id) {
@@ -342,11 +345,12 @@ public class JdbcGameStore implements GameStore {
     @Override
     public void save(Message m) {
         jdbc.update("""
-                insert into messages (id, recipient_id, sender_id, sender_name, type, subject, body, payload, created_at, is_read)
-                values (?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?, ?)
-                on conflict (id) do update set is_read = excluded.is_read
+                insert into messages (id, recipient_id, sender_id, sender_name, type, subject, body, payload, created_at,
+                                      is_read, is_archived)
+                values (?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?, ?, ?)
+                on conflict (id) do update set is_read = excluded.is_read, is_archived = excluded.is_archived
                 """, m.id(), m.recipientId(), m.senderId(), m.senderName(), m.type().name(), m.subject(), m.body(),
-                m.payload(), ts(m.createdAt()), m.read());
+                m.payload(), ts(m.createdAt()), m.read(), m.archived());
     }
 
     @Override
@@ -475,6 +479,102 @@ public class JdbcGameStore implements GameStore {
     @Override
     public void deleteBuddy(long id) {
         jdbc.update("delete from buddies where id = ?", id);
+    }
+
+    // --- archiwum i retencja wiadomosci
+
+    @Override
+    public List<Message> archivedMessages(long playerId, int limit) {
+        return jdbc.query("select * from messages where recipient_id = ? and is_archived order by created_at desc, id desc limit ?",
+                MESSAGE, playerId, limit);
+    }
+
+    @Override
+    public int archivedCount(long playerId) {
+        Integer n = jdbc.queryForObject("select count(*) from messages where recipient_id = ? and is_archived",
+                Integer.class, playerId);
+        return n == null ? 0 : n;
+    }
+
+    @Override
+    public int purgeMessages(Instant readBefore, Instant anyBefore) {
+        return jdbc.update("delete from messages where not is_archived and ((is_read and created_at < ?) or created_at < ?)",
+                ts(readBefore), ts(anyBefore));
+    }
+
+    // --- notatki
+
+    @Override
+    public Optional<Note> note(long id) {
+        return first(jdbc.query("select data from notes where id = ?", data(Note.class), id));
+    }
+
+    @Override
+    public List<Note> notesOf(long ownerId) {
+        return jdbc.query("select data from notes where owner_id = ? order by priority desc, updated_at desc, id desc",
+                data(Note.class), ownerId);
+    }
+
+    @Override
+    public void save(Note n) {
+        jdbc.update("insert into notes (id, owner_id, priority, updated_at, data) values (?, ?, ?, ?, ?::jsonb) "
+                        + "on conflict (id) do update set priority = excluded.priority, updated_at = excluded.updated_at, "
+                        + "data = excluded.data",
+                n.id(), n.ownerId(), n.priority(), ts(n.updatedAt()), Json.write(n));
+    }
+
+    @Override
+    public void deleteNote(long id) {
+        jdbc.update("delete from notes where id = ?", id);
+    }
+
+    // --- forum sojuszu
+
+    @Override
+    public Optional<ForumThread> thread(long id) {
+        return first(jdbc.query("select data from forum_threads where id = ?", data(ForumThread.class), id));
+    }
+
+    @Override
+    public List<ForumThread> threads(long allianceId) {
+        return jdbc.query("select data from forum_threads where alliance_id = ? order by pinned desc, last_post_at desc, id desc",
+                data(ForumThread.class), allianceId);
+    }
+
+    @Override
+    public void save(ForumThread t) {
+        jdbc.update("insert into forum_threads (id, alliance_id, pinned, last_post_at, data) values (?, ?, ?, ?, ?::jsonb) "
+                        + "on conflict (id) do update set pinned = excluded.pinned, last_post_at = excluded.last_post_at, "
+                        + "data = excluded.data",
+                t.id(), t.allianceId(), t.pinned(), ts(t.lastPostAt()), Json.write(t));
+    }
+
+    @Override
+    public void deleteThread(long id) {
+        jdbc.update("delete from forum_threads where id = ?", id); // wpisy kaskadowo
+    }
+
+    @Override
+    public Optional<ForumPost> post(long id) {
+        return first(jdbc.query("select data from forum_posts where id = ?", data(ForumPost.class), id));
+    }
+
+    @Override
+    public List<ForumPost> posts(long threadId, int offset, int limit) {
+        return jdbc.query("select data from forum_posts where thread_id = ? order by created_at, id offset ? limit ?",
+                data(ForumPost.class), threadId, offset, limit);
+    }
+
+    @Override
+    public void save(ForumPost p) {
+        jdbc.update("insert into forum_posts (id, thread_id, alliance_id, created_at, data) values (?, ?, ?, ?, ?::jsonb) "
+                        + "on conflict (id) do update set data = excluded.data",
+                p.id(), p.threadId(), p.allianceId(), ts(p.createdAt()), Json.write(p));
+    }
+
+    @Override
+    public void deletePost(long id) {
+        jdbc.update("delete from forum_posts where id = ?", id);
     }
 
     // --- zdarzenia

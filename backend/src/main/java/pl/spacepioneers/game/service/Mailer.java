@@ -16,7 +16,7 @@ public final class Mailer {
     public Message send(long recipientId, Long senderId, String senderName, Message.Type type,
                         String subject, String body, String payload, Instant at) {
         Message m = new Message(ctx.store().nextId("message"), recipientId, senderId, senderName, type,
-                subject, body, payload, at, false);
+                subject, body, payload, at, false, false);
         ctx.store().save(m);
         return m;
     }

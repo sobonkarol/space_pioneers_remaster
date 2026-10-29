@@ -11,6 +11,8 @@ import { AuthPage } from './pages/AuthPage';
 import { BuddiesPage } from './pages/BuddiesPage';
 import { BuildingsPage } from './pages/BuildingsPage';
 import { EmpirePage } from './pages/EmpirePage';
+import { ForumPage } from './pages/ForumPage';
+import { NotesPage } from './pages/NotesPage';
 import { FleetPage } from './pages/FleetPage';
 import { GalaxyPage } from './pages/GalaxyPage';
 import { HelpPage } from './pages/HelpPage';
@@ -61,6 +63,9 @@ function Routing() {
           <Route path="/alliance" element={<AlliancePage />} />
           <Route path="/alliance/:id" element={<AlliancePage />} />
           <Route path="/buddies" element={<BuddiesPage />} />
+          <Route path="/forum" element={<ForumPage />} />
+          <Route path="/forum/:threadId" element={<ForumPage />} />
+          <Route path="/notes" element={<NotesPage />} />
           <Route path="/ranking" element={<RankingPage />} />
           <Route path="/market" element={<MarketPage />} />
           <Route path="/settings" element={<SettingsPage />} />

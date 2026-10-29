@@ -32,10 +32,6 @@ export function SettingsPage() {
     if (ok) await Promise.all([reloadProfile(), refresh()]);
   };
 
-  const changeLanguage = async (language: string) => {
-    const ok = await action.run(() => api.post<Profile>('/me/language', { language }));
-    if (ok) await reloadProfile();
-  };
 
   const changePassword = async (e: FormEvent) => {
     e.preventDefault();
@@ -121,12 +117,6 @@ export function SettingsPage() {
             {t('settings.vacation.enable')}
           </button>
         )}
-      </Panel>
-      <Panel title={t('settings.language')}>
-        <select value={profile.language} onChange={(e) => changeLanguage(e.target.value)} aria-label={t('settings.language')}>
-          <option value="pl">Polski</option>
-          <option value="en">English</option>
-        </select>
       </Panel>
       <Panel title={t('settings.password')}>
         <form onSubmit={changePassword} className="compose-form">

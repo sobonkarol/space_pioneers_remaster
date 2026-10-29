@@ -18,6 +18,8 @@ sojusznicza ze stacjonowaniem i zawróceniem, księżyc w galaktyce i na liście
 `frontend/e2e/account.e2e.mjs` (serwer z `MAIL_DEV_OUTBOX=true`): potwierdzenie e-mail linkiem, reset hasła,
 zmiana adresu, zaplanowanie i anulowanie usunięcia konta, panel administratora: blokada, odrzucone logowanie
 z powodem, pręgierz, zdjęcie blokady, ogłoszenie, dziennik.
+`frontend/e2e/social.e2e.mjs`: forum sojuszu (wątek, odpowiedź, licznik nowych wpisów, przypięcie, zamknięcie,
+edycja), notatki, archiwum wiadomości i usuwanie wszystkich z zachowaniem archiwum.
 
 ## Braki (dokładna lista)
 
@@ -26,11 +28,10 @@ z powodem, pręgierz, zdjęcie blokady, ogłoszenie, dziennik.
    stylizacją klasycznego interfejsu, nie odwzorowaniem 1:1 — bez materiałów referencyjnych nie da się
    zweryfikować zgodności „95%”.
 2. **Liczby i nazwy** — rekonstrukcja (patrz `GAME_RULES.md`); do podmiany oryginalnymi tabelami.
-3. **Brak funkcji spotykanych w grach tego typu, niezaimplementowanych:** archiwum raportów poza skrzynką,
-   forum sojuszu, notatki.
 4. **Konto:** poczta wysyłana przez SMTP dopiero po ustawieniu `SPRING_MAIL_HOST` (bez niego linki trafiają do
    dziennika serwera); brak CAPTCHA przy rejestracji; konta nieaktywne nie są usuwane automatycznie.
-5. **Języki:** pełny PL; EN — nazwy i część interfejsu (reszta PL); brak DE/FR/IT/ES.
+5. **Języki:** gra jest wyłącznie po polsku (zgodnie z decyzją; przełącznik języka usunięty, częściowe
+   tłumaczenie EN pozostało w kodzie nieużywane).
 6. **Skalowanie:** zmiany stanu świata są serializowane jedną blokadą — wystarczy dla setek graczy online,
    ale nie dla tysięcy; ranking przeliczany całościowo co 5 min.
 7. **Bezpieczeństwo:** blokada logowania trzymana w pamięci instancji; brak limitów zapytań API i CAPTCHA.

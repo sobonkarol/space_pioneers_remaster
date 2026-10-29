@@ -7,6 +7,9 @@ import pl.spacepioneers.game.model.AttackUnion;
 import pl.spacepioneers.game.model.Buddy;
 import pl.spacepioneers.game.model.DebrisField;
 import pl.spacepioneers.game.model.Fleet;
+import pl.spacepioneers.game.model.ForumPost;
+import pl.spacepioneers.game.model.ForumThread;
+import pl.spacepioneers.game.model.Note;
 import pl.spacepioneers.game.model.Message;
 import pl.spacepioneers.game.model.Planet;
 import pl.spacepioneers.game.model.Player;
@@ -127,6 +130,47 @@ public interface GameStore {
     void save(Message message);
 
     void deleteMessage(long id);
+
+    List<Message> archivedMessages(long playerId, int limit);
+
+    int archivedCount(long playerId);
+
+    /**
+     * Usuwa wiadomosci spoza archiwum: przeczytane utworzone przed {@code readBefore} i wszystkie utworzone
+     * przed {@code anyBefore}. Zwraca liczbe usunietych.
+     */
+    int purgeMessages(java.time.Instant readBefore, java.time.Instant anyBefore);
+
+    // --- notatki
+
+    Optional<Note> note(long id);
+
+    List<Note> notesOf(long ownerId);
+
+    void save(Note note);
+
+    void deleteNote(long id);
+
+    // --- forum sojuszu
+
+    Optional<ForumThread> thread(long id);
+
+    /** Watki sojuszu: przypiete najpierw, potem od najnowszego wpisu. */
+    List<ForumThread> threads(long allianceId);
+
+    void save(ForumThread thread);
+
+    /** Usuwa watek wraz z wpisami. */
+    void deleteThread(long id);
+
+    Optional<ForumPost> post(long id);
+
+    /** Wpisy watku od najstarszego. */
+    List<ForumPost> posts(long threadId, int offset, int limit);
+
+    void save(ForumPost post);
+
+    void deletePost(long id);
 
     // --- sojusze
     Optional<Alliance> alliance(long id);

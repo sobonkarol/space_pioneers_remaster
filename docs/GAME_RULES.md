@@ -65,3 +65,10 @@ gatunku (SP powstało jako alternatywa dla OGame). Wszystkie liczby siedzą w pl
   członek; pusty sojusz jest rozwiązywany.
 - Pierwszy gracz serwera jest administratorem i może nadawać uprawnienia. Blokada (1 h – 365 dni albo na stałe)
   unieważnia sesje, uniemożliwia logowanie, włącza wymuszony tryb urlopowy i trafia na publiczny pręgierz.
+
+## Wiadomości, notatki, forum
+- Wiadomości spoza archiwum: przeczytane usuwane po 7 dniach, nieprzeczytane po 30. Archiwum mieści 100 wiadomości.
+- Notatki: do 100 na gracza, priorytet niski / normalny / ważny.
+- Forum sojuszu widoczne tylko dla członków; założyciel i oficerowie przypinają, zamykają i usuwają wątki
+  i wpisy; autor edytuje i usuwa własne wpisy (usunięcie pierwszego wpisu usuwa wątek). 20 wpisów na stronę,
+  nowe wpisy oznaczane w menu i na liście wątków.

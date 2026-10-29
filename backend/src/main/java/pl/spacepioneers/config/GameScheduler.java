@@ -53,6 +53,12 @@ public class GameScheduler {
     public void cleanupSessions() {
         sessions.deleteExpired();
         tokens.deleteExpired();
+        try {
+            int n = game.messages().purgeOld();
+            if (n > 0) log.info("Usunieto stare wiadomosci: {}", n);
+        } catch (RuntimeException e) {
+            log.error("Blad usuwania starych wiadomosci", e);
+        }
     }
 
     /** Usuwanie kont, ktorych 7-dniowy okres na rozmyslenie minal. */

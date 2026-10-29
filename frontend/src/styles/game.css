@@ -325,3 +325,15 @@ textarea { width: 100%; resize: vertical; }
 .admin-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
 .admin-actions .btn.danger { margin-top: 0; }
 .owner.flag-b { color: #ff6b6b; text-decoration: line-through; }
+
+/* archiwum, notatki, forum */
+.archived-star { color: #f0c040; }
+.note-row.priority-2 td:first-child { border-left: 3px solid #e0a030; }
+.note-row.priority-0 td { opacity: 0.8; }
+.forum-table tr.unread a { font-weight: bold; }
+.forum-new { color: #f0c040; font-size: 11px; text-transform: uppercase; }
+.forum-posts { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.forum-post { border: 1px solid #2a3d5c; background: rgba(10, 20, 40, 0.55); padding: 8px 10px; }
+.forum-post-head { display: flex; gap: 10px; align-items: baseline; margin-bottom: 6px; border-bottom: 1px solid #1d2c45; padding-bottom: 4px; }
+.forum-post-actions { margin-left: auto; display: flex; gap: 8px; }
+.pager { display: flex; gap: 4px; margin: 8px 0; flex-wrap: wrap; }

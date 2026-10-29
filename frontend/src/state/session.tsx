@@ -46,7 +46,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     (auth: AuthResponse) => {
       setToken(auth.token);
       setProfile(auth.profile);
-      setLanguage(auth.profile.language);
+      setLanguage('pl'); // gra jest w wersji polskiej
       setPlanetId(auth.profile.homePlanetId);
     },
     [setPlanetId],
@@ -55,7 +55,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const reloadProfile = useCallback(async () => {
     const p = await api.get<Profile>('/me');
     setProfile(p);
-    setLanguage(p.language);
+    setLanguage('pl');
   }, []);
 
   useEffect(() => {

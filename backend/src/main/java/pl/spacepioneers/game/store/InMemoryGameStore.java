@@ -8,6 +8,9 @@ import pl.spacepioneers.game.model.Buddy;
 import pl.spacepioneers.game.model.BuildOrder;
 import pl.spacepioneers.game.model.DebrisField;
 import pl.spacepioneers.game.model.Fleet;
+import pl.spacepioneers.game.model.ForumPost;
+import pl.spacepioneers.game.model.ForumThread;
+import pl.spacepioneers.game.model.Note;
 import pl.spacepioneers.game.model.Message;
 import pl.spacepioneers.game.model.Planet;
 import pl.spacepioneers.game.model.Player;
@@ -47,6 +50,9 @@ public class InMemoryGameStore implements GameStore {
         Map<Long, Treaty> treaties = new TreeMap<>();
         Map<Long, AttackUnion> unions = new TreeMap<>();
         Map<Long, Buddy> buddies = new TreeMap<>();
+        Map<Long, Note> notes = new TreeMap<>();
+        Map<Long, ForumThread> threads = new TreeMap<>();
+        Map<Long, ForumPost> posts = new TreeMap<>();
 
         State copy() {
             State s = new State();
@@ -61,6 +67,9 @@ public class InMemoryGameStore implements GameStore {
             s.treaties = new TreeMap<>(treaties);
             s.unions = new TreeMap<>(unions);
             s.buddies = new TreeMap<>(buddies);
+            s.notes = new TreeMap<>(notes);
+            s.threads = new TreeMap<>(threads);
+            s.posts = new TreeMap<>(posts);
             return s;
         }
     }
@@ -183,6 +192,7 @@ public class InMemoryGameStore implements GameStore {
     public void deletePlayer(long id) {
         state.players.remove(id);
         state.messages.values().removeIf(m -> m.recipientId() == id);
+        state.notes.values().removeIf(n -> n.ownerId() == id);
         state.planets.values().removeIf(p -> p.getOwnerId() == id);
         state.fleets.values().removeIf(f -> f.getOwnerId() == id);
         state.buddies.values().removeIf(b -> b.requesterId() == id || b.addresseeId() == id);
@@ -321,6 +331,97 @@ public class InMemoryGameStore implements GameStore {
         state.messages.remove(id);
     }
 
+    @Override
+    public List<Message> archivedMessages(long playerId, int limit) {
+        return state.messages.values().stream().filter(m -> m.recipientId() == playerId && m.archived())
+                .sorted(Comparator.comparing(Message::createdAt).thenComparingLong(Message::id).reversed())
+                .limit(limit).map(Json::copy).toList();
+    }
+
+    @Override
+    public int archivedCount(long playerId) {
+        return (int) state.messages.values().stream().filter(m -> m.recipientId() == playerId && m.archived()).count();
+    }
+
+    @Override
+    public int purgeMessages(java.time.Instant readBefore, java.time.Instant anyBefore) {
+        int before = state.messages.size();
+        state.messages.values().removeIf(m -> !m.archived()
+                && ((m.read() && m.createdAt().isBefore(readBefore)) || m.createdAt().isBefore(anyBefore)));
+        return before - state.messages.size();
+    }
+
+    // --- notatki
+    @Override
+    public Optional<Note> note(long id) {
+        return co(state.notes.get(id));
+    }
+
+    @Override
+    public List<Note> notesOf(long ownerId) {
+        return state.notes.values().stream().filter(n -> n.ownerId() == ownerId)
+                .sorted(Comparator.comparingInt(Note::priority).reversed().thenComparing(Comparator.comparing(Note::updatedAt).reversed()))
+                .map(Json::copy).toList();
+    }
+
+    @Override
+    public void save(Note note) {
+        state.notes.put(note.id(), c(note));
+    }
+
+    @Override
+    public void deleteNote(long id) {
+        state.notes.remove(id);
+    }
+
+    // --- forum
+    @Override
+    public Optional<ForumThread> thread(long id) {
+        return co(state.threads.get(id));
+    }
+
+    @Override
+    public List<ForumThread> threads(long allianceId) {
+        return state.threads.values().stream().filter(t -> t.allianceId() == allianceId)
+                .sorted(Comparator.comparing(ForumThread::pinned).reversed()
+                        .thenComparing(Comparator.comparing(ForumThread::lastPostAt).reversed())
+                        .thenComparing(Comparator.comparingLong(ForumThread::id).reversed()))
+                .map(Json::copy).toList();
+    }
+
+    @Override
+    public void save(ForumThread thread) {
+        state.threads.put(thread.id(), c(thread));
+    }
+
+    @Override
+    public void deleteThread(long id) {
+        state.threads.remove(id);
+        state.posts.values().removeIf(p -> p.threadId() == id);
+    }
+
+    @Override
+    public Optional<ForumPost> post(long id) {
+        return co(state.posts.get(id));
+    }
+
+    @Override
+    public List<ForumPost> posts(long threadId, int offset, int limit) {
+        return state.posts.values().stream().filter(p -> p.threadId() == threadId)
+                .sorted(Comparator.comparing(ForumPost::createdAt).thenComparingLong(ForumPost::id))
+                .skip(offset).limit(limit).map(Json::copy).toList();
+    }
+
+    @Override
+    public void save(ForumPost post) {
+        state.posts.put(post.id(), c(post));
+    }
+
+    @Override
+    public void deletePost(long id) {
+        state.posts.remove(id);
+    }
+
     // --- sojusze
     @Override
     public Optional<Alliance> alliance(long id) {
@@ -345,6 +446,8 @@ public class InMemoryGameStore implements GameStore {
     @Override
     public void deleteAlliance(long id) {
         state.alliances.remove(id);
+        state.threads.values().removeIf(t -> t.allianceId() == id);
+        state.posts.values().removeIf(p -> p.allianceId() == id);
     }
 
     @Override

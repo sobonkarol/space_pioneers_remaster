@@ -34,6 +34,8 @@ public class Player {
     /** Urlop wymuszony blokada - zdejmowany razem z blokada. */
     private boolean banVacation;
     private Instant deletionAt;
+    /** Ostatni przeczytany wpis w kazdym watku forum sojuszu (do oznaczania nowych wpisow). */
+    private Map<Long, Long> forumRead = new HashMap<>();
 
     public Player() {
     }
@@ -116,4 +118,6 @@ public class Player {
     public void setBanVacation(boolean banVacation) { this.banVacation = banVacation; }
     public Instant getDeletionAt() { return deletionAt; }
     public void setDeletionAt(Instant deletionAt) { this.deletionAt = deletionAt; }
+    public Map<Long, Long> getForumRead() { return forumRead; }
+    public void setForumRead(Map<Long, Long> forumRead) { this.forumRead = forumRead == null ? new HashMap<>() : new HashMap<>(forumRead); }
 }

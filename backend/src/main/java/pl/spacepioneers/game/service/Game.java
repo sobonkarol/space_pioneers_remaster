@@ -18,6 +18,8 @@ public final class Game {
     private final BuddyService buddies;
     private final AccountService accounts;
     private final AdminService admin;
+    private final NoteService notes;
+    private final ForumService forum;
 
     public Game(GameContext ctx) {
         this.ctx = ctx;
@@ -37,6 +39,8 @@ public final class Game {
         this.buddies = new BuddyService(ctx, world, mailer);
         this.accounts = new AccountService(ctx, world, mailer);
         this.admin = new AdminService(ctx, world, mailer, accounts);
+        this.notes = new NoteService(ctx, world);
+        this.forum = new ForumService(ctx, world);
     }
 
     /** Obsluguje zalegle zdarzenia (wywolywane cyklicznie przez harmonogram). */
@@ -58,4 +62,6 @@ public final class Game {
     public BuddyService buddies() { return buddies; }
     public AccountService accounts() { return accounts; }
     public AdminService admin() { return admin; }
+    public NoteService notes() { return notes; }
+    public ForumService forum() { return forum; }
 }

@@ -97,6 +97,7 @@ export interface Overview {
   branch: Branch;
   canChooseBranch: boolean;
   vacation: boolean;
+  forumUnread: number;
 }
 
 export type Branch = 'NONE' | 'TRADER' | 'WARRIOR';
@@ -245,6 +246,7 @@ export interface GameMessage {
   payload?: CombatReport | EspionageReport;
   createdAt: string;
   read: boolean;
+  archived: boolean;
 }
 
 export interface CombatSide {
@@ -551,4 +553,52 @@ export interface AdminLogEntry {
   targetName?: string;
   details?: string;
   until?: string;
+}
+
+export interface Note {
+  id: number;
+  title: string;
+  text: string;
+  priority: 0 | 1 | 2;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ForumThreadView {
+  id: number;
+  title: string;
+  authorName: string;
+  createdAt: string;
+  lastPostAt: string;
+  lastPostAuthor: string;
+  posts: number;
+  pinned: boolean;
+  locked: boolean;
+  unread: boolean;
+}
+
+export interface ForumView {
+  threads: ForumThreadView[];
+  canModerate: boolean;
+  unread: number;
+}
+
+export interface ForumPostView {
+  id: number;
+  authorId: number;
+  authorName: string;
+  text: string;
+  createdAt: string;
+  editedAt?: string;
+  canEdit: boolean;
+  canDelete: boolean;
+}
+
+export interface ForumThreadPage {
+  thread: ForumThreadView;
+  posts: ForumPostView[];
+  page: number;
+  pages: number;
+  canModerate: boolean;
+  canReply: boolean;
 }

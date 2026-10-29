@@ -166,7 +166,9 @@ export function Layout() {
           <ul>
             {link('/messages', t('menu.messages'), unread > 0 ? String(unread) : undefined)}
             {link('/alliance', t('menu.alliance'))}
+            {profile?.allianceId && link('/forum', t('menu.forum'), (overview?.forumUnread ?? 0) > 0 ? String(overview?.forumUnread) : undefined)}
             {link('/buddies', t('menu.buddies'))}
+            {link('/notes', t('menu.notes'))}
             {link('/ranking', t('menu.ranking'))}
             {isTrader && link('/market', t('menu.market'))}
           </ul>

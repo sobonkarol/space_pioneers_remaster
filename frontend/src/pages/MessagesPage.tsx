@@ -8,19 +8,26 @@ import { t } from '../i18n';
 import { dateTime } from '../lib/format';
 import { useGame } from '../state/game';
 
-const FOLDERS: (MessageType | 'ALL')[] = ['ALL', 'PRIVATE', 'COMBAT', 'ESPIONAGE', 'FLEET', 'ALLIANCE', 'SYSTEM'];
+type Folder = MessageType | 'ALL' | 'ARCHIVE';
+const FOLDERS: Folder[] = ['ALL', 'PRIVATE', 'COMBAT', 'ESPIONAGE', 'FLEET', 'ALLIANCE', 'SYSTEM', 'ARCHIVE'];
+
+function folderLabel(f: Folder): string {
+  if (f === 'ALL') return t('messages.all');
+  if (f === 'ARCHIVE') return t('messages.archive');
+  return t(`messages.${f}`);
+}
 
 export function MessagesPage() {
   const [params] = useSearchParams();
   const { refresh } = useGame();
-  const [folder, setFolder] = useState<MessageType | 'ALL'>('ALL');
+  const [folder, setFolder] = useState<Folder>('ALL');
   const [open, setOpen] = useState<GameMessage | null>(null);
   const [composeTo, setComposeTo] = useState(params.get('to') ?? '');
   const [composing, setComposing] = useState(Boolean(params.get('to')));
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const list = useLoad(
-    () => api.get<GameMessage[]>(`/messages${folder === 'ALL' ? '' : `?type=${folder}`}`),
+    () => api.get<GameMessage[]>(folder === 'ARCHIVE' ? '/messages/archive' : `/messages${folder === 'ALL' ? '' : `?type=${folder}`}`),
     [folder],
   );
   const action = useAction();
@@ -37,6 +44,27 @@ export function MessagesPage() {
     await action.run(() => api.del(`/messages/${id}`));
     setOpen(null);
     await list.reload();
+  };
+
+  const toggleArchive = async (m: GameMessage) => {
+    let updated: GameMessage | null = null;
+    const ok = await action.run(async () => {
+      updated = await api.post<GameMessage>(`/messages/${m.id}/archive`, { archived: !m.archived });
+    }, m.archived ? t('messages.unarchived') : t('messages.archived'));
+    if (ok) {
+      if (open?.id === m.id) setOpen(updated);
+      await list.reload();
+    }
+  };
+
+  const deleteAll = async () => {
+    if (!window.confirm(t('messages.deleteAllConfirm'))) return;
+    const query = folder === 'ALL' ? '' : `?type=${folder}`;
+    const ok = await action.run(() => api.del(`/messages${query}`), t('messages.deletedAll'));
+    if (ok) {
+      setOpen(null);
+      await Promise.all([list.reload(), refresh()]);
+    }
   };
 
   const send = async (e: FormEvent) => {
@@ -63,7 +91,7 @@ export function MessagesPage() {
       <div className="tabs">
         {FOLDERS.map((f) => (
           <button key={f} type="button" className={folder === f ? 'active' : ''} onClick={() => { setFolder(f); setOpen(null); }}>
-            {f === 'ALL' ? t('messages.all') : t(`messages.${f}`)}
+            {folderLabel(f)}
           </button>
         ))}
         <button type="button" className={composing ? 'active' : ''} onClick={() => setComposing((c) => !c)}>
@@ -111,6 +139,9 @@ export function MessagesPage() {
                 {t('messages.reply')}
               </button>
             )}
+            <button type="button" className="btn" onClick={() => toggleArchive(open)}>
+              {open.archived ? t('messages.unarchive') : t('messages.toArchive')}
+            </button>
             <button type="button" className="btn" onClick={() => remove(open.id)}>
               {t('common.delete')}
             </button>
@@ -121,7 +152,8 @@ export function MessagesPage() {
         </Panel>
       )}
 
-      <Panel title={folder === 'ALL' ? t('messages.all') : t(`messages.${folder}`)}>
+      <Panel title={folderLabel(folder)}>
+        {folder === 'ARCHIVE' && <p className="muted small">{t('messages.archiveHint')}</p>}
         {list.loading && !list.data ? (
           <Loading />
         ) : (list.data ?? []).length === 0 ? (
@@ -143,6 +175,7 @@ export function MessagesPage() {
                     <td className="nowrap">{dateTime(m.createdAt)}</td>
                     <td>{m.senderName ?? t(`messages.${m.type}`)}</td>
                     <td>
+                      {m.archived && <span className="archived-star" title={t('messages.archive')}>★ </span>}
                       <button type="button" className="link-button" onClick={() => openMessage(m)}>
                         {m.subject}
                       </button>
@@ -167,6 +200,11 @@ export function MessagesPage() {
             >
               {t('messages.readAll')}
             </button>
+            {folder !== 'ARCHIVE' && (
+              <button type="button" className="link-button" onClick={deleteAll}>
+                {t('messages.deleteAll')}
+              </button>
+            )}
           </>
         )}
       </Panel>
