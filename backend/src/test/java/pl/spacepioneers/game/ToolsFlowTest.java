@@ -36,9 +36,12 @@ public class ToolsFlowTest {
     @Test
     public void searchPlayersAlliancesAndPlanets() {
         List<SearchService.Hit> players = f.game.search().search("players", "karol");
-        assertEquals(List.of("Karol_Wielki", "Karolina"), players.stream().map(SearchService.Hit::name).toList());
-        assertEquals("KRL", players.get(0).allianceTag());
-        assertTrue(players.get(0).coordinates() != null);
+        // kolejnosc alfabetyczna zalezy od ustawien jezykowych bazy, wiec porownujemy zbiory
+        assertEquals(java.util.Set.of("Karol_Wielki", "Karolina"),
+                players.stream().map(SearchService.Hit::name).collect(java.util.stream.Collectors.toSet()));
+        SearchService.Hit karolHit = players.stream().filter(h -> h.name().equals("Karol_Wielki")).findFirst().orElseThrow();
+        assertEquals("KRL", karolHit.allianceTag());
+        assertTrue(karolHit.coordinates() != null);
         // znaki specjalne nie dzialaja jak wzorzec
         assertTrue(f.game.search().search("players", "l_W").stream().anyMatch(h -> h.name().equals("Karol_Wielki")));
         assertTrue(f.game.search().search("players", "%%").isEmpty());
