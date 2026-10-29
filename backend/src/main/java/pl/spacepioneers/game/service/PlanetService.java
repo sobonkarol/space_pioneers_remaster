@@ -80,6 +80,27 @@ public final class PlanetService extends ServiceBase {
         });
     }
 
+    /** Zestawienie wszystkich planet gracza (widok "Imperium"). */
+    public List<Views.EmpirePlanet> empire(long playerId) {
+        return tx(now -> {
+            Player player = ctx.requirePlayer(playerId);
+            TechLevels tech = new TechLevels(player.getResearch());
+            List<Views.EmpirePlanet> out = new ArrayList<>();
+            List<Planet> planets = new ArrayList<>(ctx.store().planetsOf(playerId));
+            planets.sort(Comparator.comparing((Planet p) -> !p.isHomeworld()).thenComparingLong(Planet::getId));
+            for (Planet planet : planets) {
+                world.advance(planet, player, now);
+                ctx.store().save(planet);
+                PlanetSnapshot snap = planet.snapshot();
+                ProductionReport prod = ctx.economy().production(snap, tech);
+                out.add(new Views.EmpirePlanet(ref(planet), Economy.usedFields(snap), ctx.economy().maxFields(snap),
+                        planet.getResources().floor(), prod.perHour(), prod.energyBalance(),
+                        Map.copyOf(planet.getBuildings()), Map.copyOf(planet.getUnits())));
+            }
+            return out;
+        });
+    }
+
     public List<Views.PlanetRef> planets(long playerId) {
         return tx(now -> planetRefs(playerId));
     }

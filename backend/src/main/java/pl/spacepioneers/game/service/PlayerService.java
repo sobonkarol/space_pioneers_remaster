@@ -37,7 +37,8 @@ public final class PlayerService extends ServiceBase {
 
     public record Profile(long id, String username, String email, String branch, boolean canChooseBranch,
                           boolean vacation, Instant vacationMinimumEnd, String language, double points, int rank,
-                          Long allianceId, String allianceRank, long homePlanetId, boolean admin) {
+                          Long allianceId, String allianceRank, long homePlanetId, boolean admin,
+                          Long pendingApplicationAllianceId) {
     }
 
     /**
@@ -141,7 +142,8 @@ public final class PlayerService extends ServiceBase {
                 p.getBranch() == Branch.NONE && p.getScore().total() >= Rules.BRANCH_MIN_POINTS,
                 p.inVacation(), p.getVacationUntil(), p.getLanguage(), Math.floor(p.getScore().total()), p.getRank(),
                 p.getAllianceId(), p.getAllianceRank() == null ? null : p.getAllianceRank().name(),
-                p.getHomePlanetId(), p.isAdmin());
+                p.getHomePlanetId(), p.isAdmin(),
+                ctx.store().applicationOf(p.getId()).map(a -> a.allianceId()).orElse(null));
     }
 
     /** Aktualizuje czas ostatniej aktywnosci (co najwyzej raz na minute, aby ograniczyc zapisy). */

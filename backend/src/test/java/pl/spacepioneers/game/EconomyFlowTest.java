@@ -234,6 +234,16 @@ public class EconomyFlowTest {
     }
 
     @Test
+    public void empireListsAllPlanets() {
+        Player p = f.register("Karol");
+        f.setBuildings(p.getHomePlanetId(), Map.of("metal_mine", 3));
+        var empire = f.game.planets().empire(p.getId());
+        assertEquals(1, empire.size());
+        assertEquals(3, (int) empire.get(0).buildings().get("metal_mine"));
+        assertTrue(empire.get(0).planet().homeworld());
+    }
+
+    @Test
     public void renameAndAccessControl() {
         Player p = f.register("Karol");
         Player other = f.register("Anna");

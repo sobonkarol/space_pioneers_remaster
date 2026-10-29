@@ -47,6 +47,11 @@ public class PlanetController {
         return game.planets().planets(me.playerId());
     }
 
+    @GetMapping("/empire")
+    public List<Views.EmpirePlanet> empire(@AuthenticationPrincipal PlayerPrincipal me) {
+        return game.planets().empire(me.playerId());
+    }
+
     @GetMapping("/planets/{planetId}/overview")
     public Views.Overview overview(@AuthenticationPrincipal PlayerPrincipal me, @PathVariable long planetId) {
         game.players().touch(me.playerId());

@@ -85,6 +85,11 @@ public final class Views {
                                 List<ProductionLine> lines) {
     }
 
+    public record EmpirePlanet(PlanetRef planet, int fieldsUsed, int fieldsMax, Resources resources,
+                               Resources perHour, double energyBalance, Map<String, Integer> buildings,
+                               Map<String, Long> units) {
+    }
+
     public record GalaxyRow(int position, Long planetId, String planetName, String planetType, int imageVariant,
                             Long ownerId, String ownerName, Integer ownerRank, Long allianceId, String allianceTag,
                             List<String> flags, Resources debris, boolean own) {

@@ -12,6 +12,10 @@ spring:
   threads:
     virtual:
       enabled: true
+  web:
+    resources:
+      # zbudowany frontend: wbudowany w jar (classpath:/static) albo wskazany katalog FRONTEND_DIR
+      static-locations: classpath:/static/,file:${FRONTEND_DIR:../frontend/dist}/
 
 server:
   port: ${PORT:8080}
@@ -33,7 +37,8 @@ spacepioneers:
     systems: ${UNIVERSE_SYSTEMS:200}
     positions: 15
     speed: ${UNIVERSE_SPEED:1.0}
+    newbie-protection-points: ${UNIVERSE_NEWBIE_POINTS:5000}
   scheduler:
     enabled: true
     tick-ms: 1000
-    ranking-ms: 300000
+    ranking-ms: ${RANKING_INTERVAL_MS:300000}
