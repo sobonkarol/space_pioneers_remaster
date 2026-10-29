@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: spacepioneers
+      POSTGRES_USER: spacepioneers
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-zmien-mnie}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spacepioneers"]
+      interval: 5s
+      retries: 10
+
+  game:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/spacepioneers
+      DB_USER: spacepioneers
+      DB_PASSWORD: ${DB_PASSWORD:-zmien-mnie}
+      UNIVERSE_NAME: ${UNIVERSE_NAME:-Galaktyka 1}
+      UNIVERSE_SPEED: ${UNIVERSE_SPEED:-1}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8080}
+      MAIL_FROM: ${MAIL_FROM:-no-reply@spacepioneers.local}
+      # odkomentuj, aby wysylac poczte przez SMTP:
+      # SPRING_MAIL_HOST: smtp.example.com
+      # SPRING_MAIL_PORT: 587
+      # SPRING_MAIL_USERNAME: uzytkownik
+      # SPRING_MAIL_PASSWORD: haslo
+      # SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
+      # SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+    ports:
+      - "8080:8080"
+
+volumes:
+  db-data:

@@ -1,0 +1,33 @@
+{
+  "_comment": "Definicje badan. Koszt poziomu L = baseCost * costFactor^(L-1). Wartosci sa rekonstrukcja.",
+  "research": [
+    {"key": "energy_tech", "baseCost": {"metal": 0, "crystal": 800, "tritium": 400}, "costFactor": 2.0,
+     "requirements": {"buildings": {"research_lab": 1}}},
+    {"key": "laser_tech", "baseCost": {"metal": 200, "crystal": 100, "tritium": 0}, "costFactor": 2.0,
+     "requirements": {"buildings": {"research_lab": 1}, "research": {"energy_tech": 2}}},
+    {"key": "ion_tech", "baseCost": {"metal": 1000, "crystal": 300, "tritium": 100}, "costFactor": 2.0,
+     "requirements": {"buildings": {"research_lab": 4}, "research": {"laser_tech": 5, "energy_tech": 4}}},
+    {"key": "hyperspace_tech", "baseCost": {"metal": 0, "crystal": 4000, "tritium": 2000}, "costFactor": 2.0,
+     "requirements": {"buildings": {"research_lab": 7}, "research": {"energy_tech": 5, "shielding_tech": 5}}},
+    {"key": "plasma_tech", "baseCost": {"metal": 2000, "crystal": 4000, "tritium": 1000}, "costFactor": 2.0,
+     "requirements": {"buildings": {"research_lab": 4}, "research": {"energy_tech": 8, "laser_tech": 10, "ion_tech": 5}}},
+    {"key": "combustion_drive", "baseCost": {"metal": 400, "crystal": 0, "tritium": 600}, "costFactor": 2.0,
+     "requirements": {"buildings": {"research_lab": 1}, "research": {"energy_tech": 1}}},
+    {"key": "impulse_drive", "baseCost": {"metal": 2000, "crystal": 4000, "tritium": 600}, "costFactor": 2.0,
+     "requirements": {"buildings": {"research_lab": 2}, "research": {"energy_tech": 1}}},
+    {"key": "hyperspace_drive", "baseCost": {"metal": 10000, "crystal": 20000, "tritium": 6000}, "costFactor": 2.0,
+     "requirements": {"buildings": {"research_lab": 7}, "research": {"hyperspace_tech": 3}}},
+    {"key": "espionage_tech", "baseCost": {"metal": 200, "crystal": 1000, "tritium": 200}, "costFactor": 2.0,
+     "requirements": {"buildings": {"research_lab": 3}}},
+    {"key": "computer_tech", "baseCost": {"metal": 0, "crystal": 400, "tritium": 600}, "costFactor": 2.0,
+     "requirements": {"buildings": {"research_lab": 1}}},
+    {"key": "astrophysics", "baseCost": {"metal": 4000, "crystal": 8000, "tritium": 4000}, "costFactor": 1.75,
+     "requirements": {"buildings": {"research_lab": 3}, "research": {"espionage_tech": 4, "impulse_drive": 3}}},
+    {"key": "weapons_tech", "baseCost": {"metal": 800, "crystal": 200, "tritium": 0}, "costFactor": 2.0,
+     "requirements": {"buildings": {"research_lab": 4}}},
+    {"key": "shielding_tech", "baseCost": {"metal": 200, "crystal": 600, "tritium": 0}, "costFactor": 2.0,
+     "requirements": {"buildings": {"research_lab": 6}, "research": {"energy_tech": 3}}},
+    {"key": "armour_tech", "baseCost": {"metal": 1000, "crystal": 0, "tritium": 0}, "costFactor": 2.0,
+     "requirements": {"buildings": {"research_lab": 2}}}
+  ]
+}

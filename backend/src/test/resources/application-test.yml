@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: ${TEST_DB_URL:jdbc:postgresql://localhost:5432/spacepioneers_test}
+    username: ${TEST_DB_USER:postgres}
+    password: ${TEST_DB_PASSWORD:}
+  flyway:
+    clean-disabled: false
+spacepioneers:
+  rate-limit:
+    auth-per-minute: 1000
+  mail:
+    dev-outbox: true
+  universe:
+    galaxies: 2
+    systems: 20
+  scheduler:
+    enabled: false

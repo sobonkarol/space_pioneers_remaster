@@ -1,36 +1,57 @@
 # Space Pioneers Remaster
 
-Przeglądarkowa gra MMO odtwarzająca klasyczne **Space Pioneers** (2004–2017).
+Przeglądarkowa gra MMO odtwarzająca klasyczne **Space Pioneers** (2004–2017): ekonomia, budynki, badania,
+floty, walki, galaktyka, kolonizacja, sojusze i rankingi.
 
 ## Struktura
 
 | Katalog | Zawartość |
 |---|---|
-| `backend/` | Spring Boot 3 (Java 21) — API, silnik reguł gry, harmonogram zdarzeń |
-| `backend/src/main/java/pl/spacepioneers/engine` | Czysty silnik reguł (bez Springa) — ekonomia, kolejki, walka, ruch flot |
-| `backend/src/main/resources/gamedata` | Dane gry (budynki, badania, statki, obrona) — sterują silnikiem |
-| `backend/src/main/resources/db/migration` | Migracje Flyway dla PostgreSQL |
-| `frontend/` | React + TypeScript + Vite — interfejs gry |
-| `frontend/public/assets/original` | Miejsce na licencjonowane oryginalne grafiki (patrz `docs/ASSETS.md`) |
-| `docs/` | Dokumentacja projektu, reguł i stanu prac |
+| `backend/` | Spring Boot 3 (Java 21) + PostgreSQL |
+| `backend/.../engine` | czysty silnik reguł (bez Springa) |
+| `backend/.../game` | logika rozgrywki (bez Springa), port `GameStore` |
+| `backend/.../infra`, `api`, `security`, `config` | PostgreSQL, REST, uwierzytelnianie, harmonogram |
+| `backend/src/main/resources/gamedata` | dane gry (JSON) |
+| `frontend/` | React + TypeScript + Vite |
+| `frontend/public/assets/original` | licencjonowane grafiki (patrz `docs/ASSETS.md`) |
+| `docs/` | zasady (`GAME_RULES.md`), grafiki (`ASSETS.md`), stan prac i braki (`STATUS.md`) |
 
-## Wymagania
+## Uruchomienie
 
-- Java 21, Maven 3.9+
-- Node.js 20+
-- PostgreSQL 15+
-
-## Uruchomienie lokalne
-
+### Docker
 ```bash
-# baza
-createdb -U postgres spacepioneers
-
-# backend (port 8080)
-cd backend && mvn spring-boot:run
-
-# frontend (port 5173, proxy /api -> 8080)
-cd frontend && npm install && npm run dev
+DB_PASSWORD=sekret docker compose up --build
+# http://localhost:8080
 ```
 
-Szczegóły i stan prac: [`docs/STATUS.md`](docs/STATUS.md).
+### Lokalnie
+```bash
+createdb spacepioneers && createdb spacepioneers_test
+cd frontend && npm install && npm run build && cd ..
+cd backend && FRONTEND_DIR=../frontend/dist mvn spring-boot:run
+# albo tryb deweloperski frontendu: cd frontend && npm run dev  (http://localhost:5173, proxy /api)
+```
+
+Ustawienia galaktyki (zmienne środowiskowe): `UNIVERSE_NAME`, `UNIVERSE_SPEED`, `UNIVERSE_GALAXIES`,
+`UNIVERSE_SYSTEMS`, `UNIVERSE_NEWBIE_POINTS`; baza: `DB_URL`, `DB_USER`, `DB_PASSWORD`.
+Poczta (potwierdzanie adresu, reset hasła): `PUBLIC_URL` (adres gry w linkach), `MAIL_FROM` oraz serwer SMTP
+`SPRING_MAIL_HOST`, `SPRING_MAIL_PORT`, `SPRING_MAIL_USERNAME`, `SPRING_MAIL_PASSWORD`
+(np. `SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true`). Bez SMTP wiadomości trafiają do dziennika serwera.
+Limity zapytań: `RATE_LIMIT_AUTH_PER_MINUTE` (logowanie/rejestracja/reset, na IP, domyślnie 20),
+`RATE_LIMIT_API_PER_MINUTE` (600) i `RATE_LIMIT_API_BURST` (120) na sesję; za proxy ustaw
+`SERVER_FORWARD_HEADERS_STRATEGY=native`. Usuwanie nieaktywnych kont: `INACTIVE_DELETE_DAYS` (0 = wyłączone).
+Test obciążeniowy: [`docs/LOADTEST.md`](docs/LOADTEST.md).
+Pierwszy zarejestrowany gracz zostaje administratorem (menu „Administracja”).
+
+## Testy
+
+```bash
+cd backend && mvn test          # silnik, scenariusze (pamięć + PostgreSQL), API
+cd frontend && npm test         # testy jednostkowe
+# E2E w przeglądarce (szybka galaktyka, patrz nagłówek pliku):
+cd frontend && CHROME_PATH=/usr/bin/chromium node e2e/gameplay.e2e.mjs
+cd frontend && CHROME_PATH=/usr/bin/chromium node e2e/advanced.e2e.mjs
+cd frontend && CHROME_PATH=/usr/bin/chromium node e2e/account.e2e.mjs   # serwer z MAIL_DEV_OUTBOX=true
+```
+
+Stan prac i lista braków: [`docs/STATUS.md`](docs/STATUS.md).
