@@ -7,6 +7,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import pl.spacepioneers.game.service.Game;
 import pl.spacepioneers.account.AccountTokens;
+import pl.spacepioneers.security.LoginThrottle;
+import pl.spacepioneers.security.RateLimitFilter;
 import pl.spacepioneers.security.SessionService;
 
 import java.util.List;
@@ -24,11 +26,19 @@ public class GameScheduler {
     private final Game game;
     private final SessionService sessions;
     private final AccountTokens tokens;
+    private final LoginThrottle throttle;
+    private final RateLimitFilter rateLimit;
 
-    public GameScheduler(Game game, SessionService sessions, AccountTokens tokens) {
+    @org.springframework.beans.factory.annotation.Value("${spacepioneers.accounts.inactive-delete-days:0}")
+    private int inactiveDeleteDays;
+
+    public GameScheduler(Game game, SessionService sessions, AccountTokens tokens, LoginThrottle throttle,
+                         RateLimitFilter rateLimit) {
         this.game = game;
         this.sessions = sessions;
         this.tokens = tokens;
+        this.throttle = throttle;
+        this.rateLimit = rateLimit;
     }
 
     @Scheduled(fixedDelayString = "${spacepioneers.scheduler.tick-ms:1000}")
@@ -53,6 +63,8 @@ public class GameScheduler {
     public void cleanupSessions() {
         sessions.deleteExpired();
         tokens.deleteExpired();
+        throttle.deleteExpired();
+        rateLimit.cleanup();
         try {
             int n = game.messages().purgeOld();
             if (n > 0) log.info("Usunieto stare wiadomosci: {}", n);
@@ -67,6 +79,10 @@ public class GameScheduler {
         try {
             List<Long> ids = game.accounts().purgeDeleted();
             if (!ids.isEmpty()) log.info("Usunieto konta graczy: {}", ids);
+            if (inactiveDeleteDays > 0) {
+                List<Long> inactive = game.accounts().purgeInactive(java.time.Duration.ofDays(inactiveDeleteDays));
+                if (!inactive.isEmpty()) log.info("Usunieto nieaktywne konta: {}", inactive);
+            }
         } catch (RuntimeException e) {
             log.error("Blad usuwania kont", e);
         }

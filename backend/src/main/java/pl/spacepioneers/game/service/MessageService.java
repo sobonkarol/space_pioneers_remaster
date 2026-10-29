@@ -26,7 +26,7 @@ public final class MessageService extends ServiceBase {
 
     public List<Message> inbox(long playerId, Message.Type type, int limit) {
         int l = Math.max(1, Math.min(limit, 200));
-        return tx(now -> ctx.store().messagesOf(playerId, type, l));
+        return read(now -> ctx.store().messagesOf(playerId, type, l));
     }
 
     public Message read(long playerId, long messageId) {
@@ -73,7 +73,7 @@ public final class MessageService extends ServiceBase {
     }
 
     public List<Message> archive(long playerId) {
-        return tx(now -> ctx.store().archivedMessages(playerId, MAX_ARCHIVE));
+        return read(now -> ctx.store().archivedMessages(playerId, MAX_ARCHIVE));
     }
 
     /** Przenosi wiadomosc do archiwum (chroni przed automatycznym usunieciem) albo z niego wyjmuje. */
@@ -110,7 +110,7 @@ public final class MessageService extends ServiceBase {
     }
 
     public int unread(long playerId) {
-        return tx(now -> ctx.store().unreadCount(playerId));
+        return read(now -> ctx.store().unreadCount(playerId));
     }
 
     static String clean(String text, int max) {

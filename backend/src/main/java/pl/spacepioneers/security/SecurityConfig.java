@@ -1,5 +1,7 @@
 package pl.spacepioneers.security;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -20,7 +22,25 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, SessionService sessions) throws Exception {
+    public RateLimitFilter rateLimitFilter(
+            @Value("${spacepioneers.rate-limit.enabled:true}") boolean enabled,
+            @Value("${spacepioneers.rate-limit.auth-per-minute:20}") int authPerMinute,
+            @Value("${spacepioneers.rate-limit.api-per-minute:600}") int apiPerMinute,
+            @Value("${spacepioneers.rate-limit.api-burst:120}") int apiBurst) {
+        return new RateLimitFilter(new RateLimitFilter.Limits(enabled, authPerMinute, apiPerMinute, apiBurst));
+    }
+
+    /** Filtr limitow dziala w lancuchu Spring Security, nie jako osobny filtr serwletow. */
+    @Bean
+    public FilterRegistrationBean<RateLimitFilter> rateLimitRegistration(RateLimitFilter filter) {
+        FilterRegistrationBean<RateLimitFilter> r = new FilterRegistrationBean<>(filter);
+        r.setEnabled(false);
+        return r;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, SessionService sessions, RateLimitFilter rateLimit)
+            throws Exception {
         http
                 // API jest bezstanowe (token w naglowku), wiec CSRF nie ma zastosowania
                 .csrf(c -> c.disable())
@@ -40,6 +60,7 @@ public class SecurityConfig {
                                 "/api/stats", "/api/pillory", "/api/dev/outbox", "/actuator/health").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
+                .addFilterBefore(rateLimit, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new TokenAuthenticationFilter(sessions), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

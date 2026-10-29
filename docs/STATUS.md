@@ -29,9 +29,10 @@ edycja), notatki, archiwum wiadomości i usuwanie wszystkich z zachowaniem archi
    zweryfikować zgodności „95%”.
 2. **Liczby i nazwy** — rekonstrukcja (patrz `GAME_RULES.md`); do podmiany oryginalnymi tabelami.
 4. **Konto:** poczta wysyłana przez SMTP dopiero po ustawieniu `SPRING_MAIL_HOST` (bez niego linki trafiają do
-   dziennika serwera); brak CAPTCHA przy rejestracji; konta nieaktywne nie są usuwane automatycznie.
+   dziennika serwera); brak CAPTCHA przy rejestracji; usuwanie nieaktywnych kont jest opcjonalne (`INACTIVE_DELETE_DAYS`).
 5. **Języki:** gra jest wyłącznie po polsku (zgodnie z decyzją; przełącznik języka usunięty, częściowe
    tłumaczenie EN pozostało w kodzie nieużywane).
-6. **Skalowanie:** zmiany stanu świata są serializowane jedną blokadą — wystarczy dla setek graczy online,
-   ale nie dla tysięcy; ranking przeliczany całościowo co 5 min.
-7. **Bezpieczeństwo:** blokada logowania trzymana w pamięci instancji; brak limitów zapytań API i CAPTCHA.
+6. **Skalowanie:** zapisy serializowane jedną blokadą; test obciążeniowy (`docs/LOADTEST.md`): ~350 zapytań/s
+   bez błędów na 2 vCPU, czyli rzędu 1000–1500 aktywnych graczy; ranking przeliczany całościowo co 5 min.
+7. **Bezpieczeństwo:** limity zapytań API liczone na instancję serwera (blokada logowania jest w bazie);
+   brak CAPTCHA przy rejestracji (ochronę daje limit 20 prób/min na adres IP).

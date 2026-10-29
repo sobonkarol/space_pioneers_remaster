@@ -67,7 +67,7 @@ public class SessionService {
         jdbc.update("delete from sessions where expires_at <= ?", Timestamp.from(clock.instant()));
     }
 
-    static String hash(String token) {
+    public static String hash(String token) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             return HexFormat.of().formatHex(md.digest(token.getBytes(StandardCharsets.UTF_8)));

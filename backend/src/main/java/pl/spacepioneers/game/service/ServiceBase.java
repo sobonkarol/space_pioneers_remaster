@@ -27,6 +27,26 @@ abstract class ServiceBase {
         });
     }
 
+    /**
+     * Odczyt bez globalnej blokady: gdy nie ma zaleglych zdarzen, stan w bazie jest aktualny i mozna go czytac
+     * rownolegle. W przeciwnym razie zwykla transakcja z dogonieniem swiata. Praca nie moze niczego zapisywac.
+     */
+    protected <T> T read(Function<Instant, T> work) {
+        Instant now = ctx.now();
+        Object[] result = new Object[1];
+        boolean done = ctx.store().readOnly(() -> {
+            if (ctx.store().nextDueEvent(now).isPresent()) return false;
+            result[0] = work.apply(now);
+            return true;
+        });
+        if (done) {
+            @SuppressWarnings("unchecked")
+            T value = (T) result[0];
+            return value;
+        }
+        return tx(work);
+    }
+
     protected void txRun(java.util.function.Consumer<Instant> work) {
         tx(now -> {
             work.accept(now);

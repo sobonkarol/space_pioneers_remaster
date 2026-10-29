@@ -61,7 +61,7 @@ public final class PlanetService extends ServiceBase {
             fleets.sort(Comparator.comparing(Views.FleetMovement::nextAt));
 
             ResearchJob job = player.getResearchJob();
-            int playerCount = store.players().size();
+            int playerCount = store.playerCount();
             return new Views.Overview(now, playerId, player.getUsername(), ref(planet), planetRefs(playerId),
                     Economy.usedFields(snap), ctx.economy().maxFields(snap),
                     planet.getTemperatureMin(), planet.getTemperatureMax(),

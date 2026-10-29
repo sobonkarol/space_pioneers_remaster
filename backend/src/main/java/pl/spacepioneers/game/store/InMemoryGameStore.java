@@ -189,6 +189,29 @@ public class InMemoryGameStore implements GameStore {
     }
 
     @Override
+    public int playerCount() {
+        return state.players.size();
+    }
+
+    @Override
+    public List<Player> playersByScore(String category, int offset, int limit) {
+        java.util.function.ToDoubleFunction<Player> metric = pl -> scoreOf(pl.getScore(), category);
+        return state.players.values().stream()
+                .sorted(Comparator.comparingDouble(metric).reversed().thenComparingLong(Player::getId))
+                .skip(offset).limit(limit).map(Json::copy).toList();
+    }
+
+    static double scoreOf(pl.spacepioneers.game.model.Score s, String category) {
+        return switch (category == null ? "total" : category) {
+            case "buildings" -> s.buildings();
+            case "research" -> s.research();
+            case "fleet" -> s.fleet();
+            case "defense" -> s.defense();
+            default -> s.total();
+        };
+    }
+
+    @Override
     public void deletePlayer(long id) {
         state.players.remove(id);
         state.messages.values().removeIf(m -> m.recipientId() == id);

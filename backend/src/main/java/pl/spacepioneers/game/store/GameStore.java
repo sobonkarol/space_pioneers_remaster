@@ -29,6 +29,14 @@ public interface GameStore {
 
     <T> T inTransaction(Supplier<T> work);
 
+    /**
+     * Odczyt bez blokady swiata (rownolegle z innymi odczytami). Praca nie moze niczego zapisywac.
+     * Domyslnie zwykla transakcja.
+     */
+    default <T> T readOnly(Supplier<T> work) {
+        return inTransaction(work);
+    }
+
     default void inTransaction(Runnable work) {
         inTransaction(() -> {
             work.run();
@@ -46,6 +54,14 @@ public interface GameStore {
     Optional<Player> playerByEmail(String email);
 
     List<Player> players();
+
+    int playerCount();
+
+    /**
+     * Strona rankingu graczy wedlug kategorii punktow (total, economy, research, fleet, defense) malejaco,
+     * przy rownych punktach rosnaco po id.
+     */
+    List<Player> playersByScore(String category, int offset, int limit);
 
     List<Player> playersOfAlliance(long allianceId);
 

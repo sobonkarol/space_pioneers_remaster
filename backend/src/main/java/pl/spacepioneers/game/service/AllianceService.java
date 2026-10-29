@@ -51,7 +51,7 @@ public final class AllianceService extends ServiceBase {
     // --- odczyt
 
     public List<AllianceSummary> list() {
-        return tx(now -> ctx.store().alliances().stream()
+        return read(now -> ctx.store().alliances().stream()
                 .map(a -> new AllianceSummary(a.getId(), a.getTag(), a.getName(),
                         ctx.store().playersOfAlliance(a.getId()).size(), Math.floor(a.getScore().total()), a.getRank(),
                         a.isOpenForApplications()))
@@ -61,7 +61,7 @@ public final class AllianceService extends ServiceBase {
 
     /** Widok sojuszu; czlonkowie i dyplomacja sa widoczni dla wszystkich, wnioski tylko dla kierownictwa. */
     public AllianceView view(long viewerId, long allianceId) {
-        return tx(now -> {
+        return read(now -> {
             Alliance a = ctx.store().alliance(allianceId).orElseThrow(() -> GameException.notFound("sojusz " + allianceId));
             Player viewer = ctx.requirePlayer(viewerId);
             boolean member = viewer.getAllianceId() != null && viewer.getAllianceId() == allianceId;

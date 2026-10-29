@@ -37,6 +37,10 @@ Ustawienia galaktyki (zmienne środowiskowe): `UNIVERSE_NAME`, `UNIVERSE_SPEED`,
 Poczta (potwierdzanie adresu, reset hasła): `PUBLIC_URL` (adres gry w linkach), `MAIL_FROM` oraz serwer SMTP
 `SPRING_MAIL_HOST`, `SPRING_MAIL_PORT`, `SPRING_MAIL_USERNAME`, `SPRING_MAIL_PASSWORD`
 (np. `SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true`). Bez SMTP wiadomości trafiają do dziennika serwera.
+Limity zapytań: `RATE_LIMIT_AUTH_PER_MINUTE` (logowanie/rejestracja/reset, na IP, domyślnie 20),
+`RATE_LIMIT_API_PER_MINUTE` (600) i `RATE_LIMIT_API_BURST` (120) na sesję; za proxy ustaw
+`SERVER_FORWARD_HEADERS_STRATEGY=native`. Usuwanie nieaktywnych kont: `INACTIVE_DELETE_DAYS` (0 = wyłączone).
+Test obciążeniowy: [`docs/LOADTEST.md`](docs/LOADTEST.md).
 Pierwszy zarejestrowany gracz zostaje administratorem (menu „Administracja”).
 
 ## Testy

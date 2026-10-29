@@ -23,7 +23,7 @@ public final class GalaxyService extends ServiceBase {
     }
 
     public Views.GalaxyView system(long viewerId, int galaxy, int system) {
-        return tx(now -> {
+        return read(now -> {
             UniverseConfig cfg = ctx.config();
             if (galaxy < 1 || galaxy > cfg.galaxies() || system < 1 || system > cfg.systems()) {
                 throw new GameException("invalid_coordinates", "Współrzędne poza zakresem galaktyki.");

@@ -17,7 +17,7 @@ public final class NoteService extends ServiceBase {
     }
 
     public List<Note> list(long playerId) {
-        return tx(now -> ctx.store().notesOf(playerId));
+        return read(now -> ctx.store().notesOf(playerId));
     }
 
     /** Tworzy notatke ({@code noteId == null}) albo ja zmienia. */

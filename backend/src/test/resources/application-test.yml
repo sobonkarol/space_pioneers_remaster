@@ -6,6 +6,8 @@ spring:
   flyway:
     clean-disabled: false
 spacepioneers:
+  rate-limit:
+    auth-per-minute: 1000
   mail:
     dev-outbox: true
   universe:

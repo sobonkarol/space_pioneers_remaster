@@ -111,6 +111,25 @@ public final class AccountService extends ServiceBase {
         });
     }
 
+    /**
+     * Usuwa konta nieaktywne dluzej niz {@code inactivity} (bez administratorow i kont w trybie urlopowym
+     * ustawionym przez gracza). Zwraca identyfikatory usunietych graczy.
+     */
+    public List<Long> purgeInactive(Duration inactivity) {
+        return tx(now -> {
+            List<Long> ids = new ArrayList<>();
+            Instant cutoff = now.minus(inactivity);
+            for (Player p : ctx.store().players()) {
+                boolean voluntaryVacation = p.inVacation() && !p.isBanVacation();
+                if (!p.isAdmin() && !voluntaryVacation && p.getLastActivity() != null && p.getLastActivity().isBefore(cutoff)) {
+                    deletePlayer(p, now);
+                    ids.add(p.getId());
+                }
+            }
+            return ids;
+        });
+    }
+
     /** Zdejmuje blokade po jej wygasnieciu (wywolywane przy logowaniu). Zwraca aktualny stan gracza. */
     public Player liftExpiredBan(long playerId) {
         return tx(now -> {

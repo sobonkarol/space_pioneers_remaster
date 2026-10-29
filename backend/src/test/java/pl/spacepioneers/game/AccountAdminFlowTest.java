@@ -202,4 +202,14 @@ public class AccountAdminFlowTest {
         assertEquals("invalid_message", assertThrows(GameException.class,
                 () -> f.game.admin().announce(admin.getId(), "", "x")).getCode());
     }
+
+    @Test
+    public void inactiveAccountsArePurgedExceptAdminsAndVacation() {
+        f.game.players().enableVacation(bob.getId());
+        f.advance(Duration.ofDays(40));
+        List<Long> removed = f.game.accounts().purgeInactive(Duration.ofDays(35));
+        assertEquals(List.of(alice.getId()), removed);
+        assertTrue(f.store.player(admin.getId()).isPresent());
+        assertTrue(f.store.player(bob.getId()).isPresent());
+    }
 }

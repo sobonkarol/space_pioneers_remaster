@@ -31,6 +31,15 @@ management:
         include: health
 
 spacepioneers:
+  accounts:
+    # usuwanie kont nieaktywnych dluzej niz tyle dni (0 = wylaczone); nie dotyczy adminow i urlopu
+    inactive-delete-days: ${INACTIVE_DELETE_DAYS:0}
+  # limity zapytan API (na sesje lub adres IP); za serwerem proxy ustaw SERVER_FORWARD_HEADERS_STRATEGY=native
+  rate-limit:
+    enabled: ${RATE_LIMIT_ENABLED:true}
+    auth-per-minute: ${RATE_LIMIT_AUTH_PER_MINUTE:20}
+    api-per-minute: ${RATE_LIMIT_API_PER_MINUTE:600}
+    api-burst: ${RATE_LIMIT_API_BURST:120}
   # adres gry uzywany w linkach z e-maili
   public-url: ${PUBLIC_URL:http://localhost:8080}
   mail:

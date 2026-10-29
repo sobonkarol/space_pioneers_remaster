@@ -27,7 +27,7 @@ public final class BuddyService extends ServiceBase {
     }
 
     public List<BuddyView> list(long playerId) {
-        return tx(now -> {
+        return read(now -> {
             GameStore store = ctx.store();
             List<BuddyView> out = new ArrayList<>();
             for (Buddy b : store.buddiesOf(playerId)) {

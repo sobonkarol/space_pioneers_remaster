@@ -44,10 +44,13 @@ public class JdbcGameStore implements GameStore {
 
     private final JdbcTemplate jdbc;
     private final TransactionTemplate tx;
+    private final TransactionTemplate readTx;
 
     public JdbcGameStore(JdbcTemplate jdbc, PlatformTransactionManager txManager) {
         this.jdbc = jdbc;
         this.tx = new TransactionTemplate(txManager);
+        this.readTx = new TransactionTemplate(txManager);
+        this.readTx.setReadOnly(true);
     }
 
     @Override
@@ -173,6 +176,28 @@ public class JdbcGameStore implements GameStore {
                 """,
                 p.getId(), p.getOwnerId(), p.getGalaxy(), p.getSystem(), p.getPosition(), p.isMoon(),
                 ts(active == null ? null : active.end()), Json.write(p));
+    }
+
+    @Override
+    public int playerCount() {
+        Integer n = jdbc.queryForObject("select count(*) from players", Integer.class);
+        return n == null ? 0 : n;
+    }
+
+    @Override
+    public List<Player> playersByScore(String category, int offset, int limit) {
+        String order = switch (category == null ? "total" : category) {
+            case "buildings", "research", "fleet", "defense" ->
+                    "coalesce((data -> 'score' ->> '" + category + "')::double precision, 0)";
+            default -> "score_total";
+        };
+        return jdbc.query("select data from players order by " + order + " desc, id offset ? limit ?",
+                data(Player.class), offset, limit);
+    }
+
+    @Override
+    public <T> T readOnly(Supplier<T> work) {
+        return readTx.execute(status -> work.get());
     }
 
     @Override

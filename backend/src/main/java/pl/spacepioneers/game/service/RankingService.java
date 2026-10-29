@@ -80,7 +80,7 @@ public final class RankingService extends ServiceBase {
      * @param category "total", "buildings", "research", "fleet", "defense"
      */
     public Views.RankingPage page(String type, String category, int page) {
-        return tx(now -> {
+        return read(now -> {
             ToDoubleFunction<Score> metric = switch (category == null ? "total" : category) {
                 case "total" -> Score::total;
                 case "buildings" -> Score::buildings;
@@ -106,24 +106,23 @@ public final class RankingService extends ServiceBase {
             if (type != null && !"players".equals(type)) {
                 throw new GameException("invalid_type", "Nieznany typ rankingu.");
             }
-            List<Player> all = new ArrayList<>(store.players());
-            all.sort(Comparator.comparingDouble((Player x) -> metric.applyAsDouble(x.getScore())).reversed()
-                    .thenComparingLong(Player::getId));
+            int offset = (p - 1) * PAGE_SIZE;
+            List<Player> pagePlayers = store.playersByScore(category == null ? "total" : category, offset, PAGE_SIZE);
             Map<Long, String> tags = new HashMap<>();
-            store.alliances().forEach(a -> tags.put(a.getId(), a.getTag()));
-            for (int i = (p - 1) * PAGE_SIZE; i < Math.min(all.size(), p * PAGE_SIZE); i++) {
-                Player x = all.get(i);
-                rows.add(new Views.RankingRow(i + 1, x.getId(), x.getUsername(),
-                        x.getAllianceId() == null ? null : tags.get(x.getAllianceId()), x.getAllianceId(),
+            for (int i = 0; i < pagePlayers.size(); i++) {
+                Player x = pagePlayers.get(i);
+                String tag = x.getAllianceId() == null ? null : tags.computeIfAbsent(x.getAllianceId(),
+                        id -> store.alliance(id).map(Alliance::getTag).orElse(null));
+                rows.add(new Views.RankingRow(offset + i + 1, x.getId(), x.getUsername(), tag, x.getAllianceId(),
                         Math.floor(metric.applyAsDouble(x.getScore())), null));
             }
-            return new Views.RankingPage("players", category, p, PAGE_SIZE, all.size(), rows);
+            return new Views.RankingPage("players", category, p, PAGE_SIZE, store.playerCount(), rows);
         });
     }
 
     /** Pozycja w rankingu dla gracza - zeby od razu otworzyc wlasciwa strone. */
     public int pageOf(long playerId) {
-        return tx(now -> {
+        return read(now -> {
             Player p = ctx.requirePlayer(playerId);
             return p.getRank() <= 0 ? 1 : (p.getRank() - 1) / PAGE_SIZE + 1;
         });
