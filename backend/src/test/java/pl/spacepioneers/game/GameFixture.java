@@ -27,10 +27,19 @@ public class GameFixture {
     public static final GameData DATA = GameData.loadDefault();
 
     public final MutableClock clock = new MutableClock(Instant.parse("2026-01-01T12:00:00Z"));
-    public final GameStore store = new InMemoryGameStore();
+    public final GameStore store;
     public final UniverseConfig config = new UniverseConfig(2, 20, 15, 1.0, 1.0, 1.0, 0.3, 0.7, 0.5, 6, 5000, 5.0);
     private final AtomicLong seeds = new AtomicLong(1234);
-    public final Game game = new Game(new GameContext(store, DATA, config, clock, seeds::incrementAndGet));
+    public final Game game;
+
+    public GameFixture() {
+        this(new InMemoryGameStore());
+    }
+
+    public GameFixture(GameStore store) {
+        this.store = store;
+        this.game = new Game(new GameContext(store, DATA, config, clock, seeds::incrementAndGet));
+    }
 
     public static final class MutableClock extends Clock {
         private Instant now;

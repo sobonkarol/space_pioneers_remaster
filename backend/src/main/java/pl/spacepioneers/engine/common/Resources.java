@@ -1,5 +1,7 @@
 package pl.spacepioneers.engine.common;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Niezmienny wektor zasobow: metal, krysztal, tryt.
  * Wartosci przechowywane jako double, bo produkcja narasta ulamkowo w czasie.
@@ -50,6 +52,7 @@ public record Resources(double metal, double crystal, double tritium) {
         return metal + crystal + tritium;
     }
 
+    @JsonIgnore
     public boolean isZero() {
         return metal == 0 && crystal == 0 && tritium == 0;
     }

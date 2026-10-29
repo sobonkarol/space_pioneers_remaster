@@ -19,7 +19,12 @@ import static org.junit.Assert.assertTrue;
 
 public class EconomyFlowTest {
 
-    private final GameFixture f = new GameFixture();
+    protected final GameFixture f = createFixture();
+
+    /** Podklasy testow integracyjnych podmieniaja magazyn (np. na PostgreSQL). */
+    protected GameFixture createFixture() {
+        return new GameFixture();
+    }
 
     @Test
     public void registrationCreatesHomeworldAndWelcome() {

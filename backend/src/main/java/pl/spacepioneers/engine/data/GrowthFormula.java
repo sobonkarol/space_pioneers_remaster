@@ -1,5 +1,6 @@
 package pl.spacepioneers.engine.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import pl.spacepioneers.engine.common.ResourceType;
 
@@ -27,6 +28,7 @@ public record GrowthFormula(
         return base * level * Math.pow(g, level);
     }
 
+    @JsonIgnore
     public boolean isTemperatureDependent() {
         return Boolean.TRUE.equals(temperatureDependent);
     }

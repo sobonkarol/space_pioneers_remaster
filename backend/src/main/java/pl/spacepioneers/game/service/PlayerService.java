@@ -77,12 +77,12 @@ public final class PlayerService extends ServiceBase {
             planet.setResources(START_RESOURCES);
             planet.setCreatedAt(now);
             planet.setLastUpdate(now);
-            store.save(planet);
             player.setHomePlanetId(planet.getId());
             if (store.players().isEmpty()) {
                 player.setAdmin(true); // pierwszy gracz serwera zostaje administratorem
             }
-            store.save(player);
+            store.save(player); // najpierw gracz - planeta odwoluje sie do niego kluczem obcym
+            store.save(planet);
             mailer.system(player.getId(), Message.Type.SYSTEM, "Witaj w Space Pioneers!",
                     "Twoja planeta macierzysta znajduje się na pozycji [" + home + "]. Zacznij od rozbudowy kopalni "
                             + "metalu, kopalni kryształu i elektrowni słonecznej.", now);

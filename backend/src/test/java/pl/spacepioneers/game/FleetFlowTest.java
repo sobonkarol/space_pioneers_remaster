@@ -27,7 +27,12 @@ import static org.junit.Assert.assertTrue;
 
 public class FleetFlowTest {
 
-    private final GameFixture f = new GameFixture();
+    protected final GameFixture f = createFixture();
+
+    /** Podklasy testow integracyjnych podmieniaja magazyn (np. na PostgreSQL). */
+    protected GameFixture createFixture() {
+        return new GameFixture();
+    }
     private Player attacker;
     private Player defender;
     private long aHome;

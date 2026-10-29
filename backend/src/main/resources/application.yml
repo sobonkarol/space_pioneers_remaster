@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: space-pioneers
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/spacepioneers}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:}
+  flyway:
+    enabled: true
+  jackson:
+    default-property-inclusion: non_null
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  port: ${PORT:8080}
+  compression:
+    enabled: true
+  error:
+    include-message: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+spacepioneers:
+  universe:
+    name: ${UNIVERSE_NAME:Galaktyka 1}
+    galaxies: ${UNIVERSE_GALAXIES:5}
+    systems: ${UNIVERSE_SYSTEMS:200}
+    positions: 15
+    speed: ${UNIVERSE_SPEED:1.0}
+  scheduler:
+    enabled: true
+    tick-ms: 1000
+    ranking-ms: 300000
