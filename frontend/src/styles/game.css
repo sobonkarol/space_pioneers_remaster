@@ -96,8 +96,9 @@ textarea { width: 100%; resize: vertical; }
   border-bottom: 2px solid var(--accent);
   background: linear-gradient(180deg, rgba(20, 40, 70, 0.6), rgba(4, 8, 14, 0.2));
 }
-.logo-area { display: flex; align-items: baseline; gap: 14px; cursor: pointer; }
-.logo-img { max-height: 70px; }
+.logo-area { display: flex; align-items: center; gap: 14px; cursor: pointer; }
+.logo-area .universe-name { white-space: nowrap; }
+.logo-img { max-height: 64px; width: auto; }
 .logo-text {
   font-family: 'Trebuchet MS', Verdana, sans-serif; font-size: 30px; font-weight: bold; letter-spacing: 2px;
   background: linear-gradient(180deg, #ffffff 0%, #9fc4ea 45%, #4d79a8 55%, #d8e8f8 100%);
@@ -274,7 +275,7 @@ textarea { width: 100%; resize: vertical; }
 .auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .auth-box { width: 420px; max-width: 100%; border: 1px solid var(--border); background: var(--panel); padding: 20px 24px; }
 .auth-logo { text-align: center; margin-bottom: 10px; }
-.auth-logo img { max-width: 100%; }
+.auth-logo img { max-width: 100%; height: auto; }
 .auth-subtitle { color: var(--muted); margin: 4px 0 0; }
 .auth-stats { text-align: center; color: var(--muted); }
 .auth-tabs { display: flex; margin: 12px 0; }

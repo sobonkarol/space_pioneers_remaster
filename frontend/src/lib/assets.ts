@@ -1,7 +1,7 @@
 /**
- * Manifest licencjonowanych grafik oryginalnej gry.
+ * Manifest grafik gry (oryginalna oprawa generowana przez scripts/art).
  *
- * Plik `public/assets/original/manifest.json` mapuje klucze grafik na sciezki plikow, np.:
+ * Plik `public/assets/art/manifest.json` mapuje klucze grafik na sciezki plikow, np.:
  * {
  *   "logo": "layout/logo.gif",
  *   "background": "layout/background.jpg",
@@ -9,7 +9,7 @@
  *   "planet/normal/3": "planets/normal03.jpg"
  * }
  * Gdy klucza nie ma w manifescie, interfejs pokazuje wyraznie oznaczona grafike zastepcza.
- * Manifest mozna wygenerowac z katalogu narzedziem `tools/build-asset-manifest.mjs`.
+ * Manifest tworzy generator scripts/art/generate.mjs.
  */
 
 export type AssetKind = 'building' | 'research' | 'ship' | 'defense' | 'planet' | 'resource' | 'layout';
@@ -19,7 +19,7 @@ let loaded = false;
 
 export async function loadAssetManifest(): Promise<void> {
   try {
-    const res = await fetch('/assets/original/manifest.json', { cache: 'no-cache' });
+    const res = await fetch('/assets/art/manifest.json', { cache: 'no-cache' });
     if (res.ok) {
       const data = (await res.json()) as Record<string, unknown>;
       manifest = Object.fromEntries(
@@ -48,7 +48,7 @@ export function hasOriginalAssets(): boolean {
 /** Sciezka do oryginalnej grafiki albo null. */
 export function assetUrl(key: string): string | null {
   const path = manifest[key];
-  return path ? `/assets/original/${path}` : null;
+  return path ? `/assets/art/${path}` : null;
 }
 
 export function itemAssetKey(kind: AssetKind, key: string): string {
