@@ -213,6 +213,8 @@ export interface Profile {
   homePlanetId: number;
   admin: boolean;
   pendingApplicationAllianceId?: number;
+  emailVerified: boolean;
+  deletionAt?: string;
 }
 
 export interface EmpirePlanet {
@@ -492,4 +494,61 @@ export interface GameConfig {
 export interface ApiErrorBody {
   code: string;
   message: string;
+}
+
+export interface PilloryEntry {
+  at: string;
+  adminName: string;
+  playerName: string;
+  reason: string;
+  until?: string;
+}
+
+export interface AdminStats {
+  players: number;
+  online15m: number;
+  active24h: number;
+  banned: number;
+  pendingDeletion: number;
+  unverified: number;
+  planets: number;
+  moons: number;
+  fleetsInFlight: number;
+  alliances: number;
+  now: string;
+}
+
+export interface AdminPlayerRow {
+  id: number;
+  username: string;
+  email: string;
+  emailVerified: boolean;
+  admin: boolean;
+  points: number;
+  rank: number;
+  createdAt: string;
+  lastActivity?: string;
+  bannedUntil?: string;
+  banReason?: string;
+  vacation: boolean;
+  deletionAt?: string;
+  allianceTag?: string;
+  planets: number;
+}
+
+export interface AdminPlayerDetail {
+  player: AdminPlayerRow;
+  planets: { id: number; name: string; coordinates: string; moon: boolean; fieldsUsed: number; fields: number }[];
+  fleetsInFlight: number;
+}
+
+export interface AdminLogEntry {
+  id: number;
+  at: string;
+  adminName: string;
+  action: string;
+  targetId?: number;
+  targetName?: string;
+  details?: string;
+  until?: string;
 }

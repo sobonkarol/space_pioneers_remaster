@@ -180,6 +180,16 @@ public class InMemoryGameStore implements GameStore {
     }
 
     @Override
+    public void deletePlayer(long id) {
+        state.players.remove(id);
+        state.messages.values().removeIf(m -> m.recipientId() == id);
+        state.planets.values().removeIf(p -> p.getOwnerId() == id);
+        state.fleets.values().removeIf(f -> f.getOwnerId() == id);
+        state.buddies.values().removeIf(b -> b.requesterId() == id || b.addresseeId() == id);
+        state.applications.values().removeIf(a -> a.playerId() == id);
+    }
+
+    @Override
     public void deletePlanet(long id) {
         state.planets.remove(id);
     }

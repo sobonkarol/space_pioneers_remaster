@@ -6,7 +6,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import pl.spacepioneers.game.service.Game;
+import pl.spacepioneers.account.AccountTokens;
 import pl.spacepioneers.security.SessionService;
+
+import java.util.List;
 
 /**
  * Cykliczne zadania: obsluga zdarzen (powroty flot, konce budow - takze dla graczy offline),
@@ -20,10 +23,12 @@ public class GameScheduler {
 
     private final Game game;
     private final SessionService sessions;
+    private final AccountTokens tokens;
 
-    public GameScheduler(Game game, SessionService sessions) {
+    public GameScheduler(Game game, SessionService sessions, AccountTokens tokens) {
         this.game = game;
         this.sessions = sessions;
+        this.tokens = tokens;
     }
 
     @Scheduled(fixedDelayString = "${spacepioneers.scheduler.tick-ms:1000}")
@@ -47,5 +52,17 @@ public class GameScheduler {
     @Scheduled(fixedDelay = 3_600_000, initialDelay = 60_000)
     public void cleanupSessions() {
         sessions.deleteExpired();
+        tokens.deleteExpired();
+    }
+
+    /** Usuwanie kont, ktorych 7-dniowy okres na rozmyslenie minal. */
+    @Scheduled(fixedDelayString = "${spacepioneers.scheduler.deletion-ms:600000}", initialDelay = 30_000)
+    public void purgeDeletedAccounts() {
+        try {
+            List<Long> ids = game.accounts().purgeDeleted();
+            if (!ids.isEmpty()) log.info("Usunieto konta graczy: {}", ids);
+        } catch (RuntimeException e) {
+            log.error("Blad usuwania kont", e);
+        }
     }
 }

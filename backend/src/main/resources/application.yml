@@ -31,6 +31,14 @@ management:
         include: health
 
 spacepioneers:
+  # adres gry uzywany w linkach z e-maili
+  public-url: ${PUBLIC_URL:http://localhost:8080}
+  mail:
+    # Serwer SMTP wlacza sie zmiennymi SPRING_MAIL_HOST, SPRING_MAIL_PORT, SPRING_MAIL_USERNAME, SPRING_MAIL_PASSWORD
+    # (oraz np. SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true). Bez nich wiadomosci trafiaja do dziennika.
+    from: ${MAIL_FROM:no-reply@spacepioneers.local}
+    # tylko srodowiska testowe: ostatnie e-maile pod /api/dev/outbox
+    dev-outbox: ${MAIL_DEV_OUTBOX:false}
   universe:
     name: ${UNIVERSE_NAME:Galaktyka 1}
     galaxies: ${UNIVERSE_GALAXIES:5}

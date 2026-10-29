@@ -173,6 +173,12 @@ public class JdbcGameStore implements GameStore {
     }
 
     @Override
+    public void deletePlayer(long id) {
+        // planety, floty, wiadomosci, sesje, znajomi i zgloszenia znikaja kaskadowo (klucze obce)
+        jdbc.update("delete from players where id = ?", id);
+    }
+
+    @Override
     public void deletePlanet(long id) {
         jdbc.update("delete from planets where id = ?", id);
     }

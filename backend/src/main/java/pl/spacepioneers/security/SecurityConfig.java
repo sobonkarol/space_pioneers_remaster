@@ -35,8 +35,9 @@ public class SecurityConfig {
                         .frameOptions(f -> f.deny()))
                 .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .authorizeHttpRequests(a -> a
-                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/config",
-                                "/api/stats", "/actuator/health").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/verify",
+                                "/api/auth/forgot-password", "/api/auth/reset-password", "/api/config",
+                                "/api/stats", "/api/pillory", "/api/dev/outbox", "/actuator/health").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(new TokenAuthenticationFilter(sessions), UsernamePasswordAuthenticationFilter.class);

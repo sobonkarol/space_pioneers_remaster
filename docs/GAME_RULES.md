@@ -56,3 +56,12 @@ gatunku (SP powstało jako alternatywa dla OGame). Wszystkie liczby siedzą w pl
   walczy po stronie obrońcy i może zostać zawrócona.
 - Ekspedycja: na pozycję 16 układu, pobyt 1–8 h, równocześnie `⌊√astrofizyka⌋`. Wyniki: utrata floty 2%,
   nic 30%, surowce 25%, statki 10%, piraci 10%, opóźnienie 12%, wcześniejszy powrót 11%.
+
+## Konto i administracja
+- Rejestracja wysyła link potwierdzający adres (ważny 3 dni); konto niepotwierdzone może grać, widzi przypomnienie.
+- Reset hasła linkiem z e-maila (ważny 1 h, jednorazowy), unieważnia wszystkie sesje. Najwyżej 3 wiadomości
+  jednego rodzaju na godzinę; odpowiedź na prośbę o reset nie zdradza, czy adres istnieje.
+- Usunięcie konta po 7 dniach (można anulować); sojusz założyciela przejmuje oficer, a gdy go brak - najsilniejszy
+  członek; pusty sojusz jest rozwiązywany.
+- Pierwszy gracz serwera jest administratorem i może nadawać uprawnienia. Blokada (1 h – 365 dni albo na stałe)
+  unieważnia sesje, uniemożliwia logowanie, włącza wymuszony tryb urlopowy i trafia na publiczny pręgierz.

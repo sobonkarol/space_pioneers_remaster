@@ -313,3 +313,15 @@ textarea { width: 100%; resize: vertical; }
 .moon-actions { display: inline-flex; flex-direction: column; line-height: 1.1; }
 .online-dot { color: #6dde6d; font-size: 11px; }
 .online-dot::before { content: '● '; }
+
+/* konto i administracja */
+.auth-heading { text-align: center; font-size: 15px; margin: 6px 0 12px; color: var(--accent); }
+.auth-switch { text-align: center; margin-top: 12px; font-size: 12px; }
+.verify-notice .link-button { margin-left: 6px; }
+.admin-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.admin-stat { display: flex; flex-direction: column; padding: 6px 8px; border: 1px solid var(--border, #2a3d5c); background: rgba(10, 20, 40, 0.5); }
+.admin-stat b { font-size: 16px; }
+.admin-flags > * { margin-right: 6px; }
+.admin-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+.admin-actions .btn.danger { margin-top: 0; }
+.owner.flag-b { color: #ff6b6b; text-decoration: line-through; }

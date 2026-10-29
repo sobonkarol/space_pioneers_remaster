@@ -34,7 +34,10 @@ cd backend && FRONTEND_DIR=../frontend/dist mvn spring-boot:run
 
 Ustawienia galaktyki (zmienne środowiskowe): `UNIVERSE_NAME`, `UNIVERSE_SPEED`, `UNIVERSE_GALAXIES`,
 `UNIVERSE_SYSTEMS`, `UNIVERSE_NEWBIE_POINTS`; baza: `DB_URL`, `DB_USER`, `DB_PASSWORD`.
-Pierwszy zarejestrowany gracz otrzymuje flagę administratora.
+Poczta (potwierdzanie adresu, reset hasła): `PUBLIC_URL` (adres gry w linkach), `MAIL_FROM` oraz serwer SMTP
+`SPRING_MAIL_HOST`, `SPRING_MAIL_PORT`, `SPRING_MAIL_USERNAME`, `SPRING_MAIL_PASSWORD`
+(np. `SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true`). Bez SMTP wiadomości trafiają do dziennika serwera.
+Pierwszy zarejestrowany gracz zostaje administratorem (menu „Administracja”).
 
 ## Testy
 
@@ -43,6 +46,8 @@ cd backend && mvn test          # silnik, scenariusze (pamięć + PostgreSQL), A
 cd frontend && npm test         # testy jednostkowe
 # E2E w przeglądarce (szybka galaktyka, patrz nagłówek pliku):
 cd frontend && CHROME_PATH=/usr/bin/chromium node e2e/gameplay.e2e.mjs
+cd frontend && CHROME_PATH=/usr/bin/chromium node e2e/advanced.e2e.mjs
+cd frontend && CHROME_PATH=/usr/bin/chromium node e2e/account.e2e.mjs   # serwer z MAIL_DEV_OUTBOX=true
 ```
 
 Stan prac i lista braków: [`docs/STATUS.md`](docs/STATUS.md).

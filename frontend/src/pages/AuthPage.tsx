@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { ErrorBox, errorText } from '../components/common';
+import { ForgotPasswordForm } from './AccountLinkPages';
 import { firstAsset } from '../lib/assets';
 import { fmt } from '../lib/format';
 import { t } from '../i18n';
@@ -16,7 +17,7 @@ interface Stats {
 export function AuthPage() {
   const { login, register } = useSession();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [mode, setMode] = useState<'login' | 'register' | 'forgot'>('login');
   const [loginName, setLoginName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -66,6 +67,9 @@ export function AuthPage() {
             {t('auth.register')}
           </button>
         </div>
+        {mode === 'forgot' ? (
+          <ForgotPasswordForm onBack={() => setMode('login')} />
+        ) : (
         <form onSubmit={submit} className="auth-form">
           {mode === 'login' ? (
             <label>
@@ -96,7 +100,16 @@ export function AuthPage() {
           <button type="submit" className="btn primary" disabled={busy}>
             {mode === 'login' ? t('auth.login') : t('auth.register')}
           </button>
+          {mode === 'login' && (
+            <button type="button" className="link-button" onClick={() => setMode('forgot')}>
+              {t('account.forgot')}
+            </button>
+          )}
         </form>
+        )}
+        <p className="auth-switch">
+          <Link to="/pillory">{t('menu.pillory')}</Link>
+        </p>
       </div>
     </div>
   );

@@ -64,11 +64,12 @@ public final class GalaxyService extends ServiceBase {
         });
     }
 
-    /** Oznaczenia: v - urlop, i/I - nieaktywny, n - chroniony (slabszy), s - silniejszy (ty jestes chroniony). */
+    /** Oznaczenia: b - zablokowany, v - urlop, i/I - nieaktywny, n - chroniony (slabszy), s - silniejszy (ty jestes chroniony). */
     private List<String> flags(Player viewer, Player owner, Instant now) {
         List<String> flags = new ArrayList<>();
         if (owner.getId() == viewer.getId()) return flags;
-        if (owner.inVacation()) flags.add("v");
+        if (owner.banned(now)) flags.add("b");
+        else if (owner.inVacation()) flags.add("v");
         String inactive = owner.inactivity(now);
         if (inactive != null) flags.add(inactive);
         double vp = viewer.getScore().total();

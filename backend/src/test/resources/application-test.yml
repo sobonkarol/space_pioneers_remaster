@@ -6,6 +6,8 @@ spring:
   flyway:
     clean-disabled: false
 spacepioneers:
+  mail:
+    dev-outbox: true
   universe:
     galaxies: 2
     systems: 20

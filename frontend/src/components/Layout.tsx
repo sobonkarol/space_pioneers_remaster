@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { firstAsset } from '../lib/assets';
-import { clockTime, fmt } from '../lib/format';
+import { api } from '../api/client';
+import { clockTime, dateTime, fmt } from '../lib/format';
+import { errorText } from './common';
 import { t } from '../i18n';
 import { useGame, useServerNow } from '../state/game';
 import { useSession } from '../state/session';
@@ -63,6 +65,48 @@ function PlanetSelector() {
         </option>
       ))}
     </select>
+  );
+}
+
+/** Przypomnienia o niepotwierdzonym adresie e-mail i zaplanowanym usunieciu konta. */
+function AccountNotices() {
+  const { profile } = useSession();
+  const [sent, setSent] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  if (!profile) return null;
+  return (
+    <>
+      {profile.deletionAt && (
+        <div className="notice error">
+          {t('account.deletionNotice', { date: dateTime(profile.deletionAt) })} <NavLink to="/settings">{t('menu.settings')}</NavLink>
+        </div>
+      )}
+      {!profile.emailVerified && (
+        <div className="notice info verify-notice">
+          {sent ?? t('account.unverifiedNotice', { email: profile.email })}{' '}
+          {!sent && (
+            <button
+              type="button"
+              className="link-button"
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                try {
+                  await api.post('/me/verification');
+                  setSent(t('account.verificationSent'));
+                } catch (e) {
+                  setSent(errorText(e));
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            >
+              {t('account.resend')}
+            </button>
+          )}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -128,7 +172,9 @@ export function Layout() {
           </ul>
           <ul>
             {link('/settings', t('menu.settings'))}
+            {link('/pillory', t('menu.pillory'))}
             {link('/help', t('menu.help'))}
+            {profile?.admin && link('/admin', t('menu.admin'))}
             <li>
               <button
                 type="button"
@@ -145,6 +191,7 @@ export function Layout() {
         </nav>
         <main className="game-content">
           <ResourceBar />
+          <AccountNotices />
           {error && <div className="notice error">{error}</div>}
           <Outlet />
         </main>

@@ -15,6 +15,9 @@ rozbudowa 11 poziomów budynków, 2 badania, budowa myśliwców w stoczni, atak,
 założenie sojuszu i przyjęcie członka, galaktyka, ranking — bez błędów JS.
 `frontend/e2e/advanced.e2e.mjs`: lista znajomych, ekspedycja z galaktyki (reguła astrofizyki), obrona
 sojusznicza ze stacjonowaniem i zawróceniem, księżyc w galaktyce i na liście planet, zabudowa księżyca, falanga.
+`frontend/e2e/account.e2e.mjs` (serwer z `MAIL_DEV_OUTBOX=true`): potwierdzenie e-mail linkiem, reset hasła,
+zmiana adresu, zaplanowanie i anulowanie usunięcia konta, panel administratora: blokada, odrzucone logowanie
+z powodem, pręgierz, zdjęcie blokady, ogłoszenie, dziennik.
 
 ## Braki (dokładna lista)
 
@@ -25,8 +28,8 @@ sojusznicza ze stacjonowaniem i zawróceniem, księżyc w galaktyce i na liście
 2. **Liczby i nazwy** — rekonstrukcja (patrz `GAME_RULES.md`); do podmiany oryginalnymi tabelami.
 3. **Brak funkcji spotykanych w grach tego typu, niezaimplementowanych:** archiwum raportów poza skrzynką,
    forum sojuszu, notatki.
-4. **Konto:** brak weryfikacji e-mail, resetu hasła przez e-mail (wymaga serwera SMTP), usuwania konta,
-   panelu administratora (pierwszy gracz ma tylko flagę `admin`) i systemu kar/blokad.
+4. **Konto:** poczta wysyłana przez SMTP dopiero po ustawieniu `SPRING_MAIL_HOST` (bez niego linki trafiają do
+   dziennika serwera); brak CAPTCHA przy rejestracji; konta nieaktywne nie są usuwane automatycznie.
 5. **Języki:** pełny PL; EN — nazwy i część interfejsu (reszta PL); brak DE/FR/IT/ES.
 6. **Skalowanie:** zmiany stanu świata są serializowane jedną blokadą — wystarczy dla setek graczy online,
    ale nie dla tysięcy; ranking przeliczany całościowo co 5 min.

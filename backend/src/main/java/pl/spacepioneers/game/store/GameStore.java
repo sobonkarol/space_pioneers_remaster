@@ -48,6 +48,9 @@ public interface GameStore {
 
     void save(Player player);
 
+    /** Usuwa gracza wraz z jego wiadomosciami (planety, floty i powiazania usuwa wczesniej logika gry). */
+    void deletePlayer(long id);
+
     // --- planety
     Optional<Planet> planet(long id);
 

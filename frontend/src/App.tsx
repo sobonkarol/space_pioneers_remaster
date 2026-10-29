@@ -4,6 +4,8 @@ import { Loading } from './components/common';
 import { Layout } from './components/Layout';
 import { language, subscribeLanguage } from './i18n';
 import { loadAssetManifest } from './lib/assets';
+import { PilloryPage, ResetPasswordPage, VerifyEmailPage } from './pages/AccountLinkPages';
+import { AdminPage } from './pages/AdminPage';
 import { AlliancePage } from './pages/AlliancePage';
 import { AuthPage } from './pages/AuthPage';
 import { BuddiesPage } from './pages/BuddiesPage';
@@ -32,6 +34,9 @@ function Routing() {
   if (!profile) {
     return (
       <Routes>
+        <Route path="/verify" element={<VerifyEmailPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/pillory" element={<PilloryPage />} />
         <Route path="*" element={<AuthPage />} />
       </Routes>
     );
@@ -39,6 +44,8 @@ function Routing() {
   return (
     <GameProvider key={`${profile.id}-${lang}`}>
       <Routes>
+        <Route path="/verify" element={<VerifyEmailPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route element={<Layout />}>
           <Route path="/overview" element={<OverviewPage />} />
           <Route path="/resources" element={<ResourcesPage />} />
@@ -58,6 +65,8 @@ function Routing() {
           <Route path="/market" element={<MarketPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/help" element={<HelpPage />} />
+          <Route path="/pillory" element={<PilloryPage />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route path="*" element={<Navigate to="/overview" replace />} />
         </Route>
       </Routes>

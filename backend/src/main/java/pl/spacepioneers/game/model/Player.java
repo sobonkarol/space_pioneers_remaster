@@ -28,6 +28,12 @@ public class Player {
     private String language = "pl";
     private Score score = Score.ZERO;
     private int rank;
+    private boolean emailVerified;
+    private Instant bannedUntil;
+    private String banReason;
+    /** Urlop wymuszony blokada - zdejmowany razem z blokada. */
+    private boolean banVacation;
+    private Instant deletionAt;
 
     public Player() {
     }
@@ -51,6 +57,11 @@ public class Player {
      */
     public boolean inVacation() {
         return vacationUntil != null;
+    }
+
+    /** Blokada konta aktywna w chwili {@code now}. */
+    public boolean banned(Instant now) {
+        return bannedUntil != null && bannedUntil.isAfter(now);
     }
 
     /** "i" - nieaktywny 7 dni, "I" - 28 dni. */
@@ -95,4 +106,14 @@ public class Player {
     public void setScore(Score score) { this.score = score; }
     public int getRank() { return rank; }
     public void setRank(int rank) { this.rank = rank; }
+    public boolean isEmailVerified() { return emailVerified; }
+    public void setEmailVerified(boolean emailVerified) { this.emailVerified = emailVerified; }
+    public Instant getBannedUntil() { return bannedUntil; }
+    public void setBannedUntil(Instant bannedUntil) { this.bannedUntil = bannedUntil; }
+    public String getBanReason() { return banReason; }
+    public void setBanReason(String banReason) { this.banReason = banReason; }
+    public boolean isBanVacation() { return banVacation; }
+    public void setBanVacation(boolean banVacation) { this.banVacation = banVacation; }
+    public Instant getDeletionAt() { return deletionAt; }
+    public void setDeletionAt(Instant deletionAt) { this.deletionAt = deletionAt; }
 }

@@ -16,6 +16,8 @@ public final class Game {
     private final RankingService ranking;
     private final MarketService market;
     private final BuddyService buddies;
+    private final AccountService accounts;
+    private final AdminService admin;
 
     public Game(GameContext ctx) {
         this.ctx = ctx;
@@ -33,6 +35,8 @@ public final class Game {
         this.ranking = new RankingService(ctx, world);
         this.market = new MarketService(ctx, world);
         this.buddies = new BuddyService(ctx, world, mailer);
+        this.accounts = new AccountService(ctx, world, mailer);
+        this.admin = new AdminService(ctx, world, mailer, accounts);
     }
 
     /** Obsluguje zalegle zdarzenia (wywolywane cyklicznie przez harmonogram). */
@@ -52,4 +56,6 @@ public final class Game {
     public RankingService ranking() { return ranking; }
     public MarketService market() { return market; }
     public BuddyService buddies() { return buddies; }
+    public AccountService accounts() { return accounts; }
+    public AdminService admin() { return admin; }
 }
