@@ -189,6 +189,32 @@ public class InMemoryGameStore implements GameStore {
     }
 
     @Override
+    public List<Player> searchPlayers(String fragment, int limit) {
+        String f = fragment.toLowerCase(java.util.Locale.ROOT);
+        return state.players.values().stream().filter(p -> p.getUsername().toLowerCase(java.util.Locale.ROOT).contains(f))
+                .sorted(Comparator.comparing(Player::getUsername, String.CASE_INSENSITIVE_ORDER))
+                .limit(limit).map(Json::copy).toList();
+    }
+
+    @Override
+    public List<Alliance> searchAlliances(String fragment, int limit) {
+        String f = fragment.toLowerCase(java.util.Locale.ROOT);
+        return state.alliances.values().stream()
+                .filter(a -> a.getTag().toLowerCase(java.util.Locale.ROOT).contains(f)
+                        || a.getName().toLowerCase(java.util.Locale.ROOT).contains(f))
+                .sorted(Comparator.comparing(Alliance::getTag, String.CASE_INSENSITIVE_ORDER))
+                .limit(limit).map(Json::copy).toList();
+    }
+
+    @Override
+    public List<Planet> searchPlanets(String fragment, int limit) {
+        String f = fragment.toLowerCase(java.util.Locale.ROOT);
+        return state.planets.values().stream().filter(p -> p.getName().toLowerCase(java.util.Locale.ROOT).contains(f))
+                .sorted(Comparator.comparing(Planet::getName, String.CASE_INSENSITIVE_ORDER).thenComparingLong(Planet::getId))
+                .limit(limit).map(Json::copy).toList();
+    }
+
+    @Override
     public int playerCount() {
         return state.players.size();
     }

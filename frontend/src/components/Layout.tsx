@@ -170,6 +170,8 @@ export function Layout() {
             {link('/buddies', t('menu.buddies'))}
             {link('/notes', t('menu.notes'))}
             {link('/ranking', t('menu.ranking'))}
+            {link('/search', t('menu.search'))}
+            {link('/simulator', t('menu.simulator'))}
             {isTrader && link('/market', t('menu.market'))}
           </ul>
           <ul>

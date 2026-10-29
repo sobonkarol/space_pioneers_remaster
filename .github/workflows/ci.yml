@@ -46,3 +46,58 @@ jobs:
         working-directory: frontend
       - run: npm run build
         working-directory: frontend
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t space-pioneers:ci .
+
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: spacepioneers
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-retries 10
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/spacepioneers
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      E2E_PSQL: psql postgresql://postgres:postgres@localhost:5432/spacepioneers
+      CHROME_PATH: /usr/bin/google-chrome
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci && npm run build
+        working-directory: frontend
+      - run: mvn -B -q package -DskipTests
+        working-directory: backend
+      - name: Start game server (fast universe)
+        run: |
+          FRONTEND_DIR=$PWD/frontend/dist MAIL_DEV_OUTBOX=true UNIVERSE_SPEED=2000 UNIVERSE_GALAXIES=1 UNIVERSE_SYSTEMS=3 \
+            UNIVERSE_NEWBIE_POINTS=0 RANKING_INTERVAL_MS=5000 nohup java -jar backend/target/space-pioneers-backend-*.jar > server.log 2>&1 &
+          for i in $(seq 1 90); do curl -sf localhost:8080/api/stats && break; sleep 1; done
+      - run: |
+          for t in gameplay advanced account social tools; do node e2e/$t.e2e.mjs; done
+        working-directory: frontend
+      - if: failure()
+        run: tail -200 server.log
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-shots
+          path: frontend/e2e-shots

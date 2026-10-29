@@ -20,6 +20,8 @@ public final class Game {
     private final AdminService admin;
     private final NoteService notes;
     private final ForumService forum;
+    private final SearchService search;
+    private final SimulatorService simulator;
 
     public Game(GameContext ctx) {
         this.ctx = ctx;
@@ -41,6 +43,8 @@ public final class Game {
         this.admin = new AdminService(ctx, world, mailer, accounts);
         this.notes = new NoteService(ctx, world);
         this.forum = new ForumService(ctx, world);
+        this.search = new SearchService(ctx, world);
+        this.simulator = new SimulatorService(ctx);
     }
 
     /** Obsluguje zalegle zdarzenia (wywolywane cyklicznie przez harmonogram). */
@@ -64,4 +68,6 @@ public final class Game {
     public AdminService admin() { return admin; }
     public NoteService notes() { return notes; }
     public ForumService forum() { return forum; }
+    public SearchService search() { return search; }
+    public SimulatorService simulator() { return simulator; }
 }

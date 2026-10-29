@@ -178,6 +178,29 @@ public class JdbcGameStore implements GameStore {
                 ts(active == null ? null : active.end()), Json.write(p));
     }
 
+    /** Wzorzec ILIKE z ucieczka znakow specjalnych. */
+    private static String like(String fragment) {
+        return "%" + fragment.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
+    }
+
+    @Override
+    public List<Player> searchPlayers(String fragment, int limit) {
+        return jdbc.query("select data from players where username ilike ? order by lower(username) limit ?",
+                data(Player.class), like(fragment), limit);
+    }
+
+    @Override
+    public List<Alliance> searchAlliances(String fragment, int limit) {
+        return jdbc.query("select data from alliances where tag ilike ? or data ->> 'name' ilike ? order by lower(tag) limit ?",
+                data(Alliance.class), like(fragment), like(fragment), limit);
+    }
+
+    @Override
+    public List<Planet> searchPlanets(String fragment, int limit) {
+        return jdbc.query("select data from planets where data ->> 'name' ilike ? order by lower(data ->> 'name'), id limit ?",
+                data(Planet.class), like(fragment), limit);
+    }
+
     @Override
     public int playerCount() {
         Integer n = jdbc.queryForObject("select count(*) from players", Integer.class);

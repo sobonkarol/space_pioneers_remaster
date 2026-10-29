@@ -13,6 +13,8 @@ import { BuildingsPage } from './pages/BuildingsPage';
 import { EmpirePage } from './pages/EmpirePage';
 import { ForumPage } from './pages/ForumPage';
 import { NotesPage } from './pages/NotesPage';
+import { SearchPage } from './pages/SearchPage';
+import { SimulatorPage } from './pages/SimulatorPage';
 import { FleetPage } from './pages/FleetPage';
 import { GalaxyPage } from './pages/GalaxyPage';
 import { HelpPage } from './pages/HelpPage';
@@ -66,6 +68,8 @@ function Routing() {
           <Route path="/forum" element={<ForumPage />} />
           <Route path="/forum/:threadId" element={<ForumPage />} />
           <Route path="/notes" element={<NotesPage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/simulator" element={<SimulatorPage />} />
           <Route path="/ranking" element={<RankingPage />} />
           <Route path="/market" element={<MarketPage />} />
           <Route path="/settings" element={<SettingsPage />} />

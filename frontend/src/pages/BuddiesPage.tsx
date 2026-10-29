@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api/client';
 import type { BuddyView } from '../api/types';
 import { ErrorBox, InfoBox, Loading, Panel, SuccessBox, useAction, useLoad } from '../components/common';
@@ -12,7 +12,8 @@ const ONLINE_MS = 15 * 60 * 1000;
 export function BuddiesPage() {
   const list = useLoad(() => api.get<BuddyView[]>('/buddies'), []);
   const action = useAction();
-  const [username, setUsername] = useState('');
+  const [params] = useSearchParams();
+  const [username, setUsername] = useState(params.get('add') ?? '');
   const [text, setText] = useState('');
 
   const act = async (fn: () => Promise<unknown>, msg?: string) => {

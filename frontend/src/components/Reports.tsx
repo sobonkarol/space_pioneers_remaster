@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import type { CombatReport, EspionageReport, Resources } from '../api/types';
 import { nameOf, t } from '../i18n';
 import { fmt } from '../lib/format';
@@ -178,6 +179,7 @@ function KeyValueTable({ title, values }: { title: string; values?: Record<strin
 }
 
 export function EspionageReportView({ report }: { report: EspionageReport }) {
+  const navigate = useNavigate();
   return (
     <div className="espionage-report">
       <h3>
@@ -193,6 +195,28 @@ export function EspionageReportView({ report }: { report: EspionageReport }) {
         <KeyValueTable title={t('report.research')} values={report.research} />
       </div>
       <p className="muted small">{t('report.counter', { p: report.counterEspionageChancePercent })}</p>
+      {(report.fleet || report.defense) && (
+        <button
+          type="button"
+          className="btn small"
+          onClick={() =>
+            navigate('/simulator', {
+              state: {
+                target: report.coordinates,
+                defender: {
+                  units: { ...(report.fleet ?? {}), ...(report.defense ?? {}) },
+                  weapons: report.research?.weapons_tech ?? 0,
+                  shielding: report.research?.shielding_tech ?? 0,
+                  armour: report.research?.armour_tech ?? 0,
+                  attackBonusPercent: 0,
+                },
+              },
+            })
+          }
+        >
+          {t('sim.fromReportButton')}
+        </button>
+      )}
       {report.probesDestroyed && <p className="negative">{t('report.probesLost')}</p>}
     </div>
   );

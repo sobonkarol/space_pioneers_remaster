@@ -1,8 +1,8 @@
 # Oprawa graficzna
 
 Gra używa **własnej, oryginalnej oprawy** wygenerowanej programowo (bez materiałów z oryginalnego Space Pioneers):
-logo, tło, ikony surowców, grafiki 15 budynków, 14 badań, 13 statków, 8 budowli obronnych oraz 50 wariantów
-planet (5 typów × 10). Pliki leżą w `frontend/public/assets/art/`, a `manifest.json` mapuje klucze na pliki.
+logo, tło, ikony surowców, grafiki 19 budynków (w tym księżycowych), 14 badań, 13 statków, 8 budowli obronnych,
+2 rakiet oraz 55 wariantów planet (5 typów × 10) i księżyców (5). Pliki leżą w `frontend/public/assets/art/`, a `manifest.json` mapuje klucze na pliki.
 
 ## Generator
 

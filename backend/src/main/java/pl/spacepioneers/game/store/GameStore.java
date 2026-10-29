@@ -57,6 +57,15 @@ public interface GameStore {
 
     int playerCount();
 
+    /** Gracze, ktorych nazwa zawiera fragment (bez rozrozniania wielkosci liter), alfabetycznie. */
+    List<Player> searchPlayers(String fragment, int limit);
+
+    /** Sojusze, ktorych skrot albo nazwa zawiera fragment. */
+    List<Alliance> searchAlliances(String fragment, int limit);
+
+    /** Planety i ksiezyce, ktorych nazwa zawiera fragment. */
+    List<Planet> searchPlanets(String fragment, int limit);
+
     /**
      * Strona rankingu graczy wedlug kategorii punktow (total, economy, research, fleet, defense) malejaco,
      * przy rownych punktach rosnaco po id.
