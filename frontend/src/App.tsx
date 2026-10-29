@@ -6,6 +6,7 @@ import { language, subscribeLanguage } from './i18n';
 import { loadAssetManifest } from './lib/assets';
 import { AlliancePage } from './pages/AlliancePage';
 import { AuthPage } from './pages/AuthPage';
+import { BuddiesPage } from './pages/BuddiesPage';
 import { BuildingsPage } from './pages/BuildingsPage';
 import { EmpirePage } from './pages/EmpirePage';
 import { FleetPage } from './pages/FleetPage';
@@ -52,6 +53,7 @@ function Routing() {
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/alliance" element={<AlliancePage />} />
           <Route path="/alliance/:id" element={<AlliancePage />} />
+          <Route path="/buddies" element={<BuddiesPage />} />
           <Route path="/ranking" element={<RankingPage />} />
           <Route path="/market" element={<MarketPage />} />
           <Route path="/settings" element={<SettingsPage />} />

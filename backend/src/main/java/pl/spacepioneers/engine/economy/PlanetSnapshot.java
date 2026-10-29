@@ -10,14 +10,21 @@ import java.util.Map;
  * @param temperatureMax    maksymalna temperatura (wplywa na tryt i satelity)
  * @param fields            bazowa liczba pol zabudowy
  * @param productionPercent ustawienia produkcji 0..100 dla kopalni/elektrowni/satelit (brak = 100)
+ * @param moon              czy to ksiezyc (brak produkcji podstawowej)
  */
 public record PlanetSnapshot(
         Map<String, Integer> buildings,
         Map<String, Long> units,
         int temperatureMax,
         int fields,
-        Map<String, Integer> productionPercent
+        Map<String, Integer> productionPercent,
+        boolean moon
 ) {
+    public PlanetSnapshot(Map<String, Integer> buildings, Map<String, Long> units, int temperatureMax, int fields,
+                          Map<String, Integer> productionPercent) {
+        this(buildings, units, temperatureMax, fields, productionPercent, false);
+    }
+
     public PlanetSnapshot {
         buildings = buildings == null ? Map.of() : Map.copyOf(buildings);
         units = units == null ? Map.of() : Map.copyOf(units);

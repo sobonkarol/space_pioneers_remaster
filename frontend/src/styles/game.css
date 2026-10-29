@@ -219,6 +219,8 @@ textarea { width: 100%; resize: vertical; }
 .fleet-time { width: 150px; }
 .fleet-actions { width: 80px; text-align: right; }
 .hostile-label { color: var(--bad); font-weight: bold; }
+.fleet-row.allied td { border-left: 3px solid #4fa3ff; background: rgba(80, 160, 255, 0.08); }
+.allied-label { color: #7fbaff; font-weight: bold; }
 
 /* ---- komunikaty ---- */
 .notice { border: 1px solid; padding: 6px 10px; margin-bottom: 10px; }
@@ -305,3 +307,9 @@ textarea { width: 100%; resize: vertical; }
   .report-grid { grid-template-columns: 1fr; }
   .planet-select { min-width: 0; max-width: 100%; }
 }
+
+/* ksiezyce w galaktyce i znajomi */
+.moon-cell { display: inline-flex; align-items: center; gap: 4px; }
+.moon-actions { display: inline-flex; flex-direction: column; line-height: 1.1; }
+.online-dot { color: #6dde6d; font-size: 11px; }
+.online-dot::before { content: '● '; }

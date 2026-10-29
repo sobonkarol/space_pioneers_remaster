@@ -15,10 +15,11 @@ public class GameDataTest {
 
     @Test
     public void loadsAllCatalogs() {
-        assertEquals(15, data.buildings().size());
+        assertEquals(19, data.buildings().size());
         assertEquals(14, data.research().size());
         assertEquals(13, data.ships().size());
         assertEquals(8, data.defenses().size());
+        assertEquals(2, data.missiles().size());
     }
 
     @Test

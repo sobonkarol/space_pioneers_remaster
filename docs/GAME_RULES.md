@@ -28,6 +28,8 @@ gatunku (SP powstało jako alternatywa dla OGame). Wszystkie liczby siedzą w pl
 ## Walka
 - Do 6 rund; każda jednostka strzela raz w losowy cel; strzał < 1% osłony celu odbija się.
 - Technologie: +10% ataku/osłon/struktury za poziom; wojownik +10% ataku (+1% za poziom Akademii).
+- Szybkie działa (rapid fire): po trafieniu w typ celu z wartością `rf` jednostka strzela ponownie z
+  prawdopodobieństwem `(rf-1)/rf`. Statki mają `5` przeciw sondom i satelitom; pozostałe tabele w `units.json`.
 - Po walce: 30% metalu i kryształu zniszczonych statków → pole zniszczeń; ~70% obrony odbudowane;
   zwycięzca rabuje do 50% surowców w granicach ładowności.
 
@@ -36,3 +38,21 @@ gatunku (SP powstało jako alternatywa dla OGame). Wszystkie liczby siedzą w pl
 - Tryb urlopowy: min. 48 h, brak produkcji, brak ataków.
 - Sojusze: członkowie i sojusze z aktywnym paktem nie mogą się atakować; wojna jest jednostronna i natychmiastowa.
 - Handlarz: +20% ładowności, Centrum handlowe i rynek (3:2:1, prowizja 10% → 5%), Frachtowiec.
+
+## Księżyce, rakiety, ataki i obrona sojusznicza, ekspedycje
+- Księżyc: szansa `min(20%, (metal+kryształ pola zniszczeń) / 100 000 %)` po walce; 1 pole bazowe,
+  brak produkcji. Baza księżycowa +3 pola za poziom. Budynki mają lokalizację (planeta / księżyc / obie).
+- Falanga czujnikowa (księżyc): zasięg `poziom² − 1` układów, skan kosztuje 5000 trytu, pokazuje floty lecące
+  do i z planety oraz stacjonujące przy niej.
+- Teleporter: natychmiastowy przerzut statków między własnymi księżycami z teleporterem, 1 h ładowania
+  (podzielone przez prędkość galaktyki).
+- Silos: 10 miejsc na poziom; rakieta przechwytująca 1 miejsce, międzyplanetarna 2. Zasięg rakiet
+  `5 · impuls − 1` układów, lot `(30 + 60·układy) / prędkość floty` s. Przechwytujące niszczą rakiety 1:1,
+  reszta niszczy obronę (cel główny najpierw), bez pola zniszczeń.
+- Atak sojuszniczy: założyciel tworzy związek z lecącej floty i zaprasza sojuszników/znajomych (do 8 flot);
+  dołączenie wyrównuje czas przylotu wszystkich flot, ale nie więcej niż o 30% czasu lotu dołączanej floty.
+  Łup dzielony proporcjonalnie do wolnej ładowności.
+- Obrona sojusznicza: misja „Obrona” do planety sojusznika lub znajomego, pobyt 1–32 h; stacjonująca flota
+  walczy po stronie obrońcy i może zostać zawrócona.
+- Ekspedycja: na pozycję 16 układu, pobyt 1–8 h, równocześnie `⌊√astrofizyka⌋`. Wyniki: utrata floty 2%,
+  nic 30%, surowce 25%, statki 10%, piraci 10%, opóźnienie 12%, wcześniejszy powrót 11%.

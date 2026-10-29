@@ -34,10 +34,11 @@ public final class ShipyardService extends ServiceBase {
             int armour = player.researchLevel("armour_tech");
             List<Views.UnitOption> out = new ArrayList<>();
             for (UnitDef def : ctx.data().units()) {
-                if (def.type() != type) continue;
+                boolean listed = type == UnitDef.UnitType.DEFENSE ? (def.isDefense() || def.isMissile()) : def.type() == type;
+                if (!listed) continue;
                 List<String> missing = RequirementChecker.missing(def.requirements(), planet.snapshot(), tech);
                 String blocker = blocker(player, planet, def);
-                long max = maxBuildable(planet, def);
+                long max = maxBuildableWithSilo(planet, def);
                 out.add(new Views.UnitOption(def.key(), def.type().name(), planet.count(def.key()), def.cost(),
                         ctx.timing().unitSeconds(def.cost(), planet.snapshot()), missing, blocker, max,
                         def.attack(), def.shield(), def.baseHull() * (1 + 0.1 * armour), def.cargo(),
@@ -56,7 +57,19 @@ public final class ShipyardService extends ServiceBase {
         }
         if (planet.getShipyardQueue().size() >= MAX_ORDERS) return "queue_full";
         if (def.maxCount() != null && planned(planet, def.key()) >= def.maxCount()) return "max_count";
+        if (def.isMissile() && freeMissileSlots(planet) < slots(def)) return "silo_full";
         return null;
+    }
+
+    private static int slots(UnitDef def) {
+        return def.missileSlots() == null ? 1 : def.missileSlots();
+    }
+
+    private long freeMissileSlots(Planet planet) {
+        java.util.Map<String, Long> all = new java.util.HashMap<>();
+        for (UnitDef m : ctx.data().missiles()) all.put(m.key(), planned(planet, m.key()));
+        return pl.spacepioneers.engine.special.MissileStrike.siloCapacity(planet.level("missile_silo"))
+                - pl.spacepioneers.engine.special.MissileStrike.usedSlots(ctx.data(), all);
     }
 
     private static long planned(Planet planet, String unit) {
@@ -81,6 +94,12 @@ public final class ShipyardService extends ServiceBase {
         return Math.min(max, MAX_PER_ORDER);
     }
 
+    private long maxBuildableWithSilo(Planet planet, UnitDef def) {
+        long max = maxBuildable(planet, def);
+        if (def.isMissile()) max = Math.min(max, Math.max(0, freeMissileSlots(planet) / slots(def)));
+        return max;
+    }
+
     public Views.ShipyardItem order(long playerId, long planetId, String unitKey, long count) {
         return tx(now -> {
             if (count < 1 || count > MAX_PER_ORDER) {
@@ -92,12 +111,18 @@ public final class ShipyardService extends ServiceBase {
             UnitDef def = ctx.data().findUnit(unitKey).orElseThrow(() -> GameException.notFound("jednostka " + unitKey));
             String blocker = blocker(player, planet, def);
             if (blocker != null) {
-                String msg = "max_count".equals(blocker) ? "Można posiadać tylko jedną taką budowlę."
-                        : PlanetService.blockerMessage(blocker);
+                String msg = switch (blocker) {
+                    case "max_count" -> "Można posiadać tylko jedną taką budowlę.";
+                    case "silo_full" -> "Brak miejsca w silosie rakietowym.";
+                    default -> PlanetService.blockerMessage(blocker);
+                };
                 throw new GameException(blocker, msg);
             }
             if (def.maxCount() != null && planned(planet, unitKey) + count > def.maxCount()) {
                 throw new GameException("max_count", "Można posiadać tylko jedną taką budowlę.");
+            }
+            if (def.isMissile() && freeMissileSlots(planet) < count * slots(def)) {
+                throw new GameException("silo_full", "Brak miejsca w silosie rakietowym.");
             }
             List<String> missing = RequirementChecker.missing(def.requirements(), planet.snapshot(),
                     new TechLevels(player.getResearch()));

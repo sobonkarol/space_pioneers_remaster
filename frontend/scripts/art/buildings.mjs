@@ -406,4 +406,77 @@ export const buildings = {
       s += lamp(defs, 110, y0 - 88, 2, '#ff4030');
       return s;
     }),
+
+  missile_silo: () =>
+    tile('missile_silo', 'rocky', (defs, { y0 }) => {
+      let s = shadowEllipse(defs, 120, y0 + 52, 100, 14);
+      // betonowe wloty silosow
+      for (const [x, open] of [[60, false], [120, true], [180, false]]) {
+        s += `<ellipse cx="${x}" cy="${y0 + 30}" rx="28" ry="10" fill="#5a5c60" stroke="#2a2c30" stroke-width="2"/>`;
+        if (open) {
+          s += `<ellipse cx="${x}" cy="${y0 + 30}" rx="20" ry="7" fill="#101114"/>`;
+          const g = id('ms');
+          defs.push(linear(g, [[0, '#f0f2f6'], [0.5, '#a8b0bc'], [1, '#5a626e']], { x2: 1, y2: 0 }));
+          s += `<rect x="${x - 8}" y="${y0 - 70}" width="16" height="100" fill="url(#${g})"/>`;
+          s += `<path d="M ${x - 8} ${y0 - 70} L ${x} ${y0 - 95} L ${x + 8} ${y0 - 70} Z" fill="#c0302a"/>`;
+          s += `<path d="M ${x - 8} ${y0 + 10} L ${x - 16} ${y0 + 26} L ${x - 8} ${y0 + 22} Z M ${x + 8} ${y0 + 10} L ${x + 16} ${y0 + 26} L ${x + 8} ${y0 + 22} Z" fill="#7a8494"/>`;
+          s += `<rect x="${x - 8}" y="${y0 - 40}" width="16" height="4" fill="#c0302a"/>`;
+        } else {
+          s += `<path d="M ${x - 26} ${y0 + 30} A 26 9 0 0 1 ${x + 26} ${y0 + 30}" fill="#6a6c72" stroke="#e0a030" stroke-width="2" stroke-dasharray="5 4"/>`;
+        }
+      }
+      s += lamp(defs, 120, y0 - 100, 2, '#ff4030');
+      return s;
+    }),
+
+  lunar_base: () =>
+    tile('lunar_base', 'moon', (defs, { y0, r }) => {
+      let s = shadowEllipse(defs, 120, y0 + 52, 105, 14);
+      for (let i = 0; i < 12; i++) {
+        const x = 10 + r() * 220;
+        const y = y0 + 20 + r() * 40;
+        s += `<ellipse cx="${x}" cy="${y}" rx="${4 + r() * 10}" ry="${2 + r() * 3}" fill="#4a4c52" opacity="0.7"/>`;
+      }
+      s += dome(defs, 70, y0 + 30, 44, 40, '#c8d0dc');
+      s += dome(defs, 160, y0 + 34, 34, 30, '#c8d0dc');
+      s += `<rect x="108" y="${y0 + 22}" width="30" height="12" fill="#9aa4b2"/>`;
+      s += windows(52, y0 + 10, 4, 1, 10, 10, '#9fe0ff');
+      s += `<line x1="200" y1="${y0 + 30}" x2="210" y2="${y0 - 40}" stroke="#aab4c2" stroke-width="3"/>`;
+      s += lamp(defs, 210, y0 - 42, 2, '#ff4040');
+      return s;
+    }),
+
+  sensor_phalanx: () =>
+    tile('sensor_phalanx', 'moon', (defs, { y0 }) => {
+      let s = shadowEllipse(defs, 120, y0 + 52, 90, 14);
+      s += block(defs, 85, y0 + 10, 70, 36, 14, '#6a7484');
+      s += `<rect x="114" y="${y0 - 40}" width="12" height="52" fill="#9aa4b2"/>`;
+      const dish = id('dsh');
+      defs.push(linear(dish, [[0, '#ffffff'], [1, '#7a8494']], { x2: 1, y2: 1 }));
+      s += `<path d="M 60 ${y0 - 95} Q 120 ${y0 - 10} 190 ${y0 - 85} Q 125 ${y0 - 60} 60 ${y0 - 95} Z" fill="url(#${dish})" stroke="#4a5462"/>`;
+      s += `<line x1="125" y1="${y0 - 62}" x2="125" y2="${y0 - 110}" stroke="#c8d0da" stroke-width="2"/>`;
+      s += lamp(defs, 125, y0 - 112, 3, '#7affb0');
+      for (let i = 1; i <= 3; i++) {
+        s += `<path d="M ${125 - i * 18} ${y0 - 120 - i * 8} Q 125 ${y0 - 135 - i * 14} ${125 + i * 18} ${y0 - 120 - i * 8}" fill="none" stroke="#7affb0" stroke-opacity="${0.8 - i * 0.2}" stroke-width="2"/>`;
+      }
+      return s;
+    }),
+
+  jump_gate: () =>
+    tile('jump_gate', 'moon', (defs, { y0 }) => {
+      let s = shadowEllipse(defs, 120, y0 + 52, 100, 14);
+      const glow = id('jg');
+      defs.push(glowFilter(glow, 6));
+      const vortex = id('vx');
+      defs.push(radial(vortex, [[0, '#ffffff'], [0.3, '#b0e0ff'], [0.7, '#4070ff', 0.8], [1, '#2030a0', 0.2]]));
+      s += `<ellipse cx="120" cy="${y0 - 40}" rx="62" ry="70" fill="url(#${vortex})" filter="url(#${glow})"/>`;
+      s += `<ellipse cx="120" cy="${y0 - 40}" rx="70" ry="78" fill="none" stroke="#9aa4b2" stroke-width="12"/>`;
+      s += `<ellipse cx="120" cy="${y0 - 40}" rx="70" ry="78" fill="none" stroke="#5a6474" stroke-width="3" stroke-dasharray="10 8"/>`;
+      for (let k = 0; k < 8; k++) {
+        const a = (k / 8) * Math.PI * 2;
+        s += lamp(defs, 120 + Math.cos(a) * 70, y0 - 40 + Math.sin(a) * 78, 1.5, '#7ad0ff');
+      }
+      s += block(defs, 70, y0 + 34, 100, 14, 10, '#5a6474');
+      return s;
+    }),
 };

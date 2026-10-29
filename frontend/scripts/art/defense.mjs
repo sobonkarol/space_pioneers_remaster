@@ -161,4 +161,41 @@ export const defense = {
       s += `<path d="M 30 ${y0 - 10} Q 60 ${y0 - 120} 130 ${y0 - 145}" fill="none" stroke="#ffffff" stroke-opacity="0.45" stroke-width="4"/>`;
       return s;
     }),
+
+  anti_ballistic_missile: () =>
+    tile('anti_ballistic_missile', 'ice', (defs, { y0 }) => {
+      let s = shadowEllipse(defs, 120, y0 + 50, 80, 12);
+      s += block(defs, 70, y0 + 22, 100, 24, 14, '#5a6474');
+      const g = id('ab');
+      defs.push(linear(g, [[0, '#f4f6fa'], [0.5, '#b0b8c4'], [1, '#6a727e']], { x2: 1, y2: 0 }));
+      for (const x of [95, 145]) {
+        s += `<rect x="${x - 7}" y="${y0 - 50}" width="14" height="72" fill="url(#${g})"/>`;
+        s += `<path d="M ${x - 7} ${y0 - 50} L ${x} ${y0 - 70} L ${x + 7} ${y0 - 50} Z" fill="#3a7ac0"/>`;
+      }
+      // przechwycenie
+      const glow = id('ag');
+      defs.push(glowFilter(glow, 5));
+      s += `<path d="M 120 ${y0 - 80} Q 160 ${y0 - 140} 200 ${y0 - 150}" stroke="#bfe0ff" stroke-width="2" stroke-dasharray="3 4" fill="none"/>`;
+      s += `<circle cx="200" cy="${y0 - 150}" r="16" fill="#ffd27a" filter="url(#${glow})" opacity="0.9"/>`;
+      s += `<circle cx="200" cy="${y0 - 150}" r="7" fill="#ffffff"/>`;
+      return s;
+    }),
+
+  interplanetary_missile: () =>
+    tile('interplanetary_missile', 'desert', (defs, { y0 }) => {
+      let s = '';
+      const g = id('ip');
+      defs.push(linear(g, [[0, '#f4f6fa'], [0.5, '#a8b0bc'], [1, '#4a525e']]));
+      const flame = id('fl');
+      defs.push(linear(flame, [[0, '#ffffff'], [0.3, '#ffd27a'], [1, '#ff5020', 0]], { x2: 1, y2: 0 }));
+      s += `<g transform="rotate(-35 120 120)">`;
+      s += `<path d="M 20 112 L 60 116 L 60 124 L 20 128 Z" fill="url(#${flame})" transform="rotate(180 40 120)"/>`;
+      s += `<rect x="60" y="108" width="120" height="24" rx="4" fill="url(#${g})"/>`;
+      s += `<path d="M 180 108 Q 214 120 180 132 Z" fill="#c0302a"/>`;
+      s += `<path d="M 66 108 L 54 92 L 82 108 Z M 66 132 L 54 148 L 82 132 Z" fill="#7a8494"/>`;
+      s += `<rect x="120" y="108" width="6" height="24" fill="#c0302a"/>`;
+      s += `<path d="M 60 120 L 0 120" stroke="#ffd27a" stroke-width="10" stroke-linecap="round" opacity="0.7"/>`;
+      s += `</g>`;
+      return s;
+    }),
 };

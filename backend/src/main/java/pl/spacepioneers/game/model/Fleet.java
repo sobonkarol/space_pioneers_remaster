@@ -10,9 +10,10 @@ import java.util.Map;
 /** Flota w locie. */
 public class Fleet {
 
-    public enum Mission { ATTACK, TRANSPORT, DEPLOY, COLONIZE, RECYCLE, ESPIONAGE }
+    public enum Mission { ATTACK, TRANSPORT, DEPLOY, COLONIZE, RECYCLE, ESPIONAGE, HOLD, EXPEDITION, MISSILE }
 
-    public enum Status { OUTBOUND, RETURNING }
+    /** OUTBOUND - leci do celu, HOLDING - przebywa u celu (obrona sojusznicza, ekspedycja), RETURNING - wraca. */
+    public enum Status { OUTBOUND, HOLDING, RETURNING }
 
     private long id;
     private long ownerId;
@@ -30,10 +31,20 @@ public class Fleet {
     private Instant departAt;
     private Instant arriveAt;
     private Instant returnAt;
+    private boolean targetMoon;
+    private Long unionId;
+    private long holdSeconds;
+    private Instant holdUntil;
+    private String primaryTarget;
+    private long flightSeconds;
 
     /** Najblizszy moment, w ktorym flota wymaga obslugi. */
     public Instant nextEventAt() {
-        return status == Status.OUTBOUND ? arriveAt : returnAt;
+        return switch (status) {
+            case OUTBOUND -> arriveAt;
+            case HOLDING -> holdUntil;
+            case RETURNING -> returnAt;
+        };
     }
 
     public long totalShips() {
@@ -70,6 +81,30 @@ public class Fleet {
     public void setDepartAt(Instant departAt) { this.departAt = departAt; }
     public Instant getArriveAt() { return arriveAt; }
     public void setArriveAt(Instant arriveAt) { this.arriveAt = arriveAt; }
+    public boolean isTargetMoon() { return targetMoon; }
+    public void setTargetMoon(boolean targetMoon) { this.targetMoon = targetMoon; }
+    public Long getUnionId() { return unionId; }
+    public void setUnionId(Long unionId) { this.unionId = unionId; }
+    public long getHoldSeconds() { return holdSeconds; }
+    public void setHoldSeconds(long holdSeconds) { this.holdSeconds = holdSeconds; }
+    public Instant getHoldUntil() { return holdUntil; }
+    public void setHoldUntil(Instant holdUntil) { this.holdUntil = holdUntil; }
+    public String getPrimaryTarget() { return primaryTarget; }
+    public void setPrimaryTarget(String primaryTarget) { this.primaryTarget = primaryTarget; }
+
+    /** Czas lotu w jedna strone (wlasny czas floty - bez opoznienia wynikajacego z ataku sojuszniczego). */
+    public java.time.Duration flightDuration() {
+        return flightSeconds > 0 ? java.time.Duration.ofSeconds(flightSeconds) : java.time.Duration.between(departAt, arriveAt);
+    }
+
+    public long getFlightSeconds() { return flightSeconds; }
+    public void setFlightSeconds(long flightSeconds) { this.flightSeconds = flightSeconds; }
+
+    /** Misje, ktore nie zajmuja slotu floty. */
+    public boolean usesSlot() {
+        return mission != Mission.MISSILE;
+    }
+
     public Instant getReturnAt() { return returnAt; }
     public void setReturnAt(Instant returnAt) { this.returnAt = returnAt; }
 }

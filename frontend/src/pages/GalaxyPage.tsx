@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/client';
-import type { GalaxyView } from '../api/types';
+import type { DispatchInfo, FleetMovement, GalaxyView } from '../api/types';
 import { PlanetImage } from '../components/AssetImage';
-import { ErrorBox, Loading, Panel, errorText } from '../components/common';
-import { t } from '../i18n';
+import { ErrorBox, Loading, Panel, SuccessBox, errorText, useAction } from '../components/common';
+import { FleetTable } from '../components/FleetTable';
+import { nameOf, t } from '../i18n';
 import { fmt } from '../lib/format';
 import { useGame } from '../state/game';
 import { useSession } from '../state/session';
 
 export function GalaxyPage() {
   const { overview } = useGame();
-  const { config } = useSession();
+  const { config, planetId } = useSession();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const home = (params.get('coords') ?? overview?.planet.coordinates ?? '1:1:1').split(':').map(Number);
@@ -19,6 +20,14 @@ export function GalaxyPage() {
   const [system, setSystem] = useState(home[1] || 1);
   const [view, setView] = useState<GalaxyView | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [missileTarget, setMissileTarget] = useState<string | null>(null);
+  const [phalanx, setPhalanx] = useState<{ coords: string; fleets: FleetMovement[] } | null>(null);
+  const [dispatch, setDispatch] = useState<DispatchInfo | null>(null);
+  const action = useAction();
+  const maxG = config?.universe.galaxies ?? 1;
+  const maxS = config?.universe.systems ?? 1;
+  const deepSpace = (config?.universe.positions ?? 15) + 1;
+
   const [initialized, setInitialized] = useState(Boolean(params.get('coords') || overview));
   // przeglad planety moze dojsc po pierwszym renderze - wtedy ustawiamy uklad macierzysty
   useEffect(() => {
@@ -29,8 +38,11 @@ export function GalaxyPage() {
       setInitialized(true);
     }
   }, [initialized, overview]);
-  const maxG = config?.universe.galaxies ?? 1;
-  const maxS = config?.universe.systems ?? 1;
+
+  useEffect(() => {
+    if (!planetId) return;
+    api.get<DispatchInfo>(`/planets/${planetId}/fleet-dispatch`).then(setDispatch).catch(() => setDispatch(null));
+  }, [planetId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -49,11 +61,34 @@ export function GalaxyPage() {
   }, [galaxy, system]);
 
   const clamp = (v: number, max: number) => Math.min(max, Math.max(1, v));
-  const fleet = (coords: string, mission: string, ships?: string) =>
-    navigate(`/fleet?target=${coords}&mission=${mission}${ships ? `&ships=${ships}` : ''}`);
+  const fleet = (coords: string, mission: string, ships?: string, moon = false) =>
+    navigate(`/fleet?target=${coords}&mission=${mission}${ships ? `&ships=${ships}` : ''}${moon ? '&moon=1' : ''}`);
+  const onMoon = overview?.planet.moon ?? false;
+  const hasMissiles = (dispatch?.missiles ?? 0) > 0 && !onMoon;
+
+  const scan = async (coords: string) => {
+    let fleets: FleetMovement[] = [];
+    const ok = await action.run(async () => {
+      fleets = await api.post<FleetMovement[]>(`/planets/${planetId}/phalanx`, { target: coords });
+    });
+    if (ok) setPhalanx({ coords, fleets });
+  };
 
   return (
     <div className="galaxy-page">
+      <ErrorBox error={action.error} />
+      {missileTarget && dispatch && (
+        <MissilePanel planetId={planetId!} target={missileTarget} available={dispatch.missiles} range={dispatch.missileRange}
+          onClose={() => setMissileTarget(null)} />
+      )}
+      {phalanx && (
+        <Panel title={`${t('phalanx.title')} — ${t('phalanx.result', { coords: phalanx.coords })}`}>
+          <FleetTable fleets={phalanx.fleets} />
+          <button type="button" className="btn small" onClick={() => setPhalanx(null)}>
+            {t('common.close')}
+          </button>
+        </Panel>
+      )}
       <Panel title={t('menu.galaxy')}>
         <div className="galaxy-nav">
           <span className="nav-group">
@@ -68,6 +103,7 @@ export function GalaxyPage() {
             <input className="coord-input" value={system} onChange={(e) => setSystem(clamp(Number(e.target.value) || 1, maxS))} aria-label={t('galaxy.system')} />
             <button type="button" className="btn small" onClick={() => setSystem((s) => clamp(s + 1, maxS))}>»</button>
           </span>
+          {hasMissiles && <span className="muted small">{t('missile.range', { n: fmt(dispatch?.missiles ?? 0), range: dispatch?.missileRange ?? 0 })}</span>}
         </div>
         <ErrorBox error={error} />
         {!view ? (
@@ -79,6 +115,7 @@ export function GalaxyPage() {
                 <th>#</th>
                 <th>{t('galaxy.planet')}</th>
                 <th>{t('common.name')}</th>
+                <th>{t('galaxy.moon')}</th>
                 <th>{t('galaxy.debris')}</th>
                 <th>{t('common.player')}</th>
                 <th>{t('common.alliance')}</th>
@@ -95,6 +132,23 @@ export function GalaxyPage() {
                       {r.planetId && <PlanetImage planetType={r.planetType} variant={r.imageVariant} size={30} />}
                     </td>
                     <td>{r.planetName ?? <span className="muted">{t('galaxy.empty')}</span>}</td>
+                    <td className="galaxy-planet">
+                      {r.moonId && (
+                        <span title={r.moonName ?? ''} className="moon-cell">
+                          <PlanetImage planetType="moon" variant={r.moonImageVariant} size={20} />
+                          {!r.own && (
+                            <span className="moon-actions">
+                              <button type="button" className="link-button small" onClick={() => fleet(coords, 'ESPIONAGE', 'espionage_probe:1', true)}>
+                                {t('galaxy.spy')}
+                              </button>
+                              <button type="button" className="link-button small" onClick={() => fleet(coords, 'ATTACK', undefined, true)}>
+                                {t('galaxy.attack')}
+                              </button>
+                            </span>
+                          )}
+                        </span>
+                      )}
+                    </td>
                     <td>
                       {r.debris && (
                         <span className="debris" title={`${t('res.metal')}: ${fmt(r.debris.metal)}\n${t('res.crystal')}: ${fmt(r.debris.crystal)}`}>
@@ -124,6 +178,19 @@ export function GalaxyPage() {
                           <button type="button" className="link-button small" onClick={() => fleet(coords, 'TRANSPORT')}>
                             {t('galaxy.transport')}
                           </button>
+                          <button type="button" className="link-button small" onClick={() => fleet(coords, 'HOLD')}>
+                            {t('galaxy.hold')}
+                          </button>
+                          {hasMissiles && (
+                            <button type="button" className="link-button small" onClick={() => setMissileTarget(coords)}>
+                              {t('galaxy.missiles')}
+                            </button>
+                          )}
+                          {onMoon && (
+                            <button type="button" className="link-button small" onClick={() => void scan(coords)}>
+                              {t('galaxy.phalanx')}
+                            </button>
+                          )}
                           <Link className="link-button small" to={`/messages?to=${encodeURIComponent(r.ownerName ?? '')}`}>
                             {t('galaxy.message')}
                           </Link>
@@ -148,11 +215,77 @@ export function GalaxyPage() {
                   </tr>
                 );
               })}
+              <tr className="empty-row">
+                <td>{deepSpace}</td>
+                <td colSpan={6} className="muted">
+                  {t('galaxy.expedition')}
+                </td>
+                <td className="galaxy-actions">
+                  <button type="button" className="link-button small" onClick={() => fleet(`${view.galaxy}:${view.system}:${deepSpace}`, 'EXPEDITION')}>
+                    {t('mission.EXPEDITION')}
+                  </button>
+                </td>
+              </tr>
             </tbody>
           </table>
         )}
         <p className="muted small">{t('galaxy.legend')}</p>
       </Panel>
     </div>
+  );
+}
+
+function MissilePanel({ planetId, target, available, range, onClose }: {
+  planetId: number;
+  target: string;
+  available: number;
+  range: number;
+  onClose: () => void;
+}) {
+  const { config } = useSession();
+  const { refresh } = useGame();
+  const action = useAction();
+  const [count, setCount] = useState(String(available));
+  const [primary, setPrimary] = useState('');
+  return (
+    <Panel title={`${t('missile.title')} [${target}]`}>
+      <ErrorBox error={action.error} />
+      <SuccessBox message={action.message} />
+      <p className="muted small">{t('missile.range', { n: fmt(available), range })}</p>
+      <div className="inline-form">
+        <label>
+          {t('missile.count')}
+          <input className="amount-input" value={count} onChange={(e) => setCount(e.target.value)} />
+        </label>
+        <label>
+          {t('missile.primary')}
+          <select value={primary} onChange={(e) => setPrimary(e.target.value)}>
+            <option value="">{t('missile.any')}</option>
+            {(config?.defenses ?? []).map((d) => (
+              <option key={d.key} value={d.key}>
+                {nameOf(d.key)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          type="button"
+          className="btn primary"
+          disabled={action.busy}
+          onClick={async () => {
+            const ok = await action.run(
+              () => api.post(`/planets/${planetId}/missiles`, { target, count: Number(count) || 0, primaryTarget: primary || null }),
+              t('missile.sent'),
+            );
+            if (ok) await refresh();
+          }}
+        >
+          {t('missile.launch')}
+        </button>
+        <button type="button" className="btn" onClick={onClose}>
+          {t('common.close')}
+        </button>
+      </div>
+    </Panel>
   );
 }

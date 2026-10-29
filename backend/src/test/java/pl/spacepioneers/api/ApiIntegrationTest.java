@@ -72,7 +72,7 @@ class ApiIntegrationTest {
         MvcResult buildings = mvc.perform(get("/api/planets/" + planet + "/buildings").header("Authorization", token))
                 .andExpect(status().isOk()).andReturn();
         JsonNode list = json.readTree(buildings.getResponse().getContentAsString());
-        assertThat(list.size()).isEqualTo(15);
+        assertThat(list.size()).isEqualTo(16); // budynki planetarne (bez ksiezycowych)
 
         mvc.perform(put("/api/planets/" + planet + "/production").header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON).content("{\"source\":\"metal_mine\",\"percent\":50}"))
@@ -98,7 +98,7 @@ class ApiIntegrationTest {
                 .andExpect(status().isNotFound());
         mvc.perform(post("/api/auth/logout").header("Authorization", bearer(a))).andExpect(status().isNoContent());
         mvc.perform(get("/api/me").header("Authorization", bearer(a))).andExpect(status().isUnauthorized());
-        mvc.perform(get("/api/config")).andExpect(status().isOk()).andExpect(jsonPath("$.buildings.length()").value(15));
+        mvc.perform(get("/api/config")).andExpect(status().isOk()).andExpect(jsonPath("$.buildings.length()").value(19));
     }
 
     @Test

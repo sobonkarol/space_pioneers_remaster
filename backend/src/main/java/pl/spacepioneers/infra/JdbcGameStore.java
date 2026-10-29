@@ -8,6 +8,8 @@ import pl.spacepioneers.engine.common.Coordinates;
 import pl.spacepioneers.engine.common.Resources;
 import pl.spacepioneers.game.model.Alliance;
 import pl.spacepioneers.game.model.AllianceApplication;
+import pl.spacepioneers.game.model.AttackUnion;
+import pl.spacepioneers.game.model.Buddy;
 import pl.spacepioneers.game.model.BuildOrder;
 import pl.spacepioneers.game.model.DebrisField;
 import pl.spacepioneers.game.model.Fleet;
@@ -35,7 +37,7 @@ public class JdbcGameStore implements GameStore {
 
     private static final long GAME_LOCK = 0x5350_4C4F_434BL; // "SPLOCK"
     private static final Set<String> SEQUENCES = Set.of("player", "planet", "fleet", "message", "alliance",
-            "application", "treaty", "build", "shipyard");
+            "application", "treaty", "build", "shipyard", "union", "buddy");
 
     private final JdbcTemplate jdbc;
     private final TransactionTemplate tx;
@@ -124,8 +126,20 @@ public class JdbcGameStore implements GameStore {
 
     @Override
     public Optional<Planet> planetAt(Coordinates c) {
-        return first(jdbc.query("select data from planets where galaxy = ? and system = ? and position = ?",
+        return first(jdbc.query("select data from planets where galaxy = ? and system = ? and position = ? and not is_moon",
                 data(Planet.class), c.galaxy(), c.system(), c.position()));
+    }
+
+    @Override
+    public Optional<Planet> moonAt(Coordinates c) {
+        return first(jdbc.query("select data from planets where galaxy = ? and system = ? and position = ? and is_moon",
+                data(Planet.class), c.galaxy(), c.system(), c.position()));
+    }
+
+    @Override
+    public List<Planet> moonsInSystem(int galaxy, int system) {
+        return jdbc.query("select data from planets where galaxy = ? and system = ? and is_moon order by position",
+                data(Planet.class), galaxy, system);
     }
 
     @Override
@@ -135,7 +149,7 @@ public class JdbcGameStore implements GameStore {
 
     @Override
     public List<Planet> planetsInSystem(int galaxy, int system) {
-        return jdbc.query("select data from planets where galaxy = ? and system = ? order by position",
+        return jdbc.query("select data from planets where galaxy = ? and system = ? and not is_moon order by position",
                 data(Planet.class), galaxy, system);
     }
 
@@ -148,13 +162,13 @@ public class JdbcGameStore implements GameStore {
     public void save(Planet p) {
         BuildOrder active = p.activeBuild();
         jdbc.update("""
-                insert into planets (id, owner_id, galaxy, system, position, build_end, data)
-                values (?, ?, ?, ?, ?, ?, ?::jsonb)
+                insert into planets (id, owner_id, galaxy, system, position, is_moon, build_end, data)
+                values (?, ?, ?, ?, ?, ?, ?, ?::jsonb)
                 on conflict (id) do update set owner_id = excluded.owner_id, galaxy = excluded.galaxy,
-                    system = excluded.system, position = excluded.position, build_end = excluded.build_end,
-                    data = excluded.data
+                    system = excluded.system, position = excluded.position, is_moon = excluded.is_moon,
+                    build_end = excluded.build_end, data = excluded.data
                 """,
-                p.getId(), p.getOwnerId(), p.getGalaxy(), p.getSystem(), p.getPosition(),
+                p.getId(), p.getOwnerId(), p.getGalaxy(), p.getSystem(), p.getPosition(), p.isMoon(),
                 ts(active == null ? null : active.end()), Json.write(p));
     }
 
@@ -178,7 +192,7 @@ public class JdbcGameStore implements GameStore {
     @Override
     public List<Fleet> fleetsTargeting(long playerId) {
         return jdbc.query("""
-                select data from fleets where target_owner_id = ? and owner_id <> ? and status = 'OUTBOUND'
+                select data from fleets where target_owner_id = ? and owner_id <> ? and status in ('OUTBOUND', 'HOLDING')
                 order by next_event_at, id
                 """, data(Fleet.class), playerId, playerId);
     }
@@ -192,14 +206,61 @@ public class JdbcGameStore implements GameStore {
     public void save(Fleet f) {
         jdbc.update("""
                 insert into fleets (id, owner_id, origin_planet_id, target_owner_id, target_galaxy, target_system,
-                    target_position, status, next_event_at, data)
-                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb)
+                    target_position, status, next_event_at, union_id, target_moon, origin_galaxy, origin_system,
+                    origin_position, data)
+                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb)
                 on conflict (id) do update set target_owner_id = excluded.target_owner_id, status = excluded.status,
-                    next_event_at = excluded.next_event_at, data = excluded.data
+                    next_event_at = excluded.next_event_at, union_id = excluded.union_id, data = excluded.data
                 """,
                 f.getId(), f.getOwnerId(), f.getOriginPlanetId(), f.getTargetOwnerId(),
                 f.getTarget().galaxy(), f.getTarget().system(), f.getTarget().position(),
-                f.getStatus().name(), ts(f.nextEventAt()), Json.write(f));
+                f.getStatus().name(), ts(f.nextEventAt()), f.getUnionId(), f.isTargetMoon(),
+                f.getOrigin().galaxy(), f.getOrigin().system(), f.getOrigin().position(), Json.write(f));
+    }
+
+    @Override
+    public List<Fleet> fleetsInUnion(long unionId) {
+        return jdbc.query("select data from fleets where union_id = ? order by id", data(Fleet.class), unionId);
+    }
+
+    @Override
+    public List<Fleet> fleetsHoldingAt(Coordinates c, boolean moon) {
+        return jdbc.query("""
+                select data from fleets where status = 'HOLDING' and data ->> 'mission' = 'HOLD'
+                  and target_galaxy = ? and target_system = ? and target_position = ? and target_moon = ? order by id
+                """, data(Fleet.class), c.galaxy(), c.system(), c.position(), moon);
+    }
+
+    @Override
+    public List<Fleet> fleetsAround(Coordinates c) {
+        return jdbc.query("""
+                select data from fleets where (origin_galaxy = ? and origin_system = ? and origin_position = ?)
+                  or (target_galaxy = ? and target_system = ? and target_position = ? and not target_moon)
+                order by next_event_at, id
+                """, data(Fleet.class), c.galaxy(), c.system(), c.position(), c.galaxy(), c.system(), c.position());
+    }
+
+    @Override
+    public Optional<AttackUnion> union(long id) {
+        return first(jdbc.query("select data from attack_unions where id = ?", data(AttackUnion.class), id));
+    }
+
+    @Override
+    public List<AttackUnion> unions() {
+        return jdbc.query("select data from attack_unions order by id", data(AttackUnion.class));
+    }
+
+    @Override
+    public void save(AttackUnion u) {
+        jdbc.update("""
+                insert into attack_unions (id, data) values (?, ?::jsonb)
+                on conflict (id) do update set data = excluded.data
+                """, u.id(), Json.write(u));
+    }
+
+    @Override
+    public void deleteUnion(long id) {
+        jdbc.update("delete from attack_unions where id = ?", id);
     }
 
     @Override
@@ -378,6 +439,36 @@ public class JdbcGameStore implements GameStore {
     @Override
     public void deleteTreaty(long id) {
         jdbc.update("delete from treaties where id = ?", id);
+    }
+
+    // --- znajomi
+
+    private static final RowMapper<Buddy> BUDDY = (rs, n) -> new Buddy(rs.getLong("id"), rs.getLong("requester_id"),
+            rs.getLong("addressee_id"), Buddy.Status.valueOf(rs.getString("status")), rs.getString("text"),
+            rs.getTimestamp("created_at").toInstant());
+
+    @Override
+    public Optional<Buddy> buddy(long id) {
+        return first(jdbc.query("select * from buddies where id = ?", BUDDY, id));
+    }
+
+    @Override
+    public List<Buddy> buddiesOf(long playerId) {
+        return jdbc.query("select * from buddies where requester_id = ? or addressee_id = ? order by id",
+                BUDDY, playerId, playerId);
+    }
+
+    @Override
+    public void save(Buddy b) {
+        jdbc.update("""
+                insert into buddies (id, requester_id, addressee_id, status, text, created_at) values (?, ?, ?, ?, ?, ?)
+                on conflict (id) do update set status = excluded.status
+                """, b.id(), b.requesterId(), b.addresseeId(), b.status().name(), b.text(), ts(b.createdAt()));
+    }
+
+    @Override
+    public void deleteBuddy(long id) {
+        jdbc.update("delete from buddies where id = ?", id);
     }
 
     // --- zdarzenia

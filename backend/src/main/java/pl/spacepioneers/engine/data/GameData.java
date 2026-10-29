@@ -85,6 +85,9 @@ public final class GameData {
             if (u.drive() != null && !research.containsKey(u.drive())) {
                 errors.add(u.key() + " ma nieznany naped " + u.drive());
             }
+            u.rapidFire().keySet().forEach(k -> {
+                if (!units.containsKey(k)) errors.add(u.key() + " ma szybki ogien przeciw nieznanej jednostce " + k);
+            });
         });
         if (!errors.isEmpty()) {
             throw new IllegalStateException("Niespojne dane gry: " + errors);
@@ -109,6 +112,10 @@ public final class GameData {
 
     public List<UnitDef> defenses() {
         return units.values().stream().filter(UnitDef::isDefense).toList();
+    }
+
+    public List<UnitDef> missiles() {
+        return units.values().stream().filter(UnitDef::isMissile).toList();
     }
 
     public BuildingDef building(String key) {

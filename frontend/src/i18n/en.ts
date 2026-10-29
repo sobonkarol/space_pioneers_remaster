@@ -92,6 +92,9 @@ export const en = {
     'mission.COLONIZE': 'Colonize',
     'mission.RECYCLE': 'Harvest',
     'mission.ESPIONAGE': 'Espionage',
+    'mission.HOLD': 'Alliance defense',
+    'mission.EXPEDITION': 'Expedition',
+    'mission.MISSILE': 'Missile attack',
   } as Record<string, string>,
 
   names: {
@@ -145,6 +148,12 @@ export const en = {
     plasma_turret: 'Plasma Turret',
     small_shield_dome: 'Small Shield Dome',
     large_shield_dome: 'Large Shield Dome',
+    missile_silo: 'Missile Silo',
+    lunar_base: 'Lunar Base',
+    sensor_phalanx: 'Sensor Phalanx',
+    jump_gate: 'Jump Gate',
+    anti_ballistic_missile: 'Anti-Ballistic Missile',
+    interplanetary_missile: 'Interplanetary Missile',
     base: 'Base production',
   } as Record<string, string>,
 

@@ -3,6 +3,8 @@ package pl.spacepioneers.game.store;
 import pl.spacepioneers.engine.common.Coordinates;
 import pl.spacepioneers.game.model.Alliance;
 import pl.spacepioneers.game.model.AllianceApplication;
+import pl.spacepioneers.game.model.AttackUnion;
+import pl.spacepioneers.game.model.Buddy;
 import pl.spacepioneers.game.model.BuildOrder;
 import pl.spacepioneers.game.model.DebrisField;
 import pl.spacepioneers.game.model.Fleet;
@@ -43,6 +45,8 @@ public class InMemoryGameStore implements GameStore {
         Map<Long, Alliance> alliances = new TreeMap<>();
         Map<Long, AllianceApplication> applications = new TreeMap<>();
         Map<Long, Treaty> treaties = new TreeMap<>();
+        Map<Long, AttackUnion> unions = new TreeMap<>();
+        Map<Long, Buddy> buddies = new TreeMap<>();
 
         State copy() {
             State s = new State();
@@ -55,6 +59,8 @@ public class InMemoryGameStore implements GameStore {
             s.alliances = new TreeMap<>(alliances);
             s.applications = new TreeMap<>(applications);
             s.treaties = new TreeMap<>(treaties);
+            s.unions = new TreeMap<>(unions);
+            s.buddies = new TreeMap<>(buddies);
             return s;
         }
     }
@@ -138,7 +144,18 @@ public class InMemoryGameStore implements GameStore {
 
     @Override
     public Optional<Planet> planetAt(Coordinates coordinates) {
-        return state.planets.values().stream().filter(p -> p.coordinates().equals(coordinates)).findFirst().map(Json::copy);
+        return state.planets.values().stream().filter(p -> !p.isMoon() && p.coordinates().equals(coordinates)).findFirst().map(Json::copy);
+    }
+
+    @Override
+    public Optional<Planet> moonAt(Coordinates coordinates) {
+        return state.planets.values().stream().filter(p -> p.isMoon() && p.coordinates().equals(coordinates)).findFirst().map(Json::copy);
+    }
+
+    @Override
+    public List<Planet> moonsInSystem(int galaxy, int system) {
+        return state.planets.values().stream().filter(p -> p.isMoon() && p.getGalaxy() == galaxy && p.getSystem() == system)
+                .sorted(Comparator.comparingInt(Planet::getPosition)).map(Json::copy).toList();
     }
 
     @Override
@@ -148,7 +165,7 @@ public class InMemoryGameStore implements GameStore {
 
     @Override
     public List<Planet> planetsInSystem(int galaxy, int system) {
-        return state.planets.values().stream().filter(p -> p.getGalaxy() == galaxy && p.getSystem() == system)
+        return state.planets.values().stream().filter(p -> !p.isMoon() && p.getGalaxy() == galaxy && p.getSystem() == system)
                 .sorted(Comparator.comparingInt(Planet::getPosition)).map(Json::copy).toList();
     }
 
@@ -182,13 +199,54 @@ public class InMemoryGameStore implements GameStore {
     public List<Fleet> fleetsTargeting(long playerId) {
         return state.fleets.values().stream()
                 .filter(f -> f.getTargetOwnerId() != null && f.getTargetOwnerId() == playerId
-                        && f.getOwnerId() != playerId && f.getStatus() == Fleet.Status.OUTBOUND)
+                        && f.getOwnerId() != playerId && f.getStatus() != Fleet.Status.RETURNING)
                 .map(Json::copy).toList();
     }
 
     @Override
     public List<Fleet> allFleets() {
         return state.fleets.values().stream().map(Json::copy).toList();
+    }
+
+    @Override
+    public List<Fleet> fleetsInUnion(long unionId) {
+        return state.fleets.values().stream().filter(f -> f.getUnionId() != null && f.getUnionId() == unionId)
+                .map(Json::copy).toList();
+    }
+
+    @Override
+    public List<Fleet> fleetsHoldingAt(Coordinates coordinates, boolean moon) {
+        return state.fleets.values().stream()
+                .filter(f -> f.getStatus() == Fleet.Status.HOLDING && f.getMission() == Fleet.Mission.HOLD
+                        && f.getTarget().equals(coordinates) && f.isTargetMoon() == moon)
+                .map(Json::copy).toList();
+    }
+
+    @Override
+    public List<Fleet> fleetsAround(Coordinates coordinates) {
+        return state.fleets.values().stream()
+                .filter(f -> f.getOrigin().equals(coordinates) || (f.getTarget().equals(coordinates) && !f.isTargetMoon()))
+                .map(Json::copy).toList();
+    }
+
+    @Override
+    public Optional<AttackUnion> union(long id) {
+        return Optional.ofNullable(state.unions.get(id));
+    }
+
+    @Override
+    public List<AttackUnion> unions() {
+        return List.copyOf(state.unions.values());
+    }
+
+    @Override
+    public void save(AttackUnion union) {
+        state.unions.put(union.id(), union);
+    }
+
+    @Override
+    public void deleteUnion(long id) {
+        state.unions.remove(id);
     }
 
     @Override
@@ -322,6 +380,27 @@ public class InMemoryGameStore implements GameStore {
     @Override
     public void deleteTreaty(long id) {
         state.treaties.remove(id);
+    }
+
+    // --- znajomi
+    @Override
+    public Optional<Buddy> buddy(long id) {
+        return Optional.ofNullable(state.buddies.get(id));
+    }
+
+    @Override
+    public List<Buddy> buddiesOf(long playerId) {
+        return state.buddies.values().stream().filter(b -> b.involves(playerId)).toList();
+    }
+
+    @Override
+    public void save(Buddy buddy) {
+        state.buddies.put(buddy.id(), buddy);
+    }
+
+    @Override
+    public void deleteBuddy(long id) {
+        state.buddies.remove(id);
     }
 
     // --- zdarzenia

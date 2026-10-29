@@ -187,7 +187,7 @@ public final class PlayerService extends ServiceBase {
             if (!fleets.isEmpty()) {
                 throw new GameException("fleets_in_flight", "Nie można włączyć urlopu, gdy floty są w locie.");
             }
-            if (!ctx.store().fleetsTargeting(playerId).isEmpty()) {
+            if (ctx.store().fleetsTargeting(playerId).stream().anyMatch(f -> f.getStatus() == Fleet.Status.OUTBOUND)) {
                 throw new GameException("incoming_fleets", "Nie można włączyć urlopu, gdy zbliżają się obce floty.");
             }
             for (Planet planet : ctx.store().planetsOf(playerId)) {

@@ -87,7 +87,7 @@ public final class Economy {
             perSource.put(b.key(), r);
         }
 
-        Resources base = BASE_PRODUCTION.times(speed);
+        Resources base = planet.moon() ? Resources.ZERO : BASE_PRODUCTION.times(speed);
         perSource.put("base", base);
         Resources total = base.plus(mines).minus(consumption);
         return new ProductionReport(total, energyProduced, energyUsed, efficiency, perSource, energyPerSource);

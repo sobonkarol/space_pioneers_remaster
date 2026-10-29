@@ -1,61 +1,556 @@
 {
   "_comment": "Statki (type=SHIP) i obrona (type=DEFENSE). Struktura = (metal+crystal)/10. Predkosc bazowa w jednostkach gry. Wartosci sa rekonstrukcja.",
   "units": [
-    {"key": "small_cargo", "type": "SHIP", "cost": {"metal": 2000, "crystal": 2000, "tritium": 0},
-     "attack": 5, "shield": 10, "cargo": 5000, "speed": 5000, "drive": "combustion_drive", "fuel": 10,
-     "requirements": {"buildings": {"shipyard": 2}, "research": {"combustion_drive": 2}}},
-    {"key": "large_cargo", "type": "SHIP", "cost": {"metal": 6000, "crystal": 6000, "tritium": 0},
-     "attack": 5, "shield": 25, "cargo": 25000, "speed": 7500, "drive": "combustion_drive", "fuel": 50,
-     "requirements": {"buildings": {"shipyard": 4}, "research": {"combustion_drive": 6}}},
-    {"key": "light_fighter", "type": "SHIP", "cost": {"metal": 3000, "crystal": 1000, "tritium": 0},
-     "attack": 50, "shield": 10, "cargo": 50, "speed": 12500, "drive": "combustion_drive", "fuel": 20,
-     "requirements": {"buildings": {"shipyard": 1}, "research": {"combustion_drive": 1}}},
-    {"key": "heavy_fighter", "type": "SHIP", "cost": {"metal": 6000, "crystal": 4000, "tritium": 0},
-     "attack": 150, "shield": 25, "cargo": 100, "speed": 10000, "drive": "impulse_drive", "fuel": 75,
-     "requirements": {"buildings": {"shipyard": 3}, "research": {"armour_tech": 2, "impulse_drive": 2}}},
-    {"key": "cruiser", "type": "SHIP", "cost": {"metal": 20000, "crystal": 7000, "tritium": 2000},
-     "attack": 400, "shield": 50, "cargo": 800, "speed": 15000, "drive": "impulse_drive", "fuel": 300,
-     "requirements": {"buildings": {"shipyard": 5}, "research": {"impulse_drive": 4, "ion_tech": 2}}},
-    {"key": "battleship", "type": "SHIP", "cost": {"metal": 45000, "crystal": 15000, "tritium": 0},
-     "attack": 1000, "shield": 200, "cargo": 1500, "speed": 10000, "drive": "hyperspace_drive", "fuel": 500,
-     "requirements": {"buildings": {"shipyard": 7}, "research": {"hyperspace_drive": 4}}},
-    {"key": "bomber", "type": "SHIP", "cost": {"metal": 50000, "crystal": 25000, "tritium": 15000},
-     "attack": 1000, "shield": 500, "cargo": 500, "speed": 4000, "drive": "impulse_drive", "fuel": 1000,
-     "requirements": {"buildings": {"shipyard": 8}, "research": {"impulse_drive": 6, "plasma_tech": 5}}},
-    {"key": "destroyer", "type": "SHIP", "branch": "WARRIOR", "cost": {"metal": 60000, "crystal": 50000, "tritium": 15000},
-     "attack": 2000, "shield": 500, "cargo": 2000, "speed": 5000, "drive": "hyperspace_drive", "fuel": 1000,
-     "requirements": {"buildings": {"shipyard": 9}, "research": {"hyperspace_drive": 6, "hyperspace_tech": 5}}},
-    {"key": "freighter", "type": "SHIP", "branch": "TRADER", "cost": {"metal": 15000, "crystal": 10000, "tritium": 2000},
-     "attack": 10, "shield": 50, "cargo": 100000, "speed": 6000, "drive": "impulse_drive", "fuel": 150,
-     "requirements": {"buildings": {"shipyard": 6}, "research": {"impulse_drive": 4}}},
-    {"key": "colony_ship", "type": "SHIP", "cost": {"metal": 10000, "crystal": 20000, "tritium": 10000},
-     "attack": 50, "shield": 100, "cargo": 7500, "speed": 2500, "drive": "impulse_drive", "fuel": 1000,
-     "requirements": {"buildings": {"shipyard": 4}, "research": {"impulse_drive": 3}}},
-    {"key": "recycler", "type": "SHIP", "cost": {"metal": 10000, "crystal": 6000, "tritium": 2000},
-     "attack": 1, "shield": 10, "cargo": 20000, "speed": 2000, "drive": "combustion_drive", "fuel": 300,
-     "requirements": {"buildings": {"shipyard": 4}, "research": {"combustion_drive": 6, "shielding_tech": 2}}},
-    {"key": "espionage_probe", "type": "SHIP", "cost": {"metal": 0, "crystal": 1000, "tritium": 0},
-     "attack": 0, "shield": 0, "cargo": 5, "speed": 100000000, "drive": "combustion_drive", "fuel": 1,
-     "requirements": {"buildings": {"shipyard": 3}, "research": {"combustion_drive": 3, "espionage_tech": 2}}},
-    {"key": "solar_satellite", "type": "SHIP", "stationary": true, "cost": {"metal": 0, "crystal": 2000, "tritium": 500},
-     "attack": 1, "shield": 1, "cargo": 0, "speed": 0, "drive": null, "fuel": 0,
-     "requirements": {"buildings": {"shipyard": 1}}},
-
-    {"key": "rocket_launcher", "type": "DEFENSE", "cost": {"metal": 2000, "crystal": 0, "tritium": 0},
-     "attack": 80, "shield": 20, "requirements": {"buildings": {"shipyard": 1}}},
-    {"key": "light_laser", "type": "DEFENSE", "cost": {"metal": 1500, "crystal": 500, "tritium": 0},
-     "attack": 100, "shield": 25, "requirements": {"buildings": {"shipyard": 2}, "research": {"energy_tech": 1, "laser_tech": 3}}},
-    {"key": "heavy_laser", "type": "DEFENSE", "cost": {"metal": 6000, "crystal": 2000, "tritium": 0},
-     "attack": 250, "shield": 100, "requirements": {"buildings": {"shipyard": 4}, "research": {"energy_tech": 3, "laser_tech": 6}}},
-    {"key": "ion_cannon", "type": "DEFENSE", "cost": {"metal": 2000, "crystal": 6000, "tritium": 0},
-     "attack": 150, "shield": 500, "requirements": {"buildings": {"shipyard": 4}, "research": {"ion_tech": 4}}},
-    {"key": "gauss_cannon", "type": "DEFENSE", "cost": {"metal": 20000, "crystal": 15000, "tritium": 2000},
-     "attack": 1100, "shield": 200, "requirements": {"buildings": {"shipyard": 6}, "research": {"energy_tech": 6, "weapons_tech": 3, "shielding_tech": 1}}},
-    {"key": "plasma_turret", "type": "DEFENSE", "cost": {"metal": 50000, "crystal": 50000, "tritium": 30000},
-     "attack": 3000, "shield": 300, "requirements": {"buildings": {"shipyard": 8}, "research": {"plasma_tech": 7}}},
-    {"key": "small_shield_dome", "type": "DEFENSE", "maxCount": 1, "cost": {"metal": 10000, "crystal": 10000, "tritium": 0},
-     "attack": 1, "shield": 2000, "requirements": {"buildings": {"shipyard": 1}, "research": {"shielding_tech": 2}}},
-    {"key": "large_shield_dome", "type": "DEFENSE", "maxCount": 1, "cost": {"metal": 50000, "crystal": 50000, "tritium": 0},
-     "attack": 1, "shield": 10000, "requirements": {"buildings": {"shipyard": 6}, "research": {"shielding_tech": 6}}}
+    {
+      "key": "small_cargo",
+      "type": "SHIP",
+      "cost": {
+        "metal": 2000,
+        "crystal": 2000,
+        "tritium": 0
+      },
+      "attack": 5,
+      "shield": 10,
+      "cargo": 5000,
+      "speed": 5000,
+      "drive": "combustion_drive",
+      "fuel": 10,
+      "requirements": {
+        "buildings": {
+          "shipyard": 2
+        },
+        "research": {
+          "combustion_drive": 2
+        }
+      },
+      "rapidFire": {
+        "espionage_probe": 5,
+        "solar_satellite": 5
+      }
+    },
+    {
+      "key": "large_cargo",
+      "type": "SHIP",
+      "cost": {
+        "metal": 6000,
+        "crystal": 6000,
+        "tritium": 0
+      },
+      "attack": 5,
+      "shield": 25,
+      "cargo": 25000,
+      "speed": 7500,
+      "drive": "combustion_drive",
+      "fuel": 50,
+      "requirements": {
+        "buildings": {
+          "shipyard": 4
+        },
+        "research": {
+          "combustion_drive": 6
+        }
+      },
+      "rapidFire": {
+        "espionage_probe": 5,
+        "solar_satellite": 5
+      }
+    },
+    {
+      "key": "light_fighter",
+      "type": "SHIP",
+      "cost": {
+        "metal": 3000,
+        "crystal": 1000,
+        "tritium": 0
+      },
+      "attack": 50,
+      "shield": 10,
+      "cargo": 50,
+      "speed": 12500,
+      "drive": "combustion_drive",
+      "fuel": 20,
+      "requirements": {
+        "buildings": {
+          "shipyard": 1
+        },
+        "research": {
+          "combustion_drive": 1
+        }
+      },
+      "rapidFire": {
+        "espionage_probe": 5,
+        "solar_satellite": 5
+      }
+    },
+    {
+      "key": "heavy_fighter",
+      "type": "SHIP",
+      "cost": {
+        "metal": 6000,
+        "crystal": 4000,
+        "tritium": 0
+      },
+      "attack": 150,
+      "shield": 25,
+      "cargo": 100,
+      "speed": 10000,
+      "drive": "impulse_drive",
+      "fuel": 75,
+      "requirements": {
+        "buildings": {
+          "shipyard": 3
+        },
+        "research": {
+          "armour_tech": 2,
+          "impulse_drive": 2
+        }
+      },
+      "rapidFire": {
+        "small_cargo": 3,
+        "espionage_probe": 5,
+        "solar_satellite": 5
+      }
+    },
+    {
+      "key": "cruiser",
+      "type": "SHIP",
+      "cost": {
+        "metal": 20000,
+        "crystal": 7000,
+        "tritium": 2000
+      },
+      "attack": 400,
+      "shield": 50,
+      "cargo": 800,
+      "speed": 15000,
+      "drive": "impulse_drive",
+      "fuel": 300,
+      "requirements": {
+        "buildings": {
+          "shipyard": 5
+        },
+        "research": {
+          "impulse_drive": 4,
+          "ion_tech": 2
+        }
+      },
+      "rapidFire": {
+        "light_fighter": 6,
+        "rocket_launcher": 10,
+        "espionage_probe": 5,
+        "solar_satellite": 5
+      }
+    },
+    {
+      "key": "battleship",
+      "type": "SHIP",
+      "cost": {
+        "metal": 45000,
+        "crystal": 15000,
+        "tritium": 0
+      },
+      "attack": 1000,
+      "shield": 200,
+      "cargo": 1500,
+      "speed": 10000,
+      "drive": "hyperspace_drive",
+      "fuel": 500,
+      "requirements": {
+        "buildings": {
+          "shipyard": 7
+        },
+        "research": {
+          "hyperspace_drive": 4
+        }
+      },
+      "rapidFire": {
+        "espionage_probe": 5,
+        "solar_satellite": 5
+      }
+    },
+    {
+      "key": "bomber",
+      "type": "SHIP",
+      "cost": {
+        "metal": 50000,
+        "crystal": 25000,
+        "tritium": 15000
+      },
+      "attack": 1000,
+      "shield": 500,
+      "cargo": 500,
+      "speed": 4000,
+      "drive": "impulse_drive",
+      "fuel": 1000,
+      "requirements": {
+        "buildings": {
+          "shipyard": 8
+        },
+        "research": {
+          "impulse_drive": 6,
+          "plasma_tech": 5
+        }
+      },
+      "rapidFire": {
+        "rocket_launcher": 20,
+        "light_laser": 20,
+        "heavy_laser": 10,
+        "ion_cannon": 10,
+        "espionage_probe": 5,
+        "solar_satellite": 5
+      }
+    },
+    {
+      "key": "destroyer",
+      "type": "SHIP",
+      "branch": "WARRIOR",
+      "cost": {
+        "metal": 60000,
+        "crystal": 50000,
+        "tritium": 15000
+      },
+      "attack": 2000,
+      "shield": 500,
+      "cargo": 2000,
+      "speed": 5000,
+      "drive": "hyperspace_drive",
+      "fuel": 1000,
+      "requirements": {
+        "buildings": {
+          "shipyard": 9
+        },
+        "research": {
+          "hyperspace_drive": 6,
+          "hyperspace_tech": 5
+        }
+      },
+      "rapidFire": {
+        "light_laser": 10,
+        "battleship": 2,
+        "cruiser": 3,
+        "espionage_probe": 5,
+        "solar_satellite": 5
+      }
+    },
+    {
+      "key": "freighter",
+      "type": "SHIP",
+      "branch": "TRADER",
+      "cost": {
+        "metal": 15000,
+        "crystal": 10000,
+        "tritium": 2000
+      },
+      "attack": 10,
+      "shield": 50,
+      "cargo": 100000,
+      "speed": 6000,
+      "drive": "impulse_drive",
+      "fuel": 150,
+      "requirements": {
+        "buildings": {
+          "shipyard": 6
+        },
+        "research": {
+          "impulse_drive": 4
+        }
+      },
+      "rapidFire": {
+        "espionage_probe": 5,
+        "solar_satellite": 5
+      }
+    },
+    {
+      "key": "colony_ship",
+      "type": "SHIP",
+      "cost": {
+        "metal": 10000,
+        "crystal": 20000,
+        "tritium": 10000
+      },
+      "attack": 50,
+      "shield": 100,
+      "cargo": 7500,
+      "speed": 2500,
+      "drive": "impulse_drive",
+      "fuel": 1000,
+      "requirements": {
+        "buildings": {
+          "shipyard": 4
+        },
+        "research": {
+          "impulse_drive": 3
+        }
+      },
+      "rapidFire": {
+        "espionage_probe": 5,
+        "solar_satellite": 5
+      }
+    },
+    {
+      "key": "recycler",
+      "type": "SHIP",
+      "cost": {
+        "metal": 10000,
+        "crystal": 6000,
+        "tritium": 2000
+      },
+      "attack": 1,
+      "shield": 10,
+      "cargo": 20000,
+      "speed": 2000,
+      "drive": "combustion_drive",
+      "fuel": 300,
+      "requirements": {
+        "buildings": {
+          "shipyard": 4
+        },
+        "research": {
+          "combustion_drive": 6,
+          "shielding_tech": 2
+        }
+      },
+      "rapidFire": {
+        "espionage_probe": 5,
+        "solar_satellite": 5
+      }
+    },
+    {
+      "key": "espionage_probe",
+      "type": "SHIP",
+      "cost": {
+        "metal": 0,
+        "crystal": 1000,
+        "tritium": 0
+      },
+      "attack": 0,
+      "shield": 0,
+      "cargo": 5,
+      "speed": 100000000,
+      "drive": "combustion_drive",
+      "fuel": 1,
+      "requirements": {
+        "buildings": {
+          "shipyard": 3
+        },
+        "research": {
+          "combustion_drive": 3,
+          "espionage_tech": 2
+        }
+      }
+    },
+    {
+      "key": "solar_satellite",
+      "type": "SHIP",
+      "stationary": true,
+      "cost": {
+        "metal": 0,
+        "crystal": 2000,
+        "tritium": 500
+      },
+      "attack": 1,
+      "shield": 1,
+      "cargo": 0,
+      "speed": 0,
+      "drive": null,
+      "fuel": 0,
+      "requirements": {
+        "buildings": {
+          "shipyard": 1
+        }
+      }
+    },
+    {
+      "key": "rocket_launcher",
+      "type": "DEFENSE",
+      "cost": {
+        "metal": 2000,
+        "crystal": 0,
+        "tritium": 0
+      },
+      "attack": 80,
+      "shield": 20,
+      "requirements": {
+        "buildings": {
+          "shipyard": 1
+        }
+      }
+    },
+    {
+      "key": "light_laser",
+      "type": "DEFENSE",
+      "cost": {
+        "metal": 1500,
+        "crystal": 500,
+        "tritium": 0
+      },
+      "attack": 100,
+      "shield": 25,
+      "requirements": {
+        "buildings": {
+          "shipyard": 2
+        },
+        "research": {
+          "energy_tech": 1,
+          "laser_tech": 3
+        }
+      }
+    },
+    {
+      "key": "heavy_laser",
+      "type": "DEFENSE",
+      "cost": {
+        "metal": 6000,
+        "crystal": 2000,
+        "tritium": 0
+      },
+      "attack": 250,
+      "shield": 100,
+      "requirements": {
+        "buildings": {
+          "shipyard": 4
+        },
+        "research": {
+          "energy_tech": 3,
+          "laser_tech": 6
+        }
+      }
+    },
+    {
+      "key": "ion_cannon",
+      "type": "DEFENSE",
+      "cost": {
+        "metal": 2000,
+        "crystal": 6000,
+        "tritium": 0
+      },
+      "attack": 150,
+      "shield": 500,
+      "requirements": {
+        "buildings": {
+          "shipyard": 4
+        },
+        "research": {
+          "ion_tech": 4
+        }
+      }
+    },
+    {
+      "key": "gauss_cannon",
+      "type": "DEFENSE",
+      "cost": {
+        "metal": 20000,
+        "crystal": 15000,
+        "tritium": 2000
+      },
+      "attack": 1100,
+      "shield": 200,
+      "requirements": {
+        "buildings": {
+          "shipyard": 6
+        },
+        "research": {
+          "energy_tech": 6,
+          "weapons_tech": 3,
+          "shielding_tech": 1
+        }
+      }
+    },
+    {
+      "key": "plasma_turret",
+      "type": "DEFENSE",
+      "cost": {
+        "metal": 50000,
+        "crystal": 50000,
+        "tritium": 30000
+      },
+      "attack": 3000,
+      "shield": 300,
+      "requirements": {
+        "buildings": {
+          "shipyard": 8
+        },
+        "research": {
+          "plasma_tech": 7
+        }
+      }
+    },
+    {
+      "key": "small_shield_dome",
+      "type": "DEFENSE",
+      "maxCount": 1,
+      "cost": {
+        "metal": 10000,
+        "crystal": 10000,
+        "tritium": 0
+      },
+      "attack": 1,
+      "shield": 2000,
+      "requirements": {
+        "buildings": {
+          "shipyard": 1
+        },
+        "research": {
+          "shielding_tech": 2
+        }
+      }
+    },
+    {
+      "key": "large_shield_dome",
+      "type": "DEFENSE",
+      "maxCount": 1,
+      "cost": {
+        "metal": 50000,
+        "crystal": 50000,
+        "tritium": 0
+      },
+      "attack": 1,
+      "shield": 10000,
+      "requirements": {
+        "buildings": {
+          "shipyard": 6
+        },
+        "research": {
+          "shielding_tech": 6
+        }
+      }
+    },
+    {
+      "key": "anti_ballistic_missile",
+      "type": "MISSILE",
+      "missileSlots": 1,
+      "cost": {
+        "metal": 8000,
+        "crystal": 0,
+        "tritium": 2000
+      },
+      "attack": 1,
+      "shield": 1,
+      "requirements": {
+        "buildings": {
+          "missile_silo": 2
+        }
+      }
+    },
+    {
+      "key": "interplanetary_missile",
+      "type": "MISSILE",
+      "missileSlots": 2,
+      "cost": {
+        "metal": 12500,
+        "crystal": 2500,
+        "tritium": 10000
+      },
+      "attack": 12000,
+      "shield": 1,
+      "requirements": {
+        "buildings": {
+          "missile_silo": 4
+        },
+        "research": {
+          "impulse_drive": 1
+        }
+      }
+    }
   ]
 }

@@ -58,7 +58,7 @@ public final class PlanetService extends ServiceBase {
                 String owner = store.player(f.getOwnerId()).map(Player::getUsername).orElse("?");
                 fleets.add(movement(f, false, owner));
             }
-            fleets.sort(Comparator.comparing(m -> "OUTBOUND".equals(m.status()) ? m.arriveAt() : m.returnAt()));
+            fleets.sort(Comparator.comparing(Views.FleetMovement::nextAt));
 
             ResearchJob job = player.getResearchJob();
             int playerCount = store.players().size();
@@ -107,13 +107,17 @@ public final class PlanetService extends ServiceBase {
 
     private List<Views.PlanetRef> planetRefs(long playerId) {
         return ctx.store().planetsOf(playerId).stream()
-                .sorted(Comparator.comparing((Planet p) -> !p.isHomeworld()).thenComparingLong(Planet::getId))
+                .sorted(Comparator.comparing((Planet p) -> !p.isHomeworld()).thenComparing(Planet::coordinates,
+                        Comparator.comparingInt(pl.spacepioneers.engine.common.Coordinates::galaxy)
+                                .thenComparingInt(pl.spacepioneers.engine.common.Coordinates::system)
+                                .thenComparingInt(pl.spacepioneers.engine.common.Coordinates::position))
+                        .thenComparing(Planet::isMoon))
                 .map(PlanetService::ref).toList();
     }
 
     static Views.PlanetRef ref(Planet p) {
         return new Views.PlanetRef(p.getId(), p.getName(), p.coordinates().toString(), p.getPlanetType(),
-                p.getImageVariant(), p.isHomeworld());
+                p.getImageVariant(), p.isHomeworld(), p.isMoon());
     }
 
     static Views.BuildQueueItem queueItem(BuildOrder o) {
@@ -122,8 +126,9 @@ public final class PlanetService extends ServiceBase {
 
     static Views.FleetMovement movement(Fleet f, boolean own, String ownerName) {
         return new Views.FleetMovement(f.getId(), f.getMission().name(), f.getStatus().name(), own, ownerName,
-                f.getOrigin().toString(), f.getTarget().toString(), null, f.getDepartAt(), f.getArriveAt(),
-                own ? f.getReturnAt() : null, own ? f.getShips() : Map.of(), own ? f.getCargo() : null);
+                f.getOrigin().toString(), f.getTarget().toString(), f.isTargetMoon(), own ? f.getUnionId() : null,
+                f.getDepartAt(), f.getArriveAt(), f.getHoldUntil(), own ? f.getReturnAt() : null,
+                own ? f.getShips() : Map.of(), own ? f.getCargo() : null);
     }
 
     public List<Views.UpgradeOption> buildings(long playerId, long planetId) {
@@ -134,6 +139,7 @@ public final class PlanetService extends ServiceBase {
             TechLevels tech = new TechLevels(player.getResearch());
             List<Views.UpgradeOption> out = new ArrayList<>();
             for (BuildingDef def : ctx.data().buildings()) {
+                if (!def.allowedOn(planet.isMoon())) continue;
                 int level = planet.level(def.key());
                 int next = planet.plannedLevel(def.key()) + 1;
                 Resources cost = next <= def.maxLevelOrDefault() ? def.costForLevel(next) : Resources.ZERO;
@@ -166,7 +172,7 @@ public final class PlanetService extends ServiceBase {
             levels.put(o.building(), o.level());
         }
         return new PlanetSnapshot(levels, planet.getUnits(), planet.getTemperatureMax(), planet.getFields(),
-                planet.getProductionPercent());
+                planet.getProductionPercent(), planet.isMoon());
     }
 
     private String buildBlocker(Planet planet, Player player, BuildingDef def, int next, PlanetSnapshot planned) {
@@ -189,6 +195,10 @@ public final class PlanetService extends ServiceBase {
             Planet planet = ownPlanet(playerId, planetId, now);
             BuildingDef def = ctx.data().findBuilding(key)
                     .orElseThrow(() -> GameException.notFound("budynek " + key));
+            if (!def.allowedOn(planet.isMoon())) {
+                throw new GameException("wrong_location", planet.isMoon() ? "Tego budynku nie można postawić na księżycu."
+                        : "Ten budynek można postawić tylko na księżycu.");
+            }
             PlanetSnapshot planned = plannedSnapshot(planet);
             int next = planet.plannedLevel(key) + 1;
             String blocker = buildBlocker(planet, player, def, next, planned);
@@ -361,7 +371,7 @@ public final class PlanetService extends ServiceBase {
                 throw new GameException("homeworld", "Nie można porzucić planety macierzystej.");
             }
             boolean fleetsInvolved = ctx.store().allFleets().stream().anyMatch(f ->
-                    f.getOriginPlanetId() == planetId || f.getTarget().equals(planet.coordinates()));
+                    f.getOrigin().equals(planet.coordinates()) || f.getTarget().equals(planet.coordinates()));
             if (fleetsInvolved) {
                 throw new GameException("fleets_in_flight", "Do lub z tej planety lecą floty.");
             }
@@ -370,6 +380,9 @@ public final class PlanetService extends ServiceBase {
                 throw new GameException("research_running", "Na tej planecie trwa badanie.");
             }
             ctx.store().deletePlanet(planetId);
+            if (!planet.isMoon()) {
+                ctx.store().moonAt(planet.coordinates()).ifPresent(m -> ctx.store().deletePlanet(m.getId()));
+            }
         });
     }
 }

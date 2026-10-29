@@ -15,6 +15,7 @@ export interface PlanetRef {
   planetType: string;
   imageVariant: number;
   homeworld: boolean;
+  moon: boolean;
 }
 
 export interface ResourceState {
@@ -54,18 +55,21 @@ export interface ResearchInProgress {
   end: string;
 }
 
-export type Mission = 'ATTACK' | 'TRANSPORT' | 'DEPLOY' | 'COLONIZE' | 'RECYCLE' | 'ESPIONAGE';
+export type Mission = 'ATTACK' | 'TRANSPORT' | 'DEPLOY' | 'COLONIZE' | 'RECYCLE' | 'ESPIONAGE' | 'HOLD' | 'EXPEDITION' | 'MISSILE';
 
 export interface FleetMovement {
   id: number;
   mission: Mission;
-  status: 'OUTBOUND' | 'RETURNING';
+  status: 'OUTBOUND' | 'HOLDING' | 'RETURNING';
   own: boolean;
   ownerName: string;
   origin: string;
   target: string;
+  targetMoon: boolean;
+  unionId?: number;
   departAt: string;
   arriveAt: string;
+  holdUntil?: string;
   returnAt?: string;
   ships: Record<string, number>;
   cargo?: Resources;
@@ -113,7 +117,7 @@ export interface UpgradeOption {
 
 export interface UnitOption {
   key: string;
-  type: 'SHIP' | 'DEFENSE';
+  type: 'SHIP' | 'DEFENSE' | 'MISSILE';
   available: number;
   cost: Resources;
   secondsPerUnit: number;
@@ -161,6 +165,9 @@ export interface GalaxyRow {
   flags: string[];
   debris?: Resources;
   own: boolean;
+  moonId?: number;
+  moonName?: string;
+  moonImageVariant: number;
 }
 
 export interface GalaxyView {
@@ -255,27 +262,29 @@ export interface CombatRound {
   defenderShots: number;
   defenderDamage: number;
   absorbedByAttacker: number;
-  attackerUnits: Record<string, number>;
-  defenderUnits: Record<string, number>;
+  attackerUnits: Record<string, number>[];
+  defenderUnits: Record<string, number>[];
 }
 
 export interface CombatReport {
   at: string;
   coordinates: string;
   planetName: string;
-  attacker: CombatSide;
-  defender: CombatSide;
-  attackerStart: Record<string, number>;
-  defenderStart: Record<string, number>;
+  attackers: CombatSide[];
+  defenders: CombatSide[];
+  attackerStart: Record<string, number>[];
+  defenderStart: Record<string, number>[];
   rounds: CombatRound[];
   outcome: 'ATTACKER' | 'DEFENDER' | 'DRAW';
-  attackerLosses: Record<string, number>;
-  defenderLosses: Record<string, number>;
+  attackerLosses: Record<string, number>[];
+  defenderLosses: Record<string, number>[];
   defenseRebuilt: Record<string, number>;
   loot: Resources;
   debris: Resources;
   attackerLostValue: Resources;
   defenderLostValue: Resources;
+  moonChancePercent: number;
+  moonCreated: boolean;
 }
 
 export interface EspionageReport {
@@ -284,6 +293,7 @@ export interface EspionageReport {
   planetName: string;
   ownerId: number;
   ownerName: string;
+  moon: boolean;
   resources: Resources;
   fleet?: Record<string, number>;
   defense?: Record<string, number>;
@@ -359,6 +369,35 @@ export interface DispatchInfo {
   slotsUsed: number;
   slotsMax: number;
   resources: Resources;
+  expeditionsUsed: number;
+  expeditionsMax: number;
+  missiles: number;
+  missileRange: number;
+}
+
+export interface UnionView {
+  id: number;
+  name: string;
+  target: string;
+  targetMoon: boolean;
+  arriveAt: string;
+  ownerName: string;
+  own: boolean;
+  fleets: number;
+  invited: string[];
+}
+
+export interface BuddyView {
+  id: number;
+  playerId: number;
+  name: string;
+  status: 'PENDING' | 'ACCEPTED';
+  incoming: boolean;
+  text: string;
+  lastActivity?: string;
+  allianceTag?: string;
+  points: number;
+  homeCoordinates?: string;
 }
 
 export interface FleetEstimate {
@@ -393,6 +432,7 @@ export interface BuildingDef {
   baseCost: Resources;
   costFactor: number;
   maxLevel?: number;
+  location?: 'PLANET' | 'MOON' | 'ANY';
   production?: GrowthFormula;
   energyUse?: GrowthFormula;
   energyProduction?: GrowthFormula;
@@ -409,7 +449,7 @@ export interface ResearchDef {
 
 export interface UnitDef {
   key: string;
-  type: 'SHIP' | 'DEFENSE';
+  type: 'SHIP' | 'DEFENSE' | 'MISSILE';
   branch: Branch;
   cost: Resources;
   attack: number;
@@ -446,6 +486,7 @@ export interface GameConfig {
   research: ResearchDef[];
   ships: UnitDef[];
   defenses: UnitDef[];
+  missiles: UnitDef[];
 }
 
 export interface ApiErrorBody {

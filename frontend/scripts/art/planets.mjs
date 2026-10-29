@@ -11,6 +11,7 @@ const TYPES = {
   normal: { colors: ['#0b2a5a', '#1f5aa0', '#2f8a4a', '#6a9a3a', '#e8eef0'], atmo: '#7ac8ff', freq: 0.014 },
   water: { colors: ['#04163a', '#0a3a7a', '#1d6ab8', '#4aa0e0', '#e0f4ff'], atmo: '#8ad8ff', freq: 0.01 },
   ice: { colors: ['#4a6a8a', '#8aa8c8', '#c8dcf0', '#e8f2fc', '#ffffff'], atmo: '#d0eaff', freq: 0.018 },
+  moon: { colors: ['#2a2a2e', '#4a4a50', '#6e6e74', '#9a9aa0', '#cfcfd4'], atmo: '#9aa0aa', freq: 0.03 },
 };
 
 function table(values) {
@@ -58,7 +59,7 @@ function planet(type, variant) {
   </filter>`);
 
   let s = '';
-  const hasRing = r() < 0.3;
+  const hasRing = type !== 'moon' && r() < 0.3;
   const ringTilt = -20 + r() * 40;
   const ringId = id('rg');
   defs.push(linear(ringId, [[0, shade(colors[3], 0.2), 0.1], [0.3, shade(colors[3], 0.3), 0.7], [0.5, shade(colors[2], 0.1), 0.4], [0.7, shade(colors[3], 0.4), 0.75], [1, shade(colors[3], 0.2), 0.1]], { x2: 1, y2: 0 }));
@@ -67,6 +68,14 @@ function planet(type, variant) {
   }
   s += `<circle cx="${C}" cy="${C}" r="${R * 1.12}" fill="url(#${atmo})"/>`;
   s += `<g clip-path="url(#${clip})"><rect x="${C - R}" y="${C - R}" width="${R * 2}" height="${R * 2}" fill="#fff" filter="url(#${tex})"/>`;
+  if (type === 'moon') {
+    for (let i = 0; i < 18; i++) {
+      const cx = C - R + r() * R * 2;
+      const cy = C - R + r() * R * 2;
+      const cr = 4 + r() * 16;
+      s += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${cr.toFixed(1)}" fill="#000" opacity="0.18"/><circle cx="${(cx - cr * 0.15).toFixed(1)}" cy="${(cy - cr * 0.15).toFixed(1)}" r="${(cr * 0.85).toFixed(1)}" fill="none" stroke="#fff" stroke-opacity="0.15" stroke-width="1.5"/>`;
+    }
+  }
   if (type === 'normal' || type === 'water' || (type === 'ice' && r() < 0.5)) {
     s += `<rect x="${C - R}" y="${C - R}" width="${R * 2}" height="${R * 2}" fill="#fff" filter="url(#${cloud})" opacity="0.75"/>`;
   }
@@ -120,7 +129,8 @@ function background() {
 export function planets() {
   const items = [];
   for (const type of Object.keys(TYPES)) {
-    for (let v = 1; v <= 10; v++) {
+    const variants = type === 'moon' ? 5 : 10;
+    for (let v = 1; v <= variants; v++) {
       items.push({ key: `planet/${type}/${v}`, file: `planets/${type}/${v}.png`, fn: () => planet(type, v), w: S, h: S, format: 'png' });
     }
   }

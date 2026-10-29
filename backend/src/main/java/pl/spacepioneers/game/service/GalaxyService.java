@@ -31,6 +31,8 @@ public final class GalaxyService extends ServiceBase {
             Player viewer = ctx.requirePlayer(viewerId);
             Map<Integer, Planet> planets = new HashMap<>();
             for (Planet p : ctx.store().planetsInSystem(galaxy, system)) planets.put(p.getPosition(), p);
+            Map<Integer, Planet> moons = new HashMap<>();
+            for (Planet m : ctx.store().moonsInSystem(galaxy, system)) moons.put(m.getPosition(), m);
             Map<Integer, Resources> debris = new HashMap<>();
             for (DebrisField d : ctx.store().debrisInSystem(galaxy, system)) {
                 debris.put(d.coordinates().position(), d.resources());
@@ -43,7 +45,7 @@ public final class GalaxyService extends ServiceBase {
                 Resources d = debris.get(pos);
                 if (p == null) {
                     rows.add(new Views.GalaxyRow(pos, null, null, null, 0, null, null, null, null, null,
-                            List.of(), d, false));
+                            List.of(), d, false, null, null, 0));
                     continue;
                 }
                 Player owner = owners.computeIfAbsent(p.getOwnerId(), ctx::requirePlayer);
@@ -53,7 +55,10 @@ public final class GalaxyService extends ServiceBase {
                 rows.add(new Views.GalaxyRow(pos, p.getId(), p.getName(), p.getPlanetType(), p.getImageVariant(),
                         owner.getId(), owner.getUsername(), owner.getRank() > 0 ? owner.getRank() : null,
                         alliance == null ? null : alliance.getId(), alliance == null ? null : alliance.getTag(),
-                        flags(viewer, owner, now), d, owner.getId() == viewerId));
+                        flags(viewer, owner, now), d, owner.getId() == viewerId,
+                        moons.containsKey(pos) ? moons.get(pos).getId() : null,
+                        moons.containsKey(pos) ? moons.get(pos).getName() : null,
+                        moons.containsKey(pos) ? moons.get(pos).getImageVariant() : 0));
             }
             return new Views.GalaxyView(galaxy, system, cfg.galaxies(), cfg.systems(), rows);
         });

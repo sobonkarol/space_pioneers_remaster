@@ -59,7 +59,7 @@ export function TechTreePage() {
       {section(t('menu.buildings'), 'building', config.buildings)}
       {section(t('menu.research'), 'research', config.research)}
       {section(t('menu.shipyard'), 'ship', config.ships)}
-      {section(t('menu.defense'), 'defense', config.defenses)}
+      {section(t('menu.defense'), 'defense', [...config.defenses, ...(config.missiles ?? [])])}
     </div>
   );
 }

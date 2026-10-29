@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import pl.spacepioneers.engine.common.Branch;
 import pl.spacepioneers.engine.common.Resources;
 
+import java.util.Map;
+
 /** Statek lub budowla obronna. */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record UnitDef(
@@ -19,6 +21,8 @@ public record UnitDef(
         long fuel,
         Boolean stationary,
         Integer maxCount,
+        Integer missileSlots,
+        Map<String, Integer> rapidFire,
         Requirements requirements
 ) {
     public UnitDef {
@@ -28,9 +32,23 @@ public record UnitDef(
         if (branch == null) {
             branch = Branch.NONE;
         }
+        rapidFire = rapidFire == null ? Map.of() : Map.copyOf(rapidFire);
     }
 
-    public enum UnitType { SHIP, DEFENSE }
+    public enum UnitType { SHIP, DEFENSE, MISSILE }
+
+    public boolean isMissile() {
+        return type == UnitType.MISSILE;
+    }
+
+    /** Czy jednostka bierze udzial w walce (rakiety nie walcza). */
+    public boolean fights() {
+        return type != UnitType.MISSILE;
+    }
+
+    public int rapidFireAgainst(String target) {
+        return rapidFire.getOrDefault(target, 1);
+    }
 
     public boolean isShip() {
         return type == UnitType.SHIP;

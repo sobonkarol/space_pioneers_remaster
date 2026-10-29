@@ -15,28 +15,35 @@ public final class Reports {
     public record Side(long playerId, String playerName, String coordinates, int weapons, int shielding, int armour) {
     }
 
+    /** Stan po rundzie; listy odpowiadaja kolejnosci uczestnikow w {@link CombatReport#attackers()} i {@link CombatReport#defenders()}. */
     public record RoundView(int number, long attackerShots, double attackerDamage, double absorbedByDefender,
                             long defenderShots, double defenderDamage, double absorbedByAttacker,
-                            Map<String, Long> attackerUnits, Map<String, Long> defenderUnits) {
+                            List<Map<String, Long>> attackerUnits, List<Map<String, Long>> defenderUnits) {
     }
 
+    /**
+     * Raport walki. Strona atakujaca moze miec wielu uczestnikow (atak sojuszniczy), obronca - wlasciciela
+     * planety i floty sojusznikow (obrona sojusznicza).
+     */
     public record CombatReport(
             Instant at,
             String coordinates,
             String planetName,
-            Side attacker,
-            Side defender,
-            Map<String, Long> attackerStart,
-            Map<String, Long> defenderStart,
+            List<Side> attackers,
+            List<Side> defenders,
+            List<Map<String, Long>> attackerStart,
+            List<Map<String, Long>> defenderStart,
             List<RoundView> rounds,
             String outcome,
-            Map<String, Long> attackerLosses,
-            Map<String, Long> defenderLosses,
+            List<Map<String, Long>> attackerLosses,
+            List<Map<String, Long>> defenderLosses,
             Map<String, Long> defenseRebuilt,
             Resources loot,
             Resources debris,
             Resources attackerLostValue,
-            Resources defenderLostValue
+            Resources defenderLostValue,
+            int moonChancePercent,
+            boolean moonCreated
     ) {
     }
 
@@ -46,6 +53,7 @@ public final class Reports {
             String planetName,
             long ownerId,
             String ownerName,
+            boolean moon,
             Resources resources,
             Map<String, Long> fleet,
             Map<String, Long> defense,

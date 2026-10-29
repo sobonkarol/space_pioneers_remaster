@@ -35,13 +35,13 @@ public class ConfigController {
 
     public record GameConfigDto(String universeName, UniverseConfig universe, long branchMinPoints,
                                 Collection<BuildingDef> buildings, Collection<ResearchDef> research,
-                                List<UnitDef> ships, List<UnitDef> defenses) {
+                                List<UnitDef> ships, List<UnitDef> defenses, List<UnitDef> missiles) {
     }
 
     @GetMapping("/config")
     public GameConfigDto config() {
         return new GameConfigDto(props.displayName(), config, Rules.BRANCH_MIN_POINTS, data.buildings(),
-                data.research(), data.ships(), data.defenses());
+                data.research(), data.ships(), data.defenses(), data.missiles());
     }
 
     @GetMapping("/stats")

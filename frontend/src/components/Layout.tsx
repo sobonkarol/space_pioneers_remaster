@@ -59,7 +59,7 @@ function PlanetSelector() {
     >
       {overview.planets.map((p) => (
         <option key={p.id} value={p.id}>
-          {p.name} [{p.coordinates}]
+          {p.moon ? `↳ ${p.name} (${t('galaxy.moon')})` : `${p.name} [${p.coordinates}]`}
         </option>
       ))}
     </select>
@@ -122,6 +122,7 @@ export function Layout() {
           <ul>
             {link('/messages', t('menu.messages'), unread > 0 ? String(unread) : undefined)}
             {link('/alliance', t('menu.alliance'))}
+            {link('/buddies', t('menu.buddies'))}
             {link('/ranking', t('menu.ranking'))}
             {isTrader && link('/market', t('menu.market'))}
           </ul>

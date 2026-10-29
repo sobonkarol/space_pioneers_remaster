@@ -19,6 +19,7 @@ public record BuildingDef(
         GrowthFormula tritiumUse,
         Storage storage,
         Integer fieldsBonus,
+        Location location,
         Requirements requirements
 ) {
     public BuildingDef {
@@ -28,6 +29,16 @@ public record BuildingDef(
         if (branch == null) {
             branch = Branch.NONE;
         }
+        if (location == null) {
+            location = Location.PLANET;
+        }
+    }
+
+    /** Gdzie mozna stawiac budynek: na planecie, na ksiezycu albo w obu miejscach. */
+    public enum Location { PLANET, MOON, ANY }
+
+    public boolean allowedOn(boolean moon) {
+        return location == Location.ANY || (moon ? location == Location.MOON : location == Location.PLANET);
     }
 
     public record Storage(ResourceType resource) {

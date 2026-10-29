@@ -37,7 +37,8 @@ public final class CombatEngine {
     }
 
     /** Grupa: jeden typ jednostki jednego uczestnika. */
-    private record Group(int side, int combatant, String key, double attack, double maxShield, double maxHull) {
+    private record Group(int side, int combatant, String key, double attack, double maxShield, double maxHull,
+                         Map<String, Integer> rapidFire) {
     }
 
     private static final class Army {
@@ -113,8 +114,8 @@ public final class CombatEngine {
             outcome = CombatResult.Outcome.DRAW;
         }
 
-        List<Map<String, Long>> attInit = attackers.stream().map(c -> positive(c.units())).toList();
-        List<Map<String, Long>> defInit = defenders.stream().map(c -> positive(c.units())).toList();
+        List<Map<String, Long>> attInit = attackers.stream().map(c -> fighting(c.units())).toList();
+        List<Map<String, Long>> defInit = defenders.stream().map(c -> fighting(c.units())).toList();
         List<Map<String, Long>> attSurv = counts(att, attackers.size());
         List<Map<String, Long>> defSurv = counts(def, defenders.size());
         List<Map<String, Long>> attLoss = diff(attInit, attSurv);
@@ -161,17 +162,22 @@ public final class CombatEngine {
                 long n = e.getValue();
                 if (n <= 0) continue;
                 UnitDef u = data.unit(e.getKey());
+                if (!u.fights()) continue;
                 double attack = u.attack() * (1 + 0.1 * cb.weapons() + cb.attackBonus());
                 double shield = u.shield() * (1 + 0.1 * cb.shielding());
                 double hull = u.baseHull() * (1 + 0.1 * cb.armour());
-                army.groups.add(new Group(side, c, u.key(), attack, shield, hull));
+                army.groups.add(new Group(side, c, u.key(), attack, shield, hull, u.rapidFire()));
                 army.add(army.groups.size() - 1, n, hull);
             }
         }
         return army;
     }
 
-    /** Zwraca [liczba strzalow, obrazenia, pochloniete przez oslony]. */
+    /**
+     * Zwraca [liczba strzalow, obrazenia, pochloniete przez oslony].
+     * Szybki ogien: po strzale w jednostke, przeciw ktorej strzelec ma szybki ogien N, z prawdopodobienstwem
+     * (N-1)/N oddaje kolejny strzal w nowy losowy cel.
+     */
     private static double[] fire(Army shooters, Army targets, Random rnd) {
         long shots = 0;
         double damage = 0;
@@ -183,29 +189,37 @@ public final class CombatEngine {
         for (int i = 0; i < shooters.size; i++) {
             Group g = shooters.groups.get(shooters.group[i]);
             if (g.attack() <= 0) continue;
-            int t = rnd.nextInt(targetCount);
-            if (targets.hull[t] <= 0) {
-                // cel zniszczony wczesniej w tej rundzie - strzal trafia we wrak i przepada
+            boolean again = true;
+            int guard = 0;
+            while (again && guard++ < 1000) {
+                again = false;
+                int t = rnd.nextInt(targetCount);
                 shots++;
-                continue;
+                Group tg = targets.groups.get(targets.group[t]);
+                int rf = g.rapidFire().getOrDefault(tg.key(), 1);
+                if (rf > 1 && rnd.nextDouble() < (rf - 1.0) / rf) {
+                    again = true;
+                }
+                if (targets.hull[t] <= 0) {
+                    // cel zniszczony wczesniej w tej rundzie - strzal trafia we wrak i przepada
+                    continue;
+                }
+                double dmg = g.attack();
+                if (dmg < tg.maxShield() * BOUNCE_THRESHOLD) {
+                    absorbed += dmg;
+                    continue;
+                }
+                if (targets.shield[t] >= dmg) {
+                    targets.shield[t] -= dmg;
+                    absorbed += dmg;
+                    continue;
+                }
+                double through = dmg - targets.shield[t];
+                absorbed += targets.shield[t];
+                targets.shield[t] = 0;
+                targets.hull[t] -= through;
+                damage += through;
             }
-            Group tg = targets.groups.get(targets.group[t]);
-            shots++;
-            double dmg = g.attack();
-            if (dmg < tg.maxShield() * BOUNCE_THRESHOLD) {
-                absorbed += dmg;
-                continue;
-            }
-            if (targets.shield[t] >= dmg) {
-                targets.shield[t] -= dmg;
-                absorbed += dmg;
-                continue;
-            }
-            double through = dmg - targets.shield[t];
-            absorbed += targets.shield[t];
-            targets.shield[t] = 0;
-            targets.hull[t] -= through;
-            damage += through;
         }
         return new double[]{shots, damage, absorbed};
     }
@@ -232,10 +246,10 @@ public final class CombatEngine {
         return out;
     }
 
-    private static Map<String, Long> positive(Map<String, Long> m) {
+    private Map<String, Long> fighting(Map<String, Long> m) {
         Map<String, Long> out = new LinkedHashMap<>();
         m.forEach((k, v) -> {
-            if (v > 0) out.put(k, v);
+            if (v > 0 && data.unit(k).fights()) out.put(k, v);
         });
         return out;
     }

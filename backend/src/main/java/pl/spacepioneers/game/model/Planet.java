@@ -25,6 +25,8 @@ public class Planet {
     private String planetType;
     private int imageVariant;
     private boolean homeworld;
+    private boolean moon;
+    private Instant jumpGateReadyAt;
     private Resources resources = Resources.ZERO;
     private Instant lastUpdate;
     private Instant createdAt;
@@ -60,7 +62,7 @@ public class Planet {
     }
 
     public PlanetSnapshot snapshot() {
-        return new PlanetSnapshot(buildings, units, temperatureMax, fields, productionPercent);
+        return new PlanetSnapshot(buildings, units, temperatureMax, fields, productionPercent, moon);
     }
 
     /** Pierwsza rozpoczeta pozycja kolejki budowy (lub null). */
@@ -99,6 +101,10 @@ public class Planet {
     public void setPlanetType(String planetType) { this.planetType = planetType; }
     public int getImageVariant() { return imageVariant; }
     public void setImageVariant(int imageVariant) { this.imageVariant = imageVariant; }
+    public boolean isMoon() { return moon; }
+    public void setMoon(boolean moon) { this.moon = moon; }
+    public Instant getJumpGateReadyAt() { return jumpGateReadyAt; }
+    public void setJumpGateReadyAt(Instant jumpGateReadyAt) { this.jumpGateReadyAt = jumpGateReadyAt; }
     public boolean isHomeworld() { return homeworld; }
     public void setHomeworld(boolean homeworld) { this.homeworld = homeworld; }
     public Resources getResources() { return resources; }

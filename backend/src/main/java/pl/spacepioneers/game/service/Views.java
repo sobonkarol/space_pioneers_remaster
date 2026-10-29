@@ -12,7 +12,8 @@ public final class Views {
     private Views() {
     }
 
-    public record PlanetRef(long id, String name, String coordinates, String planetType, int imageVariant, boolean homeworld) {
+    public record PlanetRef(long id, String name, String coordinates, String planetType, int imageVariant, boolean homeworld,
+                            boolean moon) {
     }
 
     public record ResourceState(Resources amount, Resources perHour, Resources capacity,
@@ -31,9 +32,17 @@ public final class Views {
     }
 
     public record FleetMovement(long id, String mission, String status, boolean own, String ownerName,
-                                String origin, String target, String targetPlanetName,
-                                Instant departAt, Instant arriveAt, Instant returnAt,
+                                String origin, String target, boolean targetMoon, Long unionId,
+                                Instant departAt, Instant arriveAt, Instant holdUntil, Instant returnAt,
                                 Map<String, Long> ships, Resources cargo) {
+        /** Najblizszy moment zdarzenia (do sortowania i odliczania). */
+        public Instant nextAt() {
+            return switch (status) {
+                case "OUTBOUND" -> arriveAt;
+                case "HOLDING" -> holdUntil;
+                default -> returnAt;
+            };
+        }
     }
 
     public record Overview(
@@ -92,7 +101,8 @@ public final class Views {
 
     public record GalaxyRow(int position, Long planetId, String planetName, String planetType, int imageVariant,
                             Long ownerId, String ownerName, Integer ownerRank, Long allianceId, String allianceTag,
-                            List<String> flags, Resources debris, boolean own) {
+                            List<String> flags, Resources debris, boolean own, Long moonId, String moonName,
+                            int moonImageVariant) {
     }
 
     public record GalaxyView(int galaxy, int system, int galaxies, int systems, List<GalaxyRow> rows) {

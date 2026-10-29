@@ -3,6 +3,8 @@ package pl.spacepioneers.game.store;
 import pl.spacepioneers.engine.common.Coordinates;
 import pl.spacepioneers.game.model.Alliance;
 import pl.spacepioneers.game.model.AllianceApplication;
+import pl.spacepioneers.game.model.AttackUnion;
+import pl.spacepioneers.game.model.Buddy;
 import pl.spacepioneers.game.model.DebrisField;
 import pl.spacepioneers.game.model.Fleet;
 import pl.spacepioneers.game.model.Message;
@@ -49,7 +51,17 @@ public interface GameStore {
     // --- planety
     Optional<Planet> planet(long id);
 
+    /** Planeta (nie ksiezyc) na danej pozycji. */
     Optional<Planet> planetAt(Coordinates coordinates);
+
+    /** Ksiezyc na danej pozycji. */
+    Optional<Planet> moonAt(Coordinates coordinates);
+
+    default Optional<Planet> bodyAt(Coordinates coordinates, boolean moon) {
+        return moon ? moonAt(coordinates) : planetAt(coordinates);
+    }
+
+    List<Planet> moonsInSystem(int galaxy, int system);
 
     List<Planet> planetsOf(long ownerId);
 
@@ -66,10 +78,27 @@ public interface GameStore {
 
     List<Fleet> fleetsOf(long ownerId);
 
-    /** Floty obcych graczy lecace (w strone celu) do planet wskazanego gracza. */
+    /** Floty obcych graczy lecace do planet wskazanego gracza lub stacjonujace przy nich (obrona sojusznicza). */
     List<Fleet> fleetsTargeting(long playerId);
 
     List<Fleet> allFleets();
+
+    List<Fleet> fleetsInUnion(long unionId);
+
+    /** Floty sojusznikow stacjonujace (HOLDING) przy danym ciele niebieskim. */
+    List<Fleet> fleetsHoldingAt(Coordinates coordinates, boolean moon);
+
+    /** Floty startujace z lub lecace do danej pozycji (do skanowania falanga). */
+    List<Fleet> fleetsAround(Coordinates coordinates);
+
+    // --- ataki sojusznicze
+    Optional<AttackUnion> union(long id);
+
+    List<AttackUnion> unions();
+
+    void save(AttackUnion union);
+
+    void deleteUnion(long id);
 
     void save(Fleet fleet);
 
@@ -124,6 +153,19 @@ public interface GameStore {
     void save(Treaty treaty);
 
     void deleteTreaty(long id);
+
+    // --- znajomi
+    Optional<Buddy> buddy(long id);
+
+    List<Buddy> buddiesOf(long playerId);
+
+    void save(Buddy buddy);
+
+    void deleteBuddy(long id);
+
+    default boolean areBuddies(long a, long b) {
+        return buddiesOf(a).stream().anyMatch(x -> x.status() == Buddy.Status.ACCEPTED && x.other(a) == b);
+    }
 
     // --- zdarzenia czasowe
     /** Najwczesniejsze zdarzenie z czasem &lt;= {@code until}. */

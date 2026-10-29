@@ -181,5 +181,6 @@ export const PALETTES = {
   ice: { skyTop: '#04091a', skyBottom: '#123a5c', horizon: '#5d9cc8', groundTop: '#8aa8c4', groundBottom: '#2c3e52', moon: '#e9f2ff' },
   desert: { skyTop: '#0c0610', skyBottom: '#3a1f2c', horizon: '#b0613a', groundTop: '#8a5a36', groundBottom: '#2e1a10', moon: '#ffd2a0' },
   green: { skyTop: '#030b10', skyBottom: '#0f3438', horizon: '#3f8a7a', groundTop: '#3c5e3a', groundBottom: '#12200f', moon: '#cfe8d0' },
+  moon: { skyTop: '#000000', skyBottom: '#05080f', horizon: '#1a2230', groundTop: '#7a7c82', groundBottom: '#2a2b30', moon: '#5a8ad0' },
   violet: { skyTop: '#07040f', skyBottom: '#241338', horizon: '#6a3f8c', groundTop: '#4b3a5a', groundBottom: '#17101f', moon: '#e6d2ff' },
 };

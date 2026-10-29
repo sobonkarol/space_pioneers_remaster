@@ -210,6 +210,35 @@ public class SocialController {
         game.alliances().endTreaty(me.playerId(), id);
     }
 
+    // --- znajomi
+
+    public record BuddyRequest(@NotBlank String username, String text) {
+    }
+
+    @GetMapping("/buddies")
+    public List<pl.spacepioneers.game.service.BuddyService.BuddyView> buddies(@AuthenticationPrincipal PlayerPrincipal me) {
+        return game.buddies().list(me.playerId());
+    }
+
+    @PostMapping("/buddies")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void requestBuddy(@AuthenticationPrincipal PlayerPrincipal me, @Valid @RequestBody BuddyRequest req) {
+        game.buddies().request(me.playerId(), req.username(), req.text());
+    }
+
+    @PostMapping("/buddies/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void respondBuddy(@AuthenticationPrincipal PlayerPrincipal me, @PathVariable long id,
+                             @RequestBody DecisionRequest req) {
+        game.buddies().respond(me.playerId(), id, req.accept());
+    }
+
+    @DeleteMapping("/buddies/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeBuddy(@AuthenticationPrincipal PlayerPrincipal me, @PathVariable long id) {
+        game.buddies().remove(me.playerId(), id);
+    }
+
     // --- ranking
 
     @GetMapping("/ranking")

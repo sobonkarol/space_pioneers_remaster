@@ -42,8 +42,27 @@ function ResLine({ r }: { r: Resources }) {
   );
 }
 
+function sumUnits(list: Record<string, number>[]): number {
+  return list.reduce((s, m) => s + Object.values(m).reduce((a, b) => a + b, 0), 0);
+}
+
+function SideTables({ sides, units, losses }: {
+  sides: CombatReport['attackers'];
+  units: Record<string, number>[];
+  losses?: Record<string, number>[];
+}) {
+  return (
+    <>
+      {sides.map((s, i) => (
+        <UnitTable key={`${s.playerId}-${i}`} title={`${s.playerName} [${s.coordinates}]`} units={units[i] ?? {}} losses={losses?.[i]} />
+      ))}
+    </>
+  );
+}
+
 export function CombatReportView({ report }: { report: CombatReport }) {
-  const sideTech = (s: CombatReport['attacker']) => t('report.tech', { w: s.weapons * 10, s: s.shielding * 10, a: s.armour * 10 });
+  const sideTech = (s: CombatReport['attackers'][number]) => t('report.tech', { w: s.weapons * 10, s: s.shielding * 10, a: s.armour * 10 });
+  const lost = (r: Resources) => fmt(r.metal + r.crystal + r.tritium);
   return (
     <div className="combat-report">
       <h3>
@@ -51,18 +70,30 @@ export function CombatReportView({ report }: { report: CombatReport }) {
       </h3>
       <div className="report-sides">
         <div>
-          <b>{t('report.attacker')}:</b> {report.attacker.playerName} [{report.attacker.coordinates}]
-          <div className="muted small">{sideTech(report.attacker)}</div>
+          <b>{t('report.attacker')}:</b>
+          {report.attackers.map((s) => (
+            <div key={`a${s.playerId}${s.coordinates}`}>
+              {s.playerName} [{s.coordinates}] <span className="muted small">{sideTech(s)}</span>
+            </div>
+          ))}
         </div>
         <div>
-          <b>{t('report.defender')}:</b> {report.defender.playerName} [{report.defender.coordinates}]
-          <div className="muted small">{sideTech(report.defender)}</div>
+          <b>{t('report.defender')}:</b>
+          {report.defenders.map((s) => (
+            <div key={`d${s.playerId}${s.coordinates}`}>
+              {s.playerName} [{s.coordinates}] <span className="muted small">{sideTech(s)}</span>
+            </div>
+          ))}
         </div>
       </div>
       <h4>{t('report.before')}</h4>
       <div className="report-grid">
-        <UnitTable title={report.attacker.playerName} units={report.attackerStart} />
-        <UnitTable title={report.defender.playerName} units={report.defenderStart} />
+        <div>
+          <SideTables sides={report.attackers} units={report.attackerStart} />
+        </div>
+        <div>
+          <SideTables sides={report.defenders} units={report.defenderStart} />
+        </div>
       </div>
       {report.rounds.map((r) => (
         <div key={r.number} className="report-round">
@@ -72,10 +103,16 @@ export function CombatReportView({ report }: { report: CombatReport }) {
             <br />
             {t('report.shots', { side: t('report.defender'), shots: fmt(r.defenderShots), damage: fmt(r.defenderDamage + r.absorbedByAttacker), absorbed: fmt(r.absorbedByAttacker) })}
           </p>
-          <div className="report-grid">
-            <UnitTable title={report.attacker.playerName} units={r.attackerUnits} />
-            <UnitTable title={report.defender.playerName} units={r.defenderUnits} />
-          </div>
+          {(sumUnits(r.attackerUnits) > 0 || sumUnits(r.defenderUnits) > 0) && (
+            <div className="report-grid">
+              <div>
+                <SideTables sides={report.attackers} units={r.attackerUnits} />
+              </div>
+              <div>
+                <SideTables sides={report.defenders} units={r.defenderUnits} />
+              </div>
+            </div>
+          )}
         </div>
       ))}
       <div className="report-summary">
@@ -83,8 +120,7 @@ export function CombatReportView({ report }: { report: CombatReport }) {
           <b>{t(`report.outcome.${report.outcome}`)}</b>
         </p>
         <p>
-          {t('report.losses')} — {t('report.attacker')}: {fmt(report.attackerLostValue.metal + report.attackerLostValue.crystal + report.attackerLostValue.tritium)},{' '}
-          {t('report.defender')}: {fmt(report.defenderLostValue.metal + report.defenderLostValue.crystal + report.defenderLostValue.tritium)}
+          {t('report.losses')} — {t('report.attacker')}: {lost(report.attackerLostValue)}, {t('report.defender')}: {lost(report.defenderLostValue)}
         </p>
         <p>
           {t('report.loot')}: <ResLine r={report.loot} />
@@ -100,6 +136,8 @@ export function CombatReportView({ report }: { report: CombatReport }) {
               .join(', ')}
           </p>
         )}
+        {report.moonChancePercent > 0 && <p>{t('report.moonChance', { p: report.moonChancePercent })}</p>}
+        {report.moonCreated && <p className="positive"><b>{t('report.moonCreated')}</b></p>}
       </div>
     </div>
   );
@@ -143,7 +181,7 @@ export function EspionageReportView({ report }: { report: EspionageReport }) {
   return (
     <div className="espionage-report">
       <h3>
-        {report.planetName} [{report.coordinates}] — {report.ownerName}
+        {report.moon ? `${t('galaxy.moon')} ` : ''}{report.planetName} [{report.coordinates}] — {report.ownerName}
       </h3>
       <p>
         {t('report.resources')}: <ResLine r={report.resources} />
