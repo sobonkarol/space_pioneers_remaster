@@ -18,7 +18,6 @@ import { SearchPage } from './pages/SearchPage';
 import { SimulatorPage } from './pages/SimulatorPage';
 import { FleetPage } from './pages/FleetPage';
 import { GalaxyPage } from './pages/GalaxyPage';
-import { HelpPage } from './pages/HelpPage';
 import { MarketPage } from './pages/MarketPage';
 import { MessagesPage } from './pages/MessagesPage';
 import { OverviewPage } from './pages/OverviewPage';
@@ -28,6 +27,8 @@ import { ResourcesPage } from './pages/ResourcesPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { ShipyardPage } from './pages/ShipyardPage';
 import { TechTreePage } from './pages/TechTreePage';
+import { WIKI_BASE } from './pages/wiki/WikiFrame';
+import { WikiPage } from './pages/wiki/WikiPages';
 import { GameProvider } from './state/game';
 import { SessionProvider, useSession } from './state/session';
 
@@ -45,6 +46,8 @@ function Routing() {
         <Route path={BOARD_BASE} element={<BoardIndexPage />} />
         <Route path={`${BOARD_BASE}/watek/:threadId`} element={<BoardThreadPage />} />
         <Route path={`${BOARD_BASE}/:category`} element={<BoardCategoryPage />} />
+        <Route path={WIKI_BASE} element={<WikiPage />} />
+        <Route path={`${WIKI_BASE}/:slug`} element={<WikiPage />} />
         <Route path="*" element={<AuthPage />} />
       </Routes>
     );
@@ -57,6 +60,8 @@ function Routing() {
         <Route path={BOARD_BASE} element={<BoardIndexPage />} />
         <Route path={`${BOARD_BASE}/watek/:threadId`} element={<BoardThreadPage />} />
         <Route path={`${BOARD_BASE}/:category`} element={<BoardCategoryPage />} />
+        <Route path={WIKI_BASE} element={<WikiPage />} />
+        <Route path={`${WIKI_BASE}/:slug`} element={<WikiPage />} />
         <Route element={<Layout />}>
           <Route path="/overview" element={<OverviewPage />} />
           <Route path="/resources" element={<ResourcesPage />} />
@@ -80,7 +85,7 @@ function Routing() {
           <Route path="/ranking" element={<RankingPage />} />
           <Route path="/market" element={<MarketPage />} />
           <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/help" element={<HelpPage />} />
+          <Route path="/help" element={<Navigate to={WIKI_BASE} replace />} />
           <Route path="/pillory" element={<PilloryPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="*" element={<Navigate to="/overview" replace />} />

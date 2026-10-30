@@ -182,7 +182,11 @@ export function Layout() {
               </a>
             </li>
             {link('/pillory', t('menu.pillory'))}
-            {link('/help', t('menu.help'))}
+            <li>
+              <a href="/wiki" target="_blank" rel="noopener">
+                {t('menu.help')} ↗
+              </a>
+            </li>
             {profile?.admin && link('/admin', t('menu.admin'))}
             <li>
               <button

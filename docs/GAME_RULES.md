@@ -79,3 +79,10 @@ gatunku (SP powstało jako alternatywa dla OGame). Wszystkie liczby siedzą w pl
 - Wątki w Ogłoszeniach zakładają tylko administratorzy. Administratorzy przyklejają, zamykają i usuwają wątki
   oraz nadają zgłoszeniom błędów status: nowy, potwierdzony, naprawiony, odrzucony.
 - Autor edytuje i usuwa własne wpisy; między wpisami jednego gracza musi minąć 15 sekund.
+
+## Wiki gry (Kosmopedia)
+- Publiczna encyklopedia pod `/wiki` (otwierana z menu „Wiki gry” w nowej karcie, czytanie bez logowania), zastępuje dawną
+  podstronę Pomocy. Artykuły z zasadami, strony wszystkich budynków, badań, statków, obrony i rakiet, drzewo technologii,
+  tabela szybkich dział i kalkulator lotów.
+- Tabele (koszty, czasy, produkcja, energia, punkty, prędkości) wylicza przeglądarka z `/api/config` wzorami przepisanymi
+  z silnika w `frontend/src/pages/wiki/wikiMath.ts`. Zmiana wzoru w silniku wymaga zmiany tam (pilnuje tego `wikiMath.test.ts`).
