@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 /**
- * Generator oryginalnej oprawy graficznej Space Pioneers Remaster.
+ * Generator oprawy 2D Space Pioneers Remaster: planety, ksiezyce, tlo, logo i ikony surowcow.
+ * (Budynki, badania, statki i obrona sa renderowane w 3D przez scripts/art3d/render.mjs.)
  * Rysuje grafiki jako SVG (kod w tym katalogu), rasteryzuje je przez Chromium do PNG/JPG
  * w frontend/public/assets/art/ i zapisuje manifest.json.
  *
- * Uzycie: CHROME_PATH=/sciezka/do/chromium node scripts/art/generate.mjs [--only=buildings,ships] [--sheet]
+ * Uzycie: CHROME_PATH=/sciezka/do/chromium node scripts/art/generate.mjs [--only=planets,ui] [--sheet]
  * (bez CHROME_PATH probuje uzyc pakietu @sparticuz/chromium, jesli jest zainstalowany)
  */
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
-import { buildings } from './buildings.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const OUT = join(here, '..', '..', 'public', 'assets', 'art');
@@ -22,22 +22,6 @@ const sheet = args.includes('--sheet');
 /** Lista grafik: [klucz manifestu, sciezka pliku, funkcja SVG, szerokosc, wysokosc, format] */
 async function catalog() {
   const items = [];
-  const add = (group, list, folder, kind, size, format = 'png') => {
-    if (only.length && !only.includes(group)) return;
-    for (const [key, fn] of Object.entries(list)) {
-      items.push({ key: `${kind}/${key}`, file: `${folder}/${key}.${format}`, fn, w: size, h: size, format });
-    }
-  };
-  add('buildings', buildings, 'buildings', 'building', 240);
-  const optional = async (group, module, exportName, folder, kind, size) => {
-    const path = join(here, module);
-    if (!existsSync(path)) return;
-    const mod = await import(path);
-    add(group, mod[exportName], folder, kind, size);
-  };
-  await optional('research', 'research.mjs', 'research', 'research', 'research', 240);
-  await optional('ships', 'ships.mjs', 'ships', 'ships', 'ship', 240);
-  await optional('defense', 'defense.mjs', 'defense', 'defense', 'defense', 240);
   if (existsSync(join(here, 'planets.mjs')) && (!only.length || only.includes('planets'))) {
     const { planets } = await import(join(here, 'planets.mjs'));
     for (const p of planets()) items.push(p);
@@ -87,7 +71,7 @@ for (const item of items) {
   process.stdout.write('.');
 }
 console.log(`\nWygenerowano ${rendered.length} grafik.`);
-manifest._comment = 'Oryginalna oprawa Space Pioneers Remaster - generowana przez frontend/scripts/art/generate.mjs';
+manifest._comment = 'Oprawa Space Pioneers Remaster - generowana przez frontend/scripts/art/generate.mjs (2D) i frontend/scripts/art3d/render.mjs (3D)';
 const sorted = Object.fromEntries(Object.entries(manifest).sort(([a], [b]) => (a === '_comment' ? -1 : b === '_comment' ? 1 : a.localeCompare(b))));
 writeFileSync(manifestPath, JSON.stringify(sorted, null, 2) + '\n');
 
