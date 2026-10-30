@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<script type="importmap">
+{ "imports": { "three": "/three/build/three.module.js", "three/addons/": "/three/examples/jsm/" } }
+</script>
+<style>body { margin: 0; background: #000; }</style>
+</head>
+<body>
+<script type="module">
+  import { init } from './lib3d.js';
+  const RENDER = 768; // render wewnetrzny (supersampling)
+  const OUT = 320;    // rozmiar pliku
+  init(RENDER);
+  const modules = {};
+  async function load(m) {
+    if (!modules[m]) modules[m] = (await import('./' + m)).items;
+    return modules[m];
+  }
+  window.listItems = async (m) => Object.keys(await load(m));
+  window.renderItem = async (m, key) => {
+    const items = await load(m);
+    return items[key]({ size: RENDER, outSize: OUT });
+  };
+  window.artReady = true;
+</script>
+</body>
+</html>

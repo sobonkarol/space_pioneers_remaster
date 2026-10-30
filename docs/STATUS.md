@@ -9,7 +9,7 @@
 | Konto i administracja | potwierdzanie e-mail, reset hasła, zmiana adresu, usuwanie konta po 7 dniach, panel administratora (statystyki, gracze, blokady, uprawnienia, ogłoszenia, dziennik), pręgierz | scenariusze + API |
 | Backend | Spring Boot 3.4, Java 21, Flyway (V1–V5), JSONB, blokada doradcza dla zapisów, odczyty bez blokady, harmonogram zdarzeń, sesje tokenowe (SHA-256), BCrypt, trwała blokada logowania, limity zapytań, SMTP | MockMvc + PostgreSQL |
 | Frontend | React 19 + TypeScript: wszystkie widoki gry, panel administratora, strony bez logowania (potwierdzenie e-mail, nowe hasło, pręgierz); wersja polska | vitest + 5 scenariuszy E2E w przeglądarce |
-| Oprawa | własne logo, tło, ikony, grafiki 19 budynków, 14 badań, 13 statków, 10 obron i rakiet, 55 planet i księżyców — generowane programowo (`docs/ASSETS.md`) | podgląd w E2E |
+| Oprawa | własne logo, tło, ikony, grafiki 19 budynków, 14 badań, 13 statków, 10 obron i rakiet, 55 planet i księżyców — generowane programowo, statki/budynki/badania/obrona jako rendery 3D (`docs/ASSETS.md`) | podgląd w E2E |
 | Wdrożenie | Dockerfile, docker-compose, CI w GitHub Actions: testy backendu na PostgreSQL, testy i build frontendu, budowa obrazu Dockera, E2E | CI zielone na każdym PR |
 | Wydajność | `loadtest/load.mjs`, wyniki w `docs/LOADTEST.md` | ~350 zapytań/s bez błędów na 2 vCPU |
 
@@ -33,7 +33,7 @@ Scenariusze E2E w przeglądarce (`frontend/e2e/`), wszystkie bez błędów JS:
    (`GAME_RULES.md`), a wygląd — stylizacją klasycznego interfejsu, nie odwzorowaniem 1:1. Zgodności „95%”
    nie da się zweryfikować bez materiałów referencyjnych. Wszystkie liczby siedzą w `backend/src/main/resources/gamedata/*.json`,
    więc podmiana na oryginalne wartości nie wymaga zmian w kodzie.
-2. **Grafika** jest własna i generowana programowo (SVG → PNG), zgodnie z decyzją; nie są to oryginalne
+2. **Grafika** jest własna i generowana programowo (rendery 3D w three.js oraz SVG), zgodnie z decyzją; nie są to oryginalne
    rysunki z gry.
 3. **Poczta** wychodzi dopiero po skonfigurowaniu serwera SMTP (`SPRING_MAIL_HOST` i in.); bez niego linki
    z wiadomości trafiają do dziennika serwera. Wysyłki do prawdziwej skrzynki nie dało się sprawdzić w tym środowisku.
