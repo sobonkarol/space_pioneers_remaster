@@ -19,3 +19,7 @@ frontend/dist/
 .env
 .env.local
 frontend/e2e-shots/
+
+# kopie zapasowe bazy i dane dostepu do chmury (tylko na serwerze)
+backups/
+backup-config/

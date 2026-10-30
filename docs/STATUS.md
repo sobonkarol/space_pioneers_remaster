@@ -10,7 +10,7 @@
 | Backend | Spring Boot 3.4, Java 21, Flyway (V1–V5), JSONB, blokada doradcza dla zapisów, odczyty bez blokady, harmonogram zdarzeń, sesje tokenowe (SHA-256), BCrypt, trwała blokada logowania, limity zapytań, SMTP | MockMvc + PostgreSQL |
 | Frontend | React 19 + TypeScript: wszystkie widoki gry, panel administratora, strony bez logowania (potwierdzenie e-mail, nowe hasło, pręgierz, forum gry, wiki gry z tabelami liczonymi z danych serwera); wersja polska | vitest + 6 scenariuszy E2E w przeglądarce |
 | Oprawa | własne logo, tło, ikony, grafiki 19 budynków, 14 badań, 13 statków, 10 obron i rakiet, 55 planet i księżyców — generowane programowo, statki/budynki/badania/obrona jako rendery 3D (`docs/ASSETS.md`) | podgląd w E2E |
-| Wdrożenie | Dockerfile, docker-compose, CI w GitHub Actions: testy backendu na PostgreSQL, testy i build frontendu, budowa obrazu Dockera, E2E | CI zielone na każdym PR |
+| Wdrożenie | Dockerfile, docker-compose, CI w GitHub Actions: testy backendu na PostgreSQL, testy i build frontendu, budowa obrazów Dockera, E2E; codzienne kopie bazy z wysyłką poza serwer (`docs/BACKUP.md`) | CI zielone na każdym PR |
 | Wydajność | `loadtest/load.mjs`, wyniki w `docs/LOADTEST.md` | ~350 zapytań/s bez błędów na 2 vCPU |
 
 Testy: `mvn test` — 187 testów (silnik, scenariusze w pamięci i te same scenariusze na PostgreSQL, API).

@@ -52,6 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t space-pioneers:ci .
+      - run: docker build -t space-pioneers-backup:ci deploy/backup
 
   e2e:
     runs-on: ubuntu-latest

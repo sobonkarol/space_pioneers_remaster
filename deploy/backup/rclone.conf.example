@@ -1,0 +1,13 @@
+# Wzor konfiguracji rclone dla OVHcloud Object Storage (S3).
+# Skopiuj na serwerze do backup-config/rclone.conf i uzupelnij klucze. Pliku z kluczami NIE commituj.
+# Region wybierz inny niz serwer gry (serwer stoi w Kanadzie - np. waw = Warszawa, gra = Gravelines).
+[ovh]
+type = s3
+provider = Other
+env_auth = false
+access_key_id = TU_ACCESS_KEY
+secret_access_key = TU_SECRET_KEY
+endpoint = https://s3.waw.io.cloud.ovh.net
+acl = private
+region = waw
+location_constraint = waw
