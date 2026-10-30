@@ -16,6 +16,8 @@ const stamp = Date.now().toString(36);
 
 try {
   console.log('1. Rejestracja dwóch graczy');
+  // na pustym serwerze pierwsze konto zostaje administratorem, a administrator nie wystepuje w rankingu
+  await (await newPlayer(browser, `Admin${stamp}`)).context().close();
   const a = await newPlayer(browser, `Atak${stamp}`);
   const d = await newPlayer(browser, `Obrona${stamp}`);
   await a.screenshot({ path: `${SHOTS}/01-overview.png` });

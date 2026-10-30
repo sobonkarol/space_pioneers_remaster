@@ -59,6 +59,9 @@ public interface GameStore {
 
     int playerCount();
 
+    /** Liczba graczy w rankingu (bez administratorow). */
+    int rankedPlayerCount();
+
     /** Gracze, ktorych nazwa zawiera fragment (bez rozrozniania wielkosci liter), alfabetycznie. */
     List<Player> searchPlayers(String fragment, int limit);
 
@@ -70,7 +73,7 @@ public interface GameStore {
 
     /**
      * Strona rankingu graczy wedlug kategorii punktow (total, economy, research, fleet, defense) malejaco,
-     * przy rownych punktach rosnaco po id.
+     * przy rownych punktach rosnaco po id. Administratorzy nie biora udzialu w rankingu.
      */
     List<Player> playersByScore(String category, int offset, int limit);
 

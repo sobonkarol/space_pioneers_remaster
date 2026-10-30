@@ -196,7 +196,7 @@ function PlayerPanel({ playerId, selfId, run, busy, onChanged, onDeleted }: {
           <tr><td>{t('auth.email')}</td><td>{p.email} ({p.emailVerified ? t('admin.verified') : t('admin.unverifiedShort')})</td></tr>
           <tr><td>{t('admin.registered')}</td><td>{dateTime(p.createdAt)}</td></tr>
           <tr><td>{t('admin.lastActivity')}</td><td>{dateTime(p.lastActivity)}</td></tr>
-          <tr><td>{t('common.points')}</td><td>{fmt(p.points)} (#{p.rank})</td></tr>
+          <tr><td>{t('common.points')}</td><td>{fmt(p.points)} ({p.rank ? `#${p.rank}` : 'poza rankingiem'})</td></tr>
           <tr><td>{t('admin.fleets')}</td><td>{d.fleetsInFlight}</td></tr>
           {p.bannedUntil && (
             <tr><td>{t('admin.bannedFlag')}</td><td>{new Date(p.bannedUntil).getUTCFullYear() >= 9999 ? t('pillory.permanent') : dateTime(p.bannedUntil)} — {p.banReason}</td></tr>
