@@ -29,6 +29,10 @@ services:
       LEGAL_OPERATOR: ${LEGAL_OPERATOR:-}
       LEGAL_ADDRESS: ${LEGAL_ADDRESS:-}
       LEGAL_EMAIL: ${LEGAL_EMAIL:-}
+      # gracze sterowani przez komputer (docs/BOTS.md)
+      BOTS_ENABLED: ${BOTS_ENABLED:-false}
+      BOTS_TARGET: ${BOTS_TARGET:-50}
+      BOTS_PER_WEEK: ${BOTS_PER_WEEK:-5}
       # odkomentuj, aby wysylac poczte przez SMTP:
       # SPRING_MAIL_HOST: smtp.example.com
       # SPRING_MAIL_PORT: 587

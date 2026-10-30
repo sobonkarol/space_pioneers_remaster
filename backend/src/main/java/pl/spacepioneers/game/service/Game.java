@@ -23,6 +23,7 @@ public final class Game {
     private final SearchService search;
     private final SimulatorService simulator;
     private final BoardService board;
+    private final BotService bots;
 
     public Game(GameContext ctx) {
         this.ctx = ctx;
@@ -47,6 +48,7 @@ public final class Game {
         this.search = new SearchService(ctx, world);
         this.simulator = new SimulatorService(ctx);
         this.board = new BoardService(ctx, world);
+        this.bots = new BotService(ctx, world, this);
     }
 
     /** Obsluguje zalegle zdarzenia (wywolywane cyklicznie przez harmonogram). */
@@ -73,4 +75,5 @@ public final class Game {
     public SearchService search() { return search; }
     public SimulatorService simulator() { return simulator; }
     public BoardService board() { return board; }
+    public BotService bots() { return bots; }
 }

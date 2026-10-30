@@ -510,6 +510,7 @@ export interface PilloryEntry {
 
 export interface AdminStats {
   players: number;
+  bots: number;
   online15m: number;
   active24h: number;
   banned: number;
@@ -524,6 +525,8 @@ export interface AdminStats {
 
 export interface AdminPlayerRow {
   id: number;
+  /** charakter gracza komputerowego (tylko dla administratora); brak = czlowiek */
+  bot?: string | null;
   username: string;
   email: string;
   emailVerified: boolean;

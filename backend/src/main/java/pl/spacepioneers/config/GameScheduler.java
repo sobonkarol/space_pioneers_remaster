@@ -28,17 +28,31 @@ public class GameScheduler {
     private final AccountTokens tokens;
     private final LoginThrottle throttle;
     private final RateLimitFilter rateLimit;
+    private final BotProperties bots;
 
     @org.springframework.beans.factory.annotation.Value("${spacepioneers.accounts.inactive-delete-days:0}")
     private int inactiveDeleteDays;
 
     public GameScheduler(Game game, SessionService sessions, AccountTokens tokens, LoginThrottle throttle,
-                         RateLimitFilter rateLimit) {
+                         RateLimitFilter rateLimit, BotProperties bots) {
         this.game = game;
         this.sessions = sessions;
         this.tokens = tokens;
         this.throttle = throttle;
         this.rateLimit = rateLimit;
+        this.bots = bots;
+    }
+
+    /** Gracze komputerowi: zakladanie nowych (stopniowo) i rozgrywanie zaleglych tur. */
+    @Scheduled(fixedDelay = 15_000, initialDelay = 20_000)
+    public void bots() {
+        if (!bots.on()) return;
+        try {
+            game.bots().spawnDue(bots.targetOrDefault(), bots.perWeekOrDefault());
+            game.bots().runDue(bots.turnsOrDefault());
+        } catch (RuntimeException e) {
+            log.error("Blad graczy komputerowych", e);
+        }
     }
 
     @Scheduled(fixedDelayString = "${spacepioneers.scheduler.tick-ms:1000}")

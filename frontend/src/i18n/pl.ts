@@ -406,6 +406,7 @@ export const pl = {
     'settings.delete.cancelled': 'Usunięcie anulowane.',
     'admin.forbidden': 'Brak uprawnień administratora.',
     'admin.stats': 'Statystyki serwera',
+    'admin.bots': 'w tym komputerowi',
     'admin.players': 'Gracze',
     'admin.online': 'Online (15 min)',
     'admin.active24h': 'Aktywni (24 h)',

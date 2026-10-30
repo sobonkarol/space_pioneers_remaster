@@ -53,6 +53,12 @@ spacepioneers:
     operator: ${LEGAL_OPERATOR:}
     address: ${LEGAL_ADDRESS:}
     email: ${LEGAL_EMAIL:}
+  # gracze sterowani przez komputer (docs/BOTS.md); domyslnie wylaczeni
+  bots:
+    enabled: ${BOTS_ENABLED:false}
+    target: ${BOTS_TARGET:50}
+    per-week: ${BOTS_PER_WEEK:5}
+    turns-per-tick: ${BOTS_TURNS_PER_TICK:8}
   universe:
     name: ${UNIVERSE_NAME:Uniwersum 1}
     galaxies: ${UNIVERSE_GALAXIES:5}

@@ -45,6 +45,7 @@ export function AdminPage() {
             {(
               [
                 ['admin.players', s.players],
+                ['admin.bots', s.bots],
                 ['admin.online', s.online15m],
                 ['admin.active24h', s.active24h],
                 ['admin.banned', s.banned],
@@ -100,6 +101,7 @@ export function AdminPage() {
                     <button type="button" className="link-button" onClick={() => setSelected(p.id)}>
                       {p.username}
                     </button>
+                    {p.bot && <span className="muted small" title={`Gracz komputerowy: ${p.bot}`}> (AI)</span>}
                     {p.allianceTag && <span className="muted"> [{p.allianceTag}]</span>}
                   </td>
                   <td>

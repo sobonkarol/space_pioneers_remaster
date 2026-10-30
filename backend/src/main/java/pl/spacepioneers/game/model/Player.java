@@ -37,6 +37,8 @@ public class Player {
     /** Wersja zaakceptowanego regulaminu i polityki prywatnosci (0 = brak zgody). */
     private int termsVersion;
     private Instant termsAcceptedAt;
+    /** Tylko gracze sterowani przez komputer: stan "mozgu" bota (null u ludzi). Nie trafia do API. */
+    private BotBrain bot;
     /** Ostatni przeczytany wpis w kazdym watku forum sojuszu (do oznaczania nowych wpisow). */
     private Map<Long, Long> forumRead = new HashMap<>();
     /** Ostatni przeczytany wpis w watkach publicznego forum gry. */
@@ -115,6 +117,9 @@ public class Player {
     public void setScore(Score score) { this.score = score; }
     public int getRank() { return rank; }
     public void setRank(int rank) { this.rank = rank; }
+    public BotBrain getBot() { return bot; }
+    public void setBot(BotBrain bot) { this.bot = bot; }
+    public boolean isBot() { return bot != null; }
     public int getTermsVersion() { return termsVersion; }
     public void setTermsVersion(int termsVersion) { this.termsVersion = termsVersion; }
     public Instant getTermsAcceptedAt() { return termsAcceptedAt; }
