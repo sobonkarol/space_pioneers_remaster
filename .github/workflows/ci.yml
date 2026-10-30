@@ -91,8 +91,18 @@ jobs:
           FRONTEND_DIR=$PWD/frontend/dist MAIL_DEV_OUTBOX=true UNIVERSE_SPEED=2000 UNIVERSE_GALAXIES=1 UNIVERSE_SYSTEMS=3 \
             UNIVERSE_NEWBIE_POINTS=0 RANKING_INTERVAL_MS=5000 nohup java -jar backend/target/space-pioneers-backend-*.jar > server.log 2>&1 &
           for i in $(seq 1 90); do curl -sf localhost:8080/api/stats && break; sleep 1; done
-      - run: |
-          for t in gameplay advanced account social tools overview; do node e2e/$t.e2e.mjs; done
+      - name: E2E scenarios
+        run: |
+          status=0
+          for t in gameplay advanced account social tools overview; do
+            if ! node e2e/$t.e2e.mjs > e2e-$t.log 2>&1; then
+              status=1
+              # ostatnie linie jako adnotacja - widoczne bez pobierania logow
+              echo "::error title=E2E $t::$(tail -25 e2e-$t.log | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')"
+            fi
+            cat e2e-$t.log
+          done
+          exit $status
         working-directory: frontend
       - if: failure()
         run: tail -200 server.log
