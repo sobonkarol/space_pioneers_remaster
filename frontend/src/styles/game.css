@@ -267,7 +267,15 @@ textarea { width: 100%; resize: vertical; }
 .report-units { font-size: 11px; }
 .report-round { border-top: 1px dashed var(--border); margin-top: 8px; padding-top: 4px; }
 .report-summary { margin-top: 10px; border-top: 1px solid var(--border-light); padding-top: 6px; }
-.alliance-description { white-space: pre-wrap; margin: 10px 0; padding: 8px; border: 1px solid var(--border); background: rgba(0, 0, 0, 0.25); }
+.alliance-description { margin: 10px 0; padding: 8px; border: 1px solid var(--border); background: rgba(0, 0, 0, 0.25);
+  overflow: auto; max-height: 900px; line-height: 1.4; word-break: break-word; }
+.alliance-description img { max-width: 100%; height: auto; }
+.alliance-description table { border-color: var(--border); max-width: 100%; }
+.alliance-description td, .alliance-description th { padding: 2px 4px; }
+.alliance-description a { color: #8fc8ff; }
+.alliance-html-editor { font-family: 'Courier New', monospace; font-size: 12px; }
+.alliance-html-help { font-size: 12px; margin: 4px 0; }
+.alliance-html-help code { font-size: 11px; }
 .market-preview { font-weight: bold; color: var(--accent); padding-bottom: 4px; }
 .sum-cell { font-weight: bold; }
 .empire-table th button { display: flex; flex-direction: column; align-items: center; }

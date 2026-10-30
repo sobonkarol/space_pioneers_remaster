@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../api/client';
+import { ALLIANCE_HTML_EXAMPLE, AllianceHtml } from '../components/AllianceHtml';
 import type { AllianceSummary, AllianceView, TreatyType } from '../api/types';
 import { ErrorBox, Loading, Panel, SuccessBox, useAction, useLoad } from '../components/common';
 import { t } from '../i18n';
@@ -160,7 +161,7 @@ function AllianceDetails({ allianceId, onChange }: { allianceId: number; onChang
             </tr>
           </tbody>
         </table>
-        {a.description && <div className="alliance-description">{a.description}</div>}
+        <AllianceHtml html={a.description} />
         {!isMember && !profile?.allianceId && !profile?.pendingApplicationAllianceId && a.open && (
           <form
             className="inline-form"
@@ -365,8 +366,25 @@ function AllianceDetails({ allianceId, onChange }: { allianceId: number; onChang
             >
               <label>
                 {t('alliance.description')}
-                <textarea value={settings.description} rows={5} maxLength={5000} onChange={(e) => setSettings({ ...settings, description: e.target.value })} />
+                <textarea className="alliance-html-editor" value={settings.description} rows={12} maxLength={20000}
+                  onChange={(e) => setSettings({ ...settings, description: e.target.value })} />
               </label>
+              <details className="alliance-html-help">
+                <summary>Opis może zawierać HTML - co jest dozwolone?</summary>
+                <p className="small">
+                  Formatowanie (<code>&lt;b&gt; &lt;i&gt; &lt;u&gt; &lt;font color size&gt; &lt;center&gt;</code>), nagłówki, listy,
+                  tabele (<code>border cellpadding bgcolor</code>), linie <code>&lt;hr&gt;</code>, obrazki{' '}
+                  <code>&lt;img src="https://..."&gt;</code> (tylko adresy https), linki (otwierają się w nowej karcie),{' '}
+                  <code>&lt;marquee&gt;</code> i style z kolorami, wyrównaniem, rozmiarami i ramkami. Skrypty, ramki, formularze
+                  i zdarzenia (np. <code>onclick</code>) są usuwane przy zapisie. Obrazki są pobierane z serwerów, na których leżą.
+                </p>
+                <button type="button" className="btn small"
+                  onClick={() => setSettings({ ...settings, description: ALLIANCE_HTML_EXAMPLE })}>
+                  Wstaw przykładowy opis
+                </button>
+              </details>
+              <div className="muted small">Podgląd:</div>
+              <AllianceHtml html={settings.description} />
               <label>
                 {t('alliance.homepage')}
                 <input value={settings.homepage} maxLength={200} onChange={(e) => setSettings({ ...settings, homepage: e.target.value })} />

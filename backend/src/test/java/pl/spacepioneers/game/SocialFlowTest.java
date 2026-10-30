@@ -200,4 +200,16 @@ public class SocialFlowTest {
         assertTrue(f.game.messages().inbox(q.getId(), Message.Type.PRIVATE, 10).isEmpty());
         assertThrows(GameException.class, () -> f.game.messages().send(p.getId(), "nobody", "a", "b"));
     }
+
+    @Test
+    public void allianceDescriptionAllowsSafeHtml() {
+        Player p = f.register("Lider");
+        Player q = f.register("Gosc");
+        long allianceId = f.game.alliances().create(p.getId(), "HTML", "Sojusz z banerem").id();
+        f.game.alliances().update(p.getId(), "<center><font color=\"#f90\"><b>Witaj!</b></font></center>"
+                + "<img src=\"https://example.com/b.gif\" onerror=\"alert(1)\"><script>steal()</script>", null, null);
+        String desc = f.game.alliances().view(q.getId(), allianceId).description();
+        assertTrue(desc, desc.contains("<center>") && desc.contains("<b>Witaj!</b>") && desc.contains("https://example.com/b.gif"));
+        assertFalse(desc, desc.contains("script") || desc.contains("onerror") || desc.contains("steal"));
+    }
 }

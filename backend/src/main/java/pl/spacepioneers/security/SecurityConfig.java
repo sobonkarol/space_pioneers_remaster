@@ -50,7 +50,7 @@ public class SecurityConfig {
                 .logout(l -> l.disable())
                 .headers(h -> h
                         .contentSecurityPolicy(csp -> csp.policyDirectives(
-                                "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; "
+                                "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; "
                                         + "script-src 'self'; connect-src 'self'; frame-ancestors 'none'"))
                         .frameOptions(f -> f.deny()))
                 .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
