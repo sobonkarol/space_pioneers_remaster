@@ -40,6 +40,13 @@ powłoki na serwerze.
 **3. Sprawdzenie:** zrób dowolny merge do `main` i w zakładce **Actions** zobacz job `deploy`. Na końcu jego logu
 ma być `gra dziala (<commit>)`. Kolejne aktualizacje dzieją się same, ok. 5 minut po merge'u.
 
+## Gdy job deploy jest czerwony
+
+- W adnotacjach joba jest odcisk klucza z sekretu (`Klucz z sekretu: 256 SHA256:...`). Porównaj go z wynikiem
+  `ssh-keygen -lf ~/.ssh/github_deploy.pub` na serwerze. Jeśli się różnią, w `DEPLOY_SSH_KEY` jest inny klucz.
+- `sudo journalctl -u ssh --since "15 min ago"` na serwerze pokazuje, dlaczego serwer odrzucił połączenie.
+- `DEPLOY_SSH_KEY nie jest poprawnym kluczem`: sekret jest ucięty. Wklej całość pliku, z liniami BEGIN i END.
+
 ## Wyłączenie
 
 Usuń sekret `DEPLOY_SSH_KEY` na GitHubie (i ewentualnie linię `github-deploy` z `~/.ssh/authorized_keys` na serwerze).
