@@ -12,6 +12,8 @@ import pl.spacepioneers.game.model.AttackUnion;
 import pl.spacepioneers.game.model.Buddy;
 import pl.spacepioneers.game.model.BuildOrder;
 import pl.spacepioneers.game.model.DebrisField;
+import pl.spacepioneers.game.model.BoardPost;
+import pl.spacepioneers.game.model.BoardThread;
 import pl.spacepioneers.game.model.Fleet;
 import pl.spacepioneers.game.model.ForumPost;
 import pl.spacepioneers.game.model.ForumThread;
@@ -40,7 +42,7 @@ public class JdbcGameStore implements GameStore {
 
     private static final long GAME_LOCK = 0x5350_4C4F_434BL; // "SPLOCK"
     private static final Set<String> SEQUENCES = Set.of("player", "planet", "fleet", "message", "alliance",
-            "application", "treaty", "build", "shipyard", "union", "buddy", "note", "thread", "post");
+            "application", "treaty", "build", "shipyard", "union", "buddy", "note", "thread", "post", "board_thread", "board_post");
 
     private final JdbcTemplate jdbc;
     private final TransactionTemplate tx;
@@ -574,6 +576,68 @@ public class JdbcGameStore implements GameStore {
     @Override
     public void deleteNote(long id) {
         jdbc.update("delete from notes where id = ?", id);
+    }
+
+    // --- publiczne forum gry
+
+    @Override
+    public Optional<BoardThread> boardThread(long id) {
+        return first(jdbc.query("select data from board_threads where id = ?", data(BoardThread.class), id));
+    }
+
+    @Override
+    public List<BoardThread> boardThreads(BoardThread.Category category, int offset, int limit) {
+        return jdbc.query("select data from board_threads where category = ? "
+                        + "order by pinned desc, last_post_at desc, id desc offset ? limit ?",
+                data(BoardThread.class), category.name(), offset, limit);
+    }
+
+    @Override
+    public int boardThreadCount(BoardThread.Category category) {
+        Integer n = jdbc.queryForObject("select count(*) from board_threads where category = ?", Integer.class, category.name());
+        return n == null ? 0 : n;
+    }
+
+    @Override
+    public List<BoardThread> latestBoardThreads(int limit) {
+        return jdbc.query("select data from board_threads order by last_post_at desc, id desc limit ?",
+                data(BoardThread.class), limit);
+    }
+
+    @Override
+    public void save(BoardThread t) {
+        jdbc.update("insert into board_threads (id, category, pinned, last_post_at, data) values (?, ?, ?, ?, ?::jsonb) "
+                        + "on conflict (id) do update set category = excluded.category, pinned = excluded.pinned, "
+                        + "last_post_at = excluded.last_post_at, data = excluded.data",
+                t.id(), t.category().name(), t.pinned(), ts(t.lastPostAt()), Json.write(t));
+    }
+
+    @Override
+    public void deleteBoardThread(long id) {
+        jdbc.update("delete from board_threads where id = ?", id); // wpisy kaskadowo
+    }
+
+    @Override
+    public Optional<BoardPost> boardPost(long id) {
+        return first(jdbc.query("select data from board_posts where id = ?", data(BoardPost.class), id));
+    }
+
+    @Override
+    public List<BoardPost> boardPosts(long threadId, int offset, int limit) {
+        return jdbc.query("select data from board_posts where thread_id = ? order by created_at, id offset ? limit ?",
+                data(BoardPost.class), threadId, offset, limit);
+    }
+
+    @Override
+    public void save(BoardPost p) {
+        jdbc.update("insert into board_posts (id, thread_id, created_at, data) values (?, ?, ?, ?::jsonb) "
+                        + "on conflict (id) do update set data = excluded.data",
+                p.id(), p.threadId(), ts(p.createdAt()), Json.write(p));
+    }
+
+    @Override
+    public void deleteBoardPost(long id) {
+        jdbc.update("delete from board_posts where id = ?", id);
     }
 
     // --- forum sojuszu
