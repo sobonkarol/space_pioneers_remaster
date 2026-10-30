@@ -4,7 +4,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pl.spacepioneers.config.LegalProperties;
 import pl.spacepioneers.config.UniverseProperties;
+import pl.spacepioneers.game.service.PlayerService;
 import pl.spacepioneers.engine.Rules;
 import pl.spacepioneers.engine.common.UniverseConfig;
 import pl.spacepioneers.engine.data.BuildingDef;
@@ -25,23 +27,35 @@ public class ConfigController {
     private final UniverseConfig config;
     private final UniverseProperties props;
     private final JdbcTemplate jdbc;
+    private final LegalProperties legal;
 
-    public ConfigController(GameData data, UniverseConfig config, UniverseProperties props, JdbcTemplate jdbc) {
+    public ConfigController(GameData data, UniverseConfig config, UniverseProperties props, JdbcTemplate jdbc,
+                            LegalProperties legal) {
         this.data = data;
         this.config = config;
         this.props = props;
         this.jdbc = jdbc;
+        this.legal = legal;
     }
 
     public record GameConfigDto(String universeName, UniverseConfig universe, long branchMinPoints,
                                 Collection<BuildingDef> buildings, Collection<ResearchDef> research,
-                                List<UnitDef> ships, List<UnitDef> defenses, List<UnitDef> missiles) {
+                                List<UnitDef> ships, List<UnitDef> defenses, List<UnitDef> missiles, Legal legal) {
+    }
+
+    /** Dane do regulaminu i polityki prywatnosci; puste pola = administrator jeszcze ich nie uzupelnil. */
+    public record Legal(String operator, String address, String email, int termsVersion) {
     }
 
     @GetMapping("/config")
     public GameConfigDto config() {
         return new GameConfigDto(props.displayName(), config, Rules.BRANCH_MIN_POINTS, data.buildings(),
-                data.research(), data.ships(), data.defenses(), data.missiles());
+                data.research(), data.ships(), data.defenses(), data.missiles(),
+                new Legal(blank(legal.operator()), blank(legal.address()), blank(legal.email()), PlayerService.TERMS_VERSION));
+    }
+
+    private static String blank(String v) {
+        return v == null || v.isBlank() ? null : v.trim();
     }
 
     @GetMapping("/stats")

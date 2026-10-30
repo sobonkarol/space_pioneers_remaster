@@ -15,6 +15,8 @@ import pl.spacepioneers.game.store.GameStore;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -23,6 +25,11 @@ import java.util.regex.Pattern;
 /** Rejestracja, profil, specjalizacja, tryb urlopowy. */
 public final class PlayerService extends ServiceBase {
 
+    /**
+     * Aktualna wersja regulaminu i polityki prywatnosci. Podniesienie wersji (przy zmianie tresci dokumentow
+     * w frontend/src/pages/legal) wymusza ponowna akceptacje przy nastepnym wejsciu do gry.
+     */
+    public static final int TERMS_VERSION = 1;
     public static final Resources START_RESOURCES = Resources.of(500, 500, 0);
     private Resources startResources = START_RESOURCES;
     public static final Duration VACATION_MINIMUM = Duration.ofHours(48);
@@ -39,7 +46,8 @@ public final class PlayerService extends ServiceBase {
     public record Profile(long id, String username, String email, String branch, boolean canChooseBranch,
                           boolean vacation, Instant vacationMinimumEnd, String language, double points, int rank,
                           Long allianceId, String allianceRank, long homePlanetId, boolean admin,
-                          Long pendingApplicationAllianceId, boolean emailVerified, Instant deletionAt) {
+                          Long pendingApplicationAllianceId, boolean emailVerified, Instant deletionAt,
+                          boolean termsAccepted) {
     }
 
     /** Surowce startowe nowych graczy (zmieniane tylko w testach E2E, zob. UniverseProperties#startResources). */
@@ -150,7 +158,55 @@ public final class PlayerService extends ServiceBase {
                 p.getAllianceId(), p.getAllianceRank() == null ? null : p.getAllianceRank().name(),
                 p.getHomePlanetId(), p.isAdmin(),
                 ctx.store().applicationOf(p.getId()).map(a -> a.allianceId()).orElse(null),
-                p.isEmailVerified(), p.getDeletionAt());
+                p.isEmailVerified(), p.getDeletionAt(), p.getTermsVersion() >= TERMS_VERSION);
+    }
+
+    /** Zapisuje akceptacje aktualnego regulaminu i polityki prywatnosci. */
+    public Profile acceptTerms(long playerId) {
+        return tx(now -> {
+            Player p = ctx.requirePlayer(playerId);
+            p.setTermsVersion(TERMS_VERSION);
+            p.setTermsAcceptedAt(now);
+            ctx.store().save(p);
+            return toProfile(p);
+        });
+    }
+
+    /**
+     * Kopia danych gracza (art. 15 i 20 RODO): konto, planety, wiadomosci, notatki, znajomi.
+     * Bez skrotu hasla i danych innych graczy poza tym, co gracz sam widzi w grze.
+     */
+    public Map<String, Object> exportData(long playerId) {
+        return read(now -> {
+            Player p = ctx.requirePlayer(playerId);
+            Map<String, Object> account = new LinkedHashMap<>();
+            account.put("id", p.getId());
+            account.put("username", p.getUsername());
+            account.put("email", p.getEmail());
+            account.put("emailVerified", p.isEmailVerified());
+            account.put("createdAt", p.getCreatedAt());
+            account.put("lastActivity", p.getLastActivity());
+            account.put("termsVersion", p.getTermsVersion());
+            account.put("termsAcceptedAt", p.getTermsAcceptedAt());
+            account.put("language", p.getLanguage());
+            account.put("branch", p.getBranch());
+            account.put("allianceId", p.getAllianceId());
+            account.put("allianceRank", p.getAllianceRank());
+            account.put("research", p.getResearch());
+            account.put("score", p.getScore());
+            account.put("vacationUntil", p.getVacationUntil());
+            account.put("bannedUntil", p.getBannedUntil());
+            account.put("banReason", p.getBanReason());
+            account.put("deletionAt", p.getDeletionAt());
+            Map<String, Object> out = new LinkedHashMap<>();
+            out.put("exportedAt", now);
+            out.put("account", account);
+            out.put("planets", ctx.store().planetsOf(playerId));
+            out.put("messages", ctx.store().messagesOf(playerId, null, 100_000));
+            out.put("notes", ctx.store().notesOf(playerId));
+            out.put("buddies", ctx.store().buddiesOf(playerId));
+            return out;
+        });
     }
 
     /** Aktualizuje czas ostatniej aktywnosci (co najwyzej raz na minute, aby ograniczyc zapisy). */

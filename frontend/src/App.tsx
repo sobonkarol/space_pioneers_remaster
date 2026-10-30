@@ -29,6 +29,7 @@ import { ShipyardPage } from './pages/ShipyardPage';
 import { TechTreePage } from './pages/TechTreePage';
 import { WIKI_BASE } from './pages/wiki/WikiFrame';
 import { WikiPage } from './pages/wiki/WikiPages';
+import { PRIVACY_PATH, PrivacyPage, TERMS_PATH, TermsPage } from './pages/legal/LegalPages';
 import { GameProvider } from './state/game';
 import { SessionProvider, useSession } from './state/session';
 
@@ -48,6 +49,8 @@ function Routing() {
         <Route path={`${BOARD_BASE}/:category`} element={<BoardCategoryPage />} />
         <Route path={WIKI_BASE} element={<WikiPage />} />
         <Route path={`${WIKI_BASE}/:slug`} element={<WikiPage />} />
+        <Route path={TERMS_PATH} element={<TermsPage />} />
+        <Route path={PRIVACY_PATH} element={<PrivacyPage />} />
         <Route path="*" element={<AuthPage />} />
       </Routes>
     );
@@ -62,6 +65,8 @@ function Routing() {
         <Route path={`${BOARD_BASE}/:category`} element={<BoardCategoryPage />} />
         <Route path={WIKI_BASE} element={<WikiPage />} />
         <Route path={`${WIKI_BASE}/:slug`} element={<WikiPage />} />
+        <Route path={TERMS_PATH} element={<TermsPage />} />
+        <Route path={PRIVACY_PATH} element={<PrivacyPage />} />
         <Route element={<Layout />}>
           <Route path="/overview" element={<OverviewPage />} />
           <Route path="/resources" element={<ResourcesPage />} />

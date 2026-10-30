@@ -7,6 +7,7 @@ import { firstAsset } from '../lib/assets';
 import { fmt } from '../lib/format';
 import { t } from '../i18n';
 import { useSession } from '../state/session';
+import { PRIVACY_PATH, TERMS_PATH } from './legal/LegalPages';
 
 interface Stats {
   universe: string;
@@ -22,6 +23,7 @@ export function AuthPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [accept, setAccept] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -37,7 +39,7 @@ export function AuthPage() {
     setError(null);
     try {
       if (mode === 'login') await login(loginName, password);
-      else await register(username, email, password);
+      else await register(username, email, password, accept);
       navigate('/overview');
     } catch (err) {
       setError(errorText(err));
@@ -96,6 +98,16 @@ export function AuthPage() {
               minLength={mode === 'register' ? 8 : 1} />
             {mode === 'register' && <small>{t('auth.passwordHint')}</small>}
           </label>
+          {mode === 'register' && (
+            <label className="auth-terms">
+              <input type="checkbox" checked={accept} onChange={(e) => setAccept(e.target.checked)} required />
+              <span>
+                Akceptuję{' '}
+                <a href={TERMS_PATH} target="_blank" rel="noopener">regulamin</a> i zapoznałem się z{' '}
+                <a href={PRIVACY_PATH} target="_blank" rel="noopener">polityką prywatności</a>
+              </span>
+            </label>
+          )}
           <ErrorBox error={error} />
           <button type="submit" className="btn primary" disabled={busy}>
             {mode === 'login' ? t('auth.login') : t('auth.register')}
@@ -108,7 +120,10 @@ export function AuthPage() {
         </form>
         )}
         <p className="auth-switch">
-          <Link to="/forum-gry">{t('menu.board')}</Link> · <Link to="/pillory">{t('menu.pillory')}</Link>
+          <Link to="/forum-gry">{t('menu.board')}</Link> · <Link to="/wiki">{t('menu.help')}</Link> ·{' '}
+          <Link to="/pillory">{t('menu.pillory')}</Link>
+          <br />
+          <Link to={TERMS_PATH}>Regulamin</Link> · <Link to={PRIVACY_PATH}>Polityka prywatności</Link>
         </p>
       </div>
     </div>

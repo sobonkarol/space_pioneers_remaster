@@ -34,6 +34,9 @@ public class Player {
     /** Urlop wymuszony blokada - zdejmowany razem z blokada. */
     private boolean banVacation;
     private Instant deletionAt;
+    /** Wersja zaakceptowanego regulaminu i polityki prywatnosci (0 = brak zgody). */
+    private int termsVersion;
+    private Instant termsAcceptedAt;
     /** Ostatni przeczytany wpis w kazdym watku forum sojuszu (do oznaczania nowych wpisow). */
     private Map<Long, Long> forumRead = new HashMap<>();
     /** Ostatni przeczytany wpis w watkach publicznego forum gry. */
@@ -112,6 +115,10 @@ public class Player {
     public void setScore(Score score) { this.score = score; }
     public int getRank() { return rank; }
     public void setRank(int rank) { this.rank = rank; }
+    public int getTermsVersion() { return termsVersion; }
+    public void setTermsVersion(int termsVersion) { this.termsVersion = termsVersion; }
+    public Instant getTermsAcceptedAt() { return termsAcceptedAt; }
+    public void setTermsAcceptedAt(Instant termsAcceptedAt) { this.termsAcceptedAt = termsAcceptedAt; }
     public boolean isEmailVerified() { return emailVerified; }
     public void setEmailVerified(boolean emailVerified) { this.emailVerified = emailVerified; }
     public Instant getBannedUntil() { return bannedUntil; }

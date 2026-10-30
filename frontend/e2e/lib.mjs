@@ -39,6 +39,7 @@ export async function newPlayer(browser, name) {
   await page.fill('input[autocomplete=username]', name);
   await page.fill('input[type=email]', `${name.toLowerCase()}@example.com`);
   await page.fill('input[type=password]', 'haslo12345');
+  await page.check('.auth-terms input');
   await page.click('form button[type=submit]');
   await page.waitForSelector('.overview-page', { timeout: 15000 });
   return page;

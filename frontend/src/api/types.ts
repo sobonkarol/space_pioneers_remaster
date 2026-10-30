@@ -216,6 +216,7 @@ export interface Profile {
   pendingApplicationAllianceId?: number;
   emailVerified: boolean;
   deletionAt?: string;
+  termsAccepted: boolean;
 }
 
 export interface EmpirePlanet {
@@ -491,6 +492,7 @@ export interface GameConfig {
   ships: UnitDef[];
   defenses: UnitDef[];
   missiles: UnitDef[];
+  legal?: { operator?: string | null; address?: string | null; email?: string | null; termsVersion: number };
 }
 
 export interface ApiErrorBody {

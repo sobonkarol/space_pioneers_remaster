@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../api/client';
+import { api, getToken } from '../api/client';
+import { PRIVACY_PATH, TERMS_PATH } from './legal/LegalPages';
 import type { Branch, Profile } from '../api/types';
 import { ErrorBox, InfoBox, Panel, SuccessBox, useAction } from '../components/common';
 import { t } from '../i18n';
@@ -153,6 +154,17 @@ export function SettingsPage() {
           </button>
         </form>
       </Panel>
+      <Panel title="Twoje dane">
+        <p className="small">
+          Pobierz kopię swoich danych (konto, planety, wiadomości, notatki, znajomi) w pliku JSON. Zasady przetwarzania danych
+          opisuje{' '}
+          <a href={PRIVACY_PATH} target="_blank" rel="noopener">polityka prywatności</a>, a zasady gry{' '}
+          <a href={TERMS_PATH} target="_blank" rel="noopener">regulamin</a>.
+        </p>
+        <button type="button" className="btn" disabled={action.busy} onClick={() => void action.run(downloadMyData)}>
+          Pobierz moje dane
+        </button>
+      </Panel>
       <Panel title={t('settings.delete')}>
         {profile.deletionAt ? (
           <>
@@ -177,4 +189,19 @@ export function SettingsPage() {
       </Panel>
     </div>
   );
+}
+
+/** Pobiera /api/me/export i zapisuje jako plik (RODO: prawo dostepu i przenoszenia danych). */
+async function downloadMyData() {
+  const res = await fetch('/api/me/export', { headers: { Authorization: `Bearer ${getToken() ?? ''}` } });
+  if (!res.ok) throw new Error(`Nie udało się pobrać danych (${res.status})`);
+  const name = /filename="([^"]+)"/.exec(res.headers.get('Content-Disposition') ?? '')?.[1] ?? 'space-pioneers-dane.json';
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
