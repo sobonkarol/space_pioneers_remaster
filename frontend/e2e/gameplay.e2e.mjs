@@ -2,98 +2,22 @@
  * Test end-to-end rozgrywki przez przegladarke (Chromium + playwright-core).
  *
  * Wymaga uruchomionego serwera (backend z wbudowanym frontendem) w szybkiej galaktyce:
- *   UNIVERSE_SPEED=2000 UNIVERSE_GALAXIES=1 UNIVERSE_SYSTEMS=3 UNIVERSE_NEWBIE_POINTS=0 RANKING_INTERVAL_MS=5000
+ *   UNIVERSE_SPEED=2000 UNIVERSE_GALAXIES=1 UNIVERSE_SYSTEMS=3 UNIVERSE_NEWBIE_POINTS=0 UNIVERSE_START_RESOURCES=1000000
+ *   RANKING_INTERVAL_MS=5000
  *   FRONTEND_DIR=../frontend/dist java -jar backend/target/space-pioneers-backend-*.jar
  * Uruchomienie:
  *   CHROME_PATH=/sciezka/do/chromium E2E_BASE_URL=http://localhost:8080 node e2e/gameplay.e2e.mjs
  * Zrzuty ekranu trafiaja do katalogu E2E_SHOTS (domyslnie ./e2e-shots).
  */
-import { mkdirSync } from 'node:fs';
-import { chromium } from 'playwright-core';
+import { BASE, SHOTS, apiGet, buildShips, check, finish, homeId, launch, newPlayer, sleep, upgrade } from './lib.mjs';
 
-const BASE = process.env.E2E_BASE_URL ?? 'http://localhost:8080';
-const SHOTS = process.env.E2E_SHOTS ?? 'e2e-shots';
-mkdirSync(SHOTS, { recursive: true });
-
-let executablePath = process.env.CHROME_PATH;
-let launchArgs = [];
-if (!executablePath) {
-  const mod = await import('@sparticuz/chromium');
-  const c = mod.default ?? mod;
-  executablePath = await c.executablePath();
-  launchArgs = c.args;
-}
-
-const browser = await chromium.launch({ executablePath, args: launchArgs, headless: true });
-const errors = [];
+const browser = await launch();
 const stamp = Date.now().toString(36);
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-function check(cond, msg) {
-  if (!cond) throw new Error(`ASERCJA: ${msg}`);
-  console.log(`  ✓ ${msg}`);
-}
-
-async function newPlayer(name) {
-  const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-  const page = await ctx.newPage();
-  page.on('pageerror', (e) => errors.push(`${name}: ${e.message}`));
-  page.on('console', (m) => {
-    if (m.type() === 'error' && !m.text().includes('status of 4')) errors.push(`${name}: ${m.text()}`);
-  });
-  await page.goto(`${BASE}/`);
-  await page.waitForSelector('.auth-box');
-  await page.click('.auth-tabs button:nth-child(2)');
-  await page.fill('input[autocomplete=username]', name);
-  await page.fill('input[type=email]', `${name.toLowerCase()}@example.com`);
-  await page.fill('input[type=password]', 'haslo12345');
-  await page.click('form button[type=submit]');
-  await page.waitForSelector('.overview-page', { timeout: 15000 });
-  return page;
-}
-
-/** Wywolanie API z tokenem zalogowanego gracza (do odczytu stanu w asercjach). */
-async function apiGet(page, path) {
-  return page.evaluate(async (p) => {
-    const r = await fetch(`/api${p}`, { headers: { Authorization: `Bearer ${localStorage.getItem('sp.token')}` } });
-    return r.json();
-  }, path);
-}
-
-async function homeId(page) {
-  return (await apiGet(page, '/me')).homePlanetId;
-}
-
-/** Rozbudowa przez interfejs: czeka na surowce, klika przycisk w wierszu i czeka na koniec budowy. */
-async function upgrade(page, key, path = '/buildings', timeoutMs = 120000) {
-  const isResearch = path === '/research';
-  const planet = await homeId(page);
-  const listPath = isResearch ? `/planets/${planet}/research` : `/planets/${planet}/buildings`;
-  const before = (await apiGet(page, listPath)).find((o) => o.key === key).level;
-  const deadline = Date.now() + timeoutMs;
-  await page.goto(`${BASE}${path}`);
-  while (Date.now() < deadline) {
-    await page.waitForSelector(`tr[data-key="${key}"]`);
-    const button = page.locator(`tr[data-key="${key}"] td.item-action button.btn`);
-    if ((await button.count()) > 0 && (await button.isEnabled())) {
-      await button.click();
-      break;
-    }
-    await sleep(1000);
-    await page.reload();
-  }
-  while (Date.now() < deadline) {
-    const level = (await apiGet(page, listPath)).find((o) => o.key === key).level;
-    if (level > before) return level;
-    await sleep(700);
-  }
-  throw new Error(`Nie udalo sie rozbudowac ${key}`);
-}
 
 try {
   console.log('1. Rejestracja dwóch graczy');
-  const a = await newPlayer(`Atak${stamp}`);
-  const d = await newPlayer(`Obrona${stamp}`);
+  const a = await newPlayer(browser, `Atak${stamp}`);
+  const d = await newPlayer(browser, `Obrona${stamp}`);
   await a.screenshot({ path: `${SHOTS}/01-overview.png` });
   check(await a.isVisible('.panel-title:has-text("Planeta macierzysta")'), 'przegląd planety po rejestracji');
 
@@ -121,28 +45,8 @@ try {
   check((await apiGet(a, '/me')).id > 0, 'badania ukończone');
 
   console.log('4. Stocznia - lekkie myśliwce');
-  await a.goto(`${BASE}/shipyard`);
-  let ordered = false;
-  for (let i = 0; i < 240 && !ordered; i++) {
-    await a.waitForSelector('tr[data-key="light_fighter"]');
-    const max = await a.locator('tr[data-key="light_fighter"] .order-box .link-button').textContent().catch(() => null);
-    const n = max ? Number(max.replace(/\D/g, '')) : 0;
-    if (n >= 2) {
-      await a.fill('tr[data-key="light_fighter"] input.amount-input', '2');
-      await a.click('tr[data-key="light_fighter"] .order-box button.btn');
-      ordered = true;
-    } else {
-      await sleep(1000);
-      await a.reload();
-    }
-  }
-  check(ordered, 'zamówiono 2 lekkie myśliwce');
+  await buildShips(a, 'light_fighter', 2);
   const aPlanet = await homeId(a);
-  for (let i = 0; i < 60; i++) {
-    const o = await apiGet(a, `/planets/${aPlanet}/overview`);
-    if (o.shipyardQueue.length === 0) break;
-    await sleep(700);
-  }
   const ships = await apiGet(a, `/planets/${aPlanet}/fleet-dispatch`);
   check(ships.ships.light_fighter === 2, 'myśliwce zbudowane');
 
@@ -166,7 +70,7 @@ try {
   for (let i = 0; i < 90 && !report; i++) {
     const msgs = await apiGet(a, '/messages?type=COMBAT');
     if (msgs.length > 0) report = msgs[0];
-    else await sleep(1000);
+    else await sleep(300);
   }
   check(report !== null, 'raport z walki dotarł do atakującego');
   check(report.payload.outcome === 'ATTACKER', 'atakujący wygrał (obrońca bez obrony)');
@@ -192,7 +96,7 @@ try {
   await d.waitForSelector('.notice.success');
   await a.goto(`${BASE}/alliance`);
   await a.click('button:has-text("Przyjmij")');
-  await a.waitForTimeout(1000);
+  await a.waitForSelector('button:has-text("Przyjmij")', { state: 'detached' });
   const view = await apiGet(a, `/alliances/${allianceId}`);
   check(view.memberCount === 2, 'obrońca przyjęty do sojuszu');
   await a.screenshot({ path: `${SHOTS}/06-alliance.png`, fullPage: true });
@@ -201,16 +105,20 @@ try {
   await a.goto(`${BASE}/galaxy`);
   await a.waitForSelector(`text=Obrona${stamp}`, { timeout: 10000 }).catch(() => null);
   await a.screenshot({ path: `${SHOTS}/07-galaxy.png`, fullPage: true });
-  await sleep(6000);
+  // ranking przeliczany co RANKING_INTERVAL_MS (CI: 5 s) - czekamy, az pojawi sie atakujacy
+  let ranked = false;
+  for (let i = 0; i < 60 && !ranked; i++) {
+    const ranking = await apiGet(a, '/ranking?type=players&category=total&page=1');
+    ranked = ranking.rows.some((r) => r.name === `Atak${stamp}` && r.points > 0);
+    if (!ranked) await sleep(500);
+  }
   await a.goto(`${BASE}/ranking`);
   await a.waitForSelector('.ranking-table');
   await a.screenshot({ path: `${SHOTS}/08-ranking.png`, fullPage: true });
-  const ranking = await apiGet(a, '/ranking?type=players&category=total&page=1');
-  check(ranking.rows.some((r) => r.name === `Atak${stamp}` && r.points > 0), 'atakujący w rankingu z punktami');
+  check(ranked, 'atakujący w rankingu z punktami');
 
-  console.log(errors.length ? `Błędy przeglądarki:\n${errors.join('\n')}` : 'Brak błędów JS w przeglądarce.');
-  if (errors.length) process.exitCode = 1;
-  else console.log('E2E OK');
+  finish();
+  if (!process.exitCode) console.log('E2E OK');
 } catch (e) {
   console.error(e);
   process.exitCode = 1;

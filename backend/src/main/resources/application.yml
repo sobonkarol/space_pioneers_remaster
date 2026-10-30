@@ -55,6 +55,8 @@ spacepioneers:
     positions: 15
     speed: ${UNIVERSE_SPEED:1.0}
     newbie-protection-points: ${UNIVERSE_NEWBIE_POINTS:5000}
+    # tylko testy E2E: surowce startowe nowego gracza (puste = 500 metalu i 500 krysztalu)
+    start-resources: ${UNIVERSE_START_RESOURCES:}
   scheduler:
     enabled: true
     tick-ms: 1000

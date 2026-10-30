@@ -89,7 +89,7 @@ jobs:
       - name: Start game server (fast universe)
         run: |
           FRONTEND_DIR=$PWD/frontend/dist MAIL_DEV_OUTBOX=true UNIVERSE_SPEED=2000 UNIVERSE_GALAXIES=1 UNIVERSE_SYSTEMS=3 \
-            UNIVERSE_NEWBIE_POINTS=0 RANKING_INTERVAL_MS=5000 nohup java -jar backend/target/space-pioneers-backend-*.jar > server.log 2>&1 &
+            UNIVERSE_NEWBIE_POINTS=0 UNIVERSE_START_RESOURCES=1000000 RANKING_INTERVAL_MS=5000 nohup java -jar backend/target/space-pioneers-backend-*.jar > server.log 2>&1 &
           for i in $(seq 1 90); do curl -sf localhost:8080/api/stats && break; sleep 1; done
       - run: |
           for t in gameplay advanced account social tools board; do node e2e/$t.e2e.mjs; done

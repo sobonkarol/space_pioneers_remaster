@@ -7,6 +7,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import pl.spacepioneers.engine.common.UniverseConfig;
 import pl.spacepioneers.engine.data.GameData;
 import pl.spacepioneers.game.service.Game;
+import pl.spacepioneers.game.service.PlayerService;
 import pl.spacepioneers.game.service.GameContext;
 import pl.spacepioneers.game.store.GameStore;
 import pl.spacepioneers.infra.JdbcGameStore;
@@ -37,7 +38,9 @@ public class GameConfiguration {
     }
 
     @Bean
-    public Game game(GameStore store, GameData data, UniverseConfig config, Clock clock) {
-        return new Game(GameContext.withSecureRandom(store, data, config, clock));
+    public Game game(GameStore store, GameData data, UniverseConfig config, Clock clock, UniverseProperties props) {
+        Game game = new Game(GameContext.withSecureRandom(store, data, config, clock));
+        game.players().setStartResources(props.startResourcesOrDefault(PlayerService.START_RESOURCES));
+        return game;
     }
 }
