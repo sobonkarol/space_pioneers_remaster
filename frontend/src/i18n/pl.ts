@@ -14,7 +14,7 @@ export const pl = {
     'auth.noAccount': 'Nie masz konta?',
     'auth.haveAccount': 'Masz już konto?',
     'auth.passwordHint': 'Minimum 8 znaków.',
-    'auth.universe': 'Galaktyka',
+    'auth.universe': 'Uniwersum',
     'auth.players': 'Graczy',
     'auth.online': 'Online',
     'menu.overview': 'Przegląd',
