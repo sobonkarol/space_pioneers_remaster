@@ -93,6 +93,10 @@ export const ARTICLES: Article[] = [
               transportem w długi lot (flota w locie jest bezpieczna).
             </li>
             <li>
+              Gdy leci na Ciebie wroga flota, na każdej stronie gry pojawia się czerwony pasek z odliczaniem (zob.{' '}
+              <W to="floty#alarm">alarm o ataku</W>). Masz wtedy czas, żeby wydać surowce albo odesłać flotę.
+            </li>
+            <li>
               Trochę obrony (<W to="rocket_launcher" />, <W to="light_laser" />) zniechęca słabszych napastników. Sama obrona nie
               powstrzyma dużej floty, ale sprawia, że atak przestaje się opłacać.
             </li>
@@ -455,6 +459,34 @@ export const ARTICLES: Article[] = [
           </p>
         ),
       },
+      {
+        id: 'alarm',
+        title: 'Alarm o ataku',
+        body: () => (
+          <>
+            <p>
+              Gdy na którąkolwiek Twoją planetę lub księżyc leci obca flota z misją <i>Atak</i> (także atak sojuszniczy) albo
+              rakiety międzyplanetarne, na górze <b>każdej strony gry</b> pojawia się czerwony, pulsujący pasek. Pokazuje:
+            </p>
+            <ul>
+              <li>nazwę napastnika i cel (nazwę planety i współrzędne),</li>
+              <li>odliczanie do uderzenia i godzinę uderzenia,</li>
+              <li>przy kilku atakach trzy najbliższe i liczbę pozostałych.</li>
+            </ul>
+            <p>
+              Nadlatujące <W to="espionage_probe">sondy szpiegowskie</W> dają żółty pasek. Przy <i>Przeglądzie</i> w menu pojawia
+              się czerwony licznik ataków, a tytuł karty przeglądarki zmienia się na <b>⚠ ATAK!</b>, więc alarm widać też wtedy,
+              gdy gra jest w tle. Po uderzeniu pasek znika sam, a raport z walki trafia do wiadomości.
+            </p>
+            <p>
+              Skład wrogiej floty nie jest widoczny, tak samo jak w ruchach flot na przeglądzie. Co zrobić: wydać surowce na
+              budowę albo obronę, odesłać flotę z surowcami na inną planetę (<i>Stacjonowanie</i>) albo na ekspedycję i
+              policzyć szanse w <a href="/simulator">symulatorze</a>, jeśli znasz flotę napastnika z wcześniejszego raportu.
+              Zawiadomienia e-mailem o ataku nie ma.
+            </p>
+          </>
+        ),
+      },
     ],
   },
   {
@@ -753,6 +785,40 @@ export const ARTICLES: Article[] = [
         ),
       },
       {
+        id: 'opis',
+        title: 'Opis sojuszu w HTML',
+        body: () => (
+          <>
+            <p>
+              Założyciel i oficerowie mogą w ustawieniach sojuszu napisać opis do 20 000 znaków, tak jak w dawnych grach:
+              z banerem, tabelą funkcji i kolorowymi napisami. Zwykły tekst też działa, nowe linie są zachowane. Edytor ma
+              podgląd na żywo i przycisk <i>Wstaw przykładowy opis</i> z gotowym szablonem.
+            </p>
+            <table className="wiki-table">
+              <thead>
+                <tr><th>Dozwolone</th><th>Przykład</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>formatowanie</td><td><code>&lt;b&gt; &lt;i&gt; &lt;u&gt; &lt;s&gt; &lt;center&gt; &lt;small&gt; &lt;big&gt;</code></td></tr>
+                <tr><td>kolory i czcionki</td><td><code>&lt;font color="#f0b050" size="5" face="Georgia"&gt;</code></td></tr>
+                <tr><td>nagłówki, akapity, listy</td><td><code>&lt;h1&gt;…&lt;h6&gt; &lt;p&gt; &lt;ul&gt; &lt;ol&gt; &lt;li&gt; &lt;hr&gt; &lt;br&gt;</code></td></tr>
+                <tr><td>tabele</td><td><code>&lt;table border="1" cellpadding="4" bgcolor="#203858"&gt;</code> z <code>tr td th</code></td></tr>
+                <tr><td>obrazki (tylko https)</td><td><code>&lt;img src="https://…/baner.gif" width="400"&gt;</code></td></tr>
+                <tr><td>linki (nowa karta)</td><td><code>&lt;a href="https://…"&gt;nasze forum&lt;/a&gt;</code></td></tr>
+                <tr><td>przewijany napis</td><td><code>&lt;marquee scrollamount="4"&gt;Rekrutacja!&lt;/marquee&gt;</code></td></tr>
+                <tr><td>style</td><td><code>style="color: red; text-align: center; border: 1px solid #fff"</code>: kolory, wyrównanie, rozmiary, ramki, odstępy</td></tr>
+              </tbody>
+            </table>
+            <p>
+              Przy zapisie gra usuwa wszystko, co mogłoby zaszkodzić innym graczom: skrypty, ramki (<code>iframe</code>),
+              formularze, zdarzenia typu <code>onclick</code>, linki <code>javascript:</code>, obrazki spoza https oraz style
+              z <code>url()</code> czy <code>position</code>. Obrazki wstawiane z zewnętrznych serwerów pobiera przeglądarka
+              każdego oglądającego. Używaj obrazków, do których masz prawa.
+            </p>
+          </>
+        ),
+      },
+      {
         id: 'traktaty',
         title: 'Traktaty',
         body: () => (
@@ -897,11 +963,17 @@ export const ARTICLES: Article[] = [
         id: 'punkty',
         title: 'Liczenie punktów',
         body: () => (
+          <>
           <p>
             1 punkt za każde 1000 surowców (metal + kryształ + tryt) wydanych na budynki, badania, statki i obronę. Zniszczone jednostki
             odejmują punkty, a rozbiórka odejmuje punkty za rozebrany poziom. Ranking ma kategorie: ogólny, budynki, badania, flota,
             obrona, oraz osobny ranking sojuszy (suma punktów członków). Przeliczany jest co 5 minut.
           </p>
+          <p>
+            Administratorzy nie biorą udziału w rankingu. Ich punkty są liczone, ale nie zajmują miejsc, nie liczą się do liczby
+            graczy w rankingu ani do punktów sojuszu. W galaktyce są oznaczeni literą <b>A</b>.
+          </p>
+          </>
         ),
       },
     ],
@@ -920,6 +992,32 @@ export const ARTICLES: Article[] = [
             <li>Nazwa gracza: 3–20 znaków. Adres e-mail potwierdzasz linkiem z wiadomości, bo posłuży do odzyskania hasła.</li>
             <li>Reset hasła wysyła link ważny 1 godzinę. Po zmianie hasła wszystkie sesje są wylogowane.</li>
             <li>Usunięcie konta następuje po 7 dniach od zlecenia i do tego czasu można je anulować w ustawieniach.</li>
+          </ul>
+        ),
+      },
+      {
+        id: 'regulamin',
+        title: 'Regulamin i prywatność',
+        body: () => (
+          <ul>
+            <li>
+              Zakładając konto, akceptujesz <a href="/regulamin" target="_blank" rel="noopener">regulamin</a> i potwierdzasz
+              zapoznanie się z <a href="/prywatnosc" target="_blank" rel="noopener">polityką prywatności</a>. Linki do obu są
+              na ekranie logowania i w stopce gry.
+            </li>
+            <li>
+              Po zmianie regulaminu przy najbliższym wejściu do gry pojawi się okno z prośbą o akceptację nowej wersji. Bez niej
+              nie da się grać dalej. Możesz się wylogować albo napisać do administratora.
+            </li>
+            <li>
+              <b>Pobierz moje dane</b> (Ustawienia → Twoje dane) zapisuje plik JSON z danymi konta, planet, wiadomości,
+              notatek i znajomych. Plik nie zawiera hasła.
+            </li>
+            <li>Gra nie używa ciasteczek ani narzędzi analitycznych i nie zapisuje adresów IP.</li>
+            <li>
+              Oprócz ludzi w grze występują gracze sterowani przez komputer. Grają według tych samych zasad, nie mają ułatwień
+              i nie są osobno oznaczeni.
+            </li>
           </ul>
         ),
       },
