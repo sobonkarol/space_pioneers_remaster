@@ -47,7 +47,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function player(i, deadline) {
   const name = `Load${stamp}${i}`.slice(0, 20);
   const reg = await call('register', null, 'POST', '/auth/register', {
-    username: name, email: `${name.toLowerCase()}@load.test`, password: 'haslo12345',
+    username: name, email: `${name.toLowerCase()}@load.test`, password: 'haslo12345', acceptTerms: true,
   });
   if (reg.status !== 201) return;
   const token = reg.data.token;

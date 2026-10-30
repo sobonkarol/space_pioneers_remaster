@@ -7,6 +7,7 @@ import { errorText } from './common';
 import { t } from '../i18n';
 import { useGame, useServerNow } from '../state/game';
 import { useSession } from '../state/session';
+import { PRIVACY_PATH, TERMS_PATH } from '../pages/legal/LegalPages';
 
 function ResourceBar() {
   const { overview, liveResources } = useGame();
@@ -209,7 +210,73 @@ export function Layout() {
           <Outlet />
         </main>
       </div>
-      <footer className="game-footer">Space Pioneers Remaster</footer>
+      <footer className="game-footer">
+        Space Pioneers Remaster ·{' '}
+        <a href={TERMS_PATH} target="_blank" rel="noopener">Regulamin</a> ·{' '}
+        <a href={PRIVACY_PATH} target="_blank" rel="noopener">Polityka prywatności</a>
+      </footer>
+      {profile && !profile.termsAccepted && <TermsGate />}
+    </div>
+  );
+}
+
+/** Okno blokujace gre do czasu akceptacji aktualnego regulaminu (np. po jego zmianie albo dla kont sprzed regulaminu). */
+function TermsGate() {
+  const { reloadProfile, logout } = useSession();
+  const navigate = useNavigate();
+  const [accept, setAccept] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <div className="terms-gate" role="dialog" aria-modal="true" aria-labelledby="terms-gate-title">
+      <div className="terms-gate-box">
+        <h2 id="terms-gate-title">Regulamin i polityka prywatności</h2>
+        <p>
+          Gra ma regulamin i politykę prywatności. Opisują zasady fair play, blokady oraz to, jakie dane przechowujemy i jakie masz
+          prawa. Żeby grać dalej, zapoznaj się z nimi i je zaakceptuj.
+        </p>
+        <p>
+          <a href={TERMS_PATH} target="_blank" rel="noopener">Regulamin ↗</a> ·{' '}
+          <a href={PRIVACY_PATH} target="_blank" rel="noopener">Polityka prywatności ↗</a>
+        </p>
+        <label className="auth-terms">
+          <input type="checkbox" checked={accept} onChange={(e) => setAccept(e.target.checked)} />
+          <span>Akceptuję regulamin i zapoznałem się z polityką prywatności</span>
+        </label>
+        {error && <div className="notice error">{error}</div>}
+        <div className="terms-gate-actions">
+          <button
+            type="button"
+            className="btn primary"
+            disabled={!accept || busy}
+            onClick={async () => {
+              setBusy(true);
+              setError(null);
+              try {
+                await api.post('/me/terms', {});
+                await reloadProfile();
+              } catch (e) {
+                setError(errorText(e));
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            Akceptuję i gram dalej
+          </button>
+          <button
+            type="button"
+            className="link-button"
+            onClick={async () => {
+              await logout();
+              navigate('/');
+            }}
+          >
+            Wyloguj
+          </button>
+        </div>
+        <p className="muted small">Jeśli nie akceptujesz zasad, możesz usunąć konto w ustawieniach po akceptacji albo napisać do administratora.</p>
+      </div>
     </div>
   );
 }

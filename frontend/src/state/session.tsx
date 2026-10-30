@@ -10,7 +10,7 @@ interface SessionValue {
   planetId: number | null;
   setPlanetId: (id: number) => void;
   login: (login: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string) => Promise<void>;
+  register: (username: string, email: string, password: string, acceptTerms: boolean) => Promise<void>;
   logout: () => Promise<void>;
   reloadProfile: () => Promise<void>;
 }
@@ -91,8 +91,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   );
 
   const register = useCallback(
-    async (username: string, email: string, password: string) => {
-      applyAuth(await api.post<AuthResponse>('/auth/register', { username, email, password }));
+    async (username: string, email: string, password: string, acceptTerms: boolean) => {
+      applyAuth(await api.post<AuthResponse>('/auth/register', { username, email, password, acceptTerms }));
       if (!config) setConfig(await api.get<GameConfig>('/config'));
     },
     [applyAuth, config],

@@ -40,7 +40,7 @@ class ApiIntegrationTest {
 
     private JsonNode register(String name) throws Exception {
         MvcResult r = mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"" + name + "\",\"email\":\"" + name + "@example.com\",\"password\":\"haslo12345\"}"))
+                        .content("{\"username\":\"" + name + "\",\"email\":\"" + name + "@example.com\",\"password\":\"haslo12345\",\"acceptTerms\":true}"))
                 .andExpect(status().isCreated()).andReturn();
         return json.readTree(r.getResponse().getContentAsString());
     }
@@ -79,7 +79,7 @@ class ApiIntegrationTest {
                 .andExpect(status().isOk());
 
         mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"login\":\"karol\",\"password\":\"haslo12345\"}"))
+                        .content("{\"login\":\"karol\",\"password\":\"haslo12345\",\"acceptTerms\":true}"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.token").exists());
         mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"login\":\"karol\",\"password\":\"zle-haslo\"}"))
@@ -105,10 +105,10 @@ class ApiIntegrationTest {
     void registrationValidation() throws Exception {
         register("Karol");
         mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"karol\",\"email\":\"other@example.com\",\"password\":\"haslo12345\"}"))
+                        .content("{\"username\":\"karol\",\"email\":\"other@example.com\",\"password\":\"haslo12345\",\"acceptTerms\":true}"))
                 .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("username_taken"));
         mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"Nowy\",\"email\":\"n@example.com\",\"password\":\"krotkie\"}"))
+                        .content("{\"username\":\"Nowy\",\"email\":\"n@example.com\",\"password\":\"krotkie\",\"acceptTerms\":true}"))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("validation"));
     }
 

@@ -107,6 +107,21 @@ public class MeController {
         return game.players().profile(me.playerId());
     }
 
+    /** Akceptacja aktualnego regulaminu i polityki prywatnosci (np. po ich zmianie). */
+    @PostMapping("/terms")
+    public PlayerService.Profile acceptTerms(@AuthenticationPrincipal PlayerPrincipal me) {
+        return game.players().acceptTerms(me.playerId());
+    }
+
+    /** Kopia danych gracza do pobrania (RODO: prawo dostepu i przenoszenia danych). */
+    @GetMapping("/export")
+    public org.springframework.http.ResponseEntity<java.util.Map<String, Object>> export(@AuthenticationPrincipal PlayerPrincipal me) {
+        var data = game.players().exportData(me.playerId());
+        return org.springframework.http.ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=\"space-pioneers-dane-" + me.playerId() + ".json\"")
+                .body(data);
+    }
+
     @PostMapping("/branch")
     public PlayerService.Profile branch(@AuthenticationPrincipal PlayerPrincipal me, @Valid @RequestBody BranchRequest req) {
         return game.players().chooseBranch(me.playerId(), req.branch());

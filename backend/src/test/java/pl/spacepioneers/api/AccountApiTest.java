@@ -44,7 +44,7 @@ class AccountApiTest {
 
     private JsonNode register(String name) throws Exception {
         MvcResult r = mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"" + name + "\",\"email\":\"" + name + "@example.com\",\"password\":\"haslo12345\"}"))
+                        .content("{\"username\":\"" + name + "\",\"email\":\"" + name + "@example.com\",\"password\":\"haslo12345\",\"acceptTerms\":true}"))
                 .andExpect(status().isCreated()).andReturn();
         return json.readTree(r.getResponse().getContentAsString());
     }
@@ -109,7 +109,7 @@ class AccountApiTest {
         String token = lastToken("zapominalski@example.com", "/reset-password");
 
         mvc.perform(post("/api/auth/reset-password").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"token\":\"" + token + "\",\"password\":\"krotkie\"}"))
+                        .content("{\"token\":\"" + token + "\",\"password\":\"krotkie\",\"acceptTerms\":true}"))
                 .andExpect(status().isBadRequest());
         mvc.perform(post("/api/auth/reset-password").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"token\":\"" + token + "\",\"password\":\"nowehaslo123\"}"))
@@ -127,13 +127,13 @@ class AccountApiTest {
                         .content("{\"email\":\"nowy@example.com\",\"password\":\"zle\"}"))
                 .andExpect(status().isForbidden());
         mvc.perform(post("/api/me/email").header("Authorization", t).contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"nowy@example.com\",\"password\":\"haslo12345\"}"))
+                        .content("{\"email\":\"nowy@example.com\",\"password\":\"haslo12345\",\"acceptTerms\":true}"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.email").value("nowy@example.com"))
                 .andExpect(jsonPath("$.emailVerified").value(false));
         assertThat(lastToken("nowy@example.com", "/verify")).isNotBlank();
 
         mvc.perform(post("/api/me/deletion").header("Authorization", t).contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"password\":\"haslo12345\"}"))
+                        .content("{\"password\":\"haslo12345\",\"acceptTerms\":true}"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.deletionAt").exists());
         mvc.perform(get("/api/me").header("Authorization", t)).andExpect(jsonPath("$.deletionAt").exists());
         mvc.perform(delete("/api/me/deletion").header("Authorization", t)).andExpect(status().isNoContent());
@@ -159,7 +159,7 @@ class AccountApiTest {
         // sesje zablokowanego wygasaja, logowanie odrzucone z powodem
         mvc.perform(get("/api/me").header("Authorization", bearer(bad))).andExpect(status().isUnauthorized());
         mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"login\":\"Oszust\",\"password\":\"haslo12345\"}"))
+                        .content("{\"login\":\"Oszust\",\"password\":\"haslo12345\",\"acceptTerms\":true}"))
                 .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("account_banned"));
 
         mvc.perform(get("/api/pillory")).andExpect(status().isOk())
@@ -197,5 +197,30 @@ class AccountApiTest {
         mvc.perform(get("/api/board/threads/" + id)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.posts[0].text").value("Opis")).andExpect(jsonPath("$.canReply").value(false));
         mvc.perform(get("/api/board").header("Authorization", bearer(auth))).andExpect(jsonPath("$.loggedIn").value(true));
+    }
+
+    @Test
+    void registrationRequiresTermsAndDataCanBeExported() throws Exception {
+        mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"Bezzgody\",\"email\":\"bez@example.com\",\"password\":\"haslo12345\"}"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("terms_required"));
+        mvc.perform(get("/api/config")).andExpect(jsonPath("$.legal.termsVersion").value(1));
+
+        JsonNode auth = register("Zgodny");
+        assertThat(auth.at("/profile/termsAccepted").asBoolean()).isTrue();
+        String t = bearer(auth);
+        mvc.perform(post("/api/me/terms").header("Authorization", t))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.termsAccepted").value(true));
+
+        MvcResult r = mvc.perform(get("/api/me/export").header("Authorization", t))
+                .andExpect(status().isOk()).andReturn();
+        assertThat(r.getResponse().getHeader("Content-Disposition")).contains("attachment");
+        JsonNode data = json.readTree(r.getResponse().getContentAsString());
+        assertThat(data.at("/account/username").asText()).isEqualTo("Zgodny");
+        assertThat(data.at("/account/email").asText()).isEqualTo("zgodny@example.com");
+        assertThat(data.at("/account/termsVersion").asInt()).isEqualTo(1);
+        assertThat(data.get("planets").size()).isEqualTo(1);
+        assertThat(data.get("messages").size()).isGreaterThan(0);
+        assertThat(r.getResponse().getContentAsString()).doesNotContain("passwordHash").doesNotContain("$2a$");
     }
 }

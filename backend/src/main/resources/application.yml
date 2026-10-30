@@ -48,6 +48,11 @@ spacepioneers:
     from: ${MAIL_FROM:no-reply@spacepioneers.local}
     # tylko srodowiska testowe: ostatnie e-maile pod /api/dev/outbox
     dev-outbox: ${MAIL_DEV_OUTBOX:false}
+  # dane administratora do regulaminu i polityki prywatnosci (uzupelnij w .env na serwerze)
+  legal:
+    operator: ${LEGAL_OPERATOR:}
+    address: ${LEGAL_ADDRESS:}
+    email: ${LEGAL_EMAIL:}
   universe:
     name: ${UNIVERSE_NAME:Uniwersum 1}
     galaxies: ${UNIVERSE_GALAXIES:5}

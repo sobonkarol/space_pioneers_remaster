@@ -25,6 +25,10 @@ services:
       UNIVERSE_SPEED: ${UNIVERSE_SPEED:-1}
       PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8080}
       MAIL_FROM: ${MAIL_FROM:-no-reply@spacepioneers.local}
+      # dane administratora w regulaminie i polityce prywatnosci (/regulamin, /prywatnosc)
+      LEGAL_OPERATOR: ${LEGAL_OPERATOR:-}
+      LEGAL_ADDRESS: ${LEGAL_ADDRESS:-}
+      LEGAL_EMAIL: ${LEGAL_EMAIL:-}
       # odkomentuj, aby wysylac poczte przez SMTP:
       # SPRING_MAIL_HOST: smtp.example.com
       # SPRING_MAIL_PORT: 587

@@ -53,14 +53,14 @@ class SecurityLimitsTest {
     void loginLockIsPersistentAndSharedAcrossInstances() throws Exception {
         mvc.perform(post("/api/auth/register").with(r -> { r.setRemoteAddr("10.0.0.1"); return r; })
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"Ofiara\",\"email\":\"ofiara@example.com\",\"password\":\"haslo12345\"}"))
+                        .content("{\"username\":\"Ofiara\",\"email\":\"ofiara@example.com\",\"password\":\"haslo12345\",\"acceptTerms\":true}"))
                 .andExpect(status().isCreated());
         for (int i = 0; i < LoginThrottle.MAX_FAILURES; i++) {
             assertThat(login("10.0.0.2", "Ofiara", "zle-haslo")).isEqualTo(403);
         }
         // nawet poprawne haslo jest odrzucane do konca blokady
         mvc.perform(post("/api/auth/login").with(r -> { r.setRemoteAddr("10.0.0.3"); return r; })
-                        .contentType(MediaType.APPLICATION_JSON).content("{\"login\":\"ofiara\",\"password\":\"haslo12345\"}"))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"login\":\"ofiara\",\"password\":\"haslo12345\",\"acceptTerms\":true}"))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("login_locked"));
         // nowa instancja (np. po restarcie) widzi te sama blokade
         assertThat(new LoginThrottle(jdbc, Clock.systemUTC()).isLocked("OFIARA")).isTrue();

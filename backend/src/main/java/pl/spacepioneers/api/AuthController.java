@@ -57,7 +57,7 @@ public class AuthController {
     private static final DateTimeFormatter BAN_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm 'UTC'").withZone(ZoneOffset.UTC);
 
     public record RegisterRequest(@NotBlank @Size(max = 20) String username, @NotBlank @Size(max = 254) String email,
-                                  @NotBlank @Size(min = 8, max = 100) String password) {
+                                  @NotBlank @Size(min = 8, max = 100) String password, Boolean acceptTerms) {
     }
 
     public record LoginRequest(@NotBlank @Size(max = 254) String login, @NotBlank @Size(max = 100) String password) {
@@ -69,7 +69,11 @@ public class AuthController {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponse register(@Valid @RequestBody RegisterRequest req) {
+        if (!Boolean.TRUE.equals(req.acceptTerms())) {
+            throw new GameException("terms_required", "Aby założyć konto, zaakceptuj regulamin i politykę prywatności.");
+        }
         Player p = game.players().register(req.username(), req.email(), encoder.encode(req.password()));
+        game.players().acceptTerms(p.getId());
         mails.sendVerification(p);
         return new AuthResponse(sessions.create(p.getId()), game.players().profile(p.getId()));
     }
