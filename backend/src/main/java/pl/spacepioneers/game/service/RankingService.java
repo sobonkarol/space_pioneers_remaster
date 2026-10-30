@@ -101,7 +101,7 @@ public final class RankingService extends ServiceBase {
                 for (int i = (p - 1) * PAGE_SIZE; i < Math.min(all.size(), p * PAGE_SIZE); i++) {
                     Alliance a = all.get(i);
                     rows.add(new Views.RankingRow(i + 1, a.getId(), a.getName(), a.getTag(), a.getId(),
-                            Math.floor(metric.applyAsDouble(a.getScore())), store.playersOfAlliance(a.getId()).size()));
+                            Math.floor(metric.applyAsDouble(a.getScore())), store.playersOfAlliance(a.getId()).size(), null));
                 }
                 return new Views.RankingPage("alliances", category, p, PAGE_SIZE, all.size(), rows);
             }
@@ -116,7 +116,7 @@ public final class RankingService extends ServiceBase {
                 String tag = x.getAllianceId() == null ? null : tags.computeIfAbsent(x.getAllianceId(),
                         id -> store.alliance(id).map(Alliance::getTag).orElse(null));
                 rows.add(new Views.RankingRow(offset + i + 1, x.getId(), x.getUsername(), tag, x.getAllianceId(),
-                        Math.floor(metric.applyAsDouble(x.getScore())), null));
+                        Math.floor(metric.applyAsDouble(x.getScore())), null, x.getBranch().name()));
             }
             return new Views.RankingPage("players", category, p, PAGE_SIZE, store.rankedPlayerCount(), rows);
         });

@@ -119,6 +119,7 @@ public class SocialFlowTest {
         assertEquals(2, page.total());
         assertEquals("Anna", page.rows().get(0).name());
         assertEquals(2, page.rows().size());
+        assertEquals("specjalizacja widoczna w rankingu", "NONE", page.rows().get(0).branch());
         Player ra = f.player(admin.getId());
         assertTrue("administrator ma punkty", ra.getScore().total() > rq.getScore().total());
         assertEquals(0, ra.getRank());

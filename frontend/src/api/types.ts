@@ -187,6 +187,8 @@ export interface RankingRow {
   allianceId?: number;
   points: number;
   members?: number;
+  /** specjalizacja gracza (tylko ranking graczy) */
+  branch?: Branch | null;
 }
 
 export interface RankingPage {

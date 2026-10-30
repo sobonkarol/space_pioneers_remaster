@@ -509,3 +509,9 @@ textarea { width: 100%; resize: vertical; }
 .menu-badge.danger { background: #ff3b2f; color: #fff; animation: attack-pulse 1.6s ease-in-out infinite; }
 @keyframes attack-pulse { 0%, 100% { box-shadow: 0 0 0 rgba(255, 59, 47, 0); } 50% { box-shadow: 0 0 14px rgba(255, 59, 47, 0.75); } }
 @media (prefers-reduced-motion: reduce) { .attack-alarm, .menu-badge.danger { animation: none; } }
+
+/* specjalizacja w rankingu */
+.branch-cell { font-size: 12px; }
+.branch-cell.branch-trader { color: #e8c060; }
+.branch-cell.branch-warrior { color: #ff8a6a; }
+.branch-cell.branch-none { color: var(--muted, #7f93ad); }

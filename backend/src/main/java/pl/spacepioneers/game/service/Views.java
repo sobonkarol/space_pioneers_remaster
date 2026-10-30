@@ -109,8 +109,9 @@ public final class Views {
     public record GalaxyView(int galaxy, int system, int galaxies, int systems, List<GalaxyRow> rows) {
     }
 
+    /** @param branch specjalizacja gracza (NONE/TRADER/WARRIOR); null w rankingu sojuszy */
     public record RankingRow(int rank, long id, String name, String allianceTag, Long allianceId, double points,
-                             Integer members) {
+                             Integer members, String branch) {
     }
 
     public record RankingPage(String type, String category, int page, int pageSize, int total, List<RankingRow> rows) {
