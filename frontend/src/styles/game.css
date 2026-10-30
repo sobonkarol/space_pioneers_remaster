@@ -487,3 +487,17 @@ textarea { width: 100%; resize: vertical; }
 .terms-gate-box h2 { margin-top: 0; color: #f0b050; font-family: Georgia, 'Times New Roman', serif; font-weight: normal; }
 .terms-gate-box .auth-terms { display: flex; margin: 10px 0; }
 .terms-gate-actions { display: flex; gap: 14px; align-items: center; }
+
+/* ---------- Alarm o ataku ---------- */
+.attack-alarm { border: 2px solid #ff3b2f; background: linear-gradient(180deg, rgba(120, 10, 6, 0.92), rgba(70, 6, 4, 0.92));
+  color: #ffe2dc; padding: 8px 12px; margin-bottom: 10px; font-size: 13px; animation: attack-pulse 1.6s ease-in-out infinite; }
+.attack-alarm.warning { border-color: #e0a020; background: rgba(80, 56, 4, 0.9); color: #ffeec0; animation: none; }
+.attack-alarm-line { margin: 2px 0; }
+.attack-alarm-line.spy b:first-child { color: #ffd060; }
+.attack-alarm-line.attack b:first-child { color: #fff; letter-spacing: 1px; }
+.attack-countdown { font-family: 'Courier New', monospace; font-size: 15px; color: #fff; }
+.attack-alarm-links { margin-top: 4px; font-size: 12px; }
+.attack-alarm-links a { color: #ffd0c8; }
+.menu-badge.danger { background: #ff3b2f; color: #fff; animation: attack-pulse 1.6s ease-in-out infinite; }
+@keyframes attack-pulse { 0%, 100% { box-shadow: 0 0 0 rgba(255, 59, 47, 0); } 50% { box-shadow: 0 0 14px rgba(255, 59, 47, 0.75); } }
+@media (prefers-reduced-motion: reduce) { .attack-alarm, .menu-badge.danger { animation: none; } }

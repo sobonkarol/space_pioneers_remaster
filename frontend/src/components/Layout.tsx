@@ -8,6 +8,7 @@ import { t } from '../i18n';
 import { useGame, useServerNow } from '../state/game';
 import { useSession } from '../state/session';
 import { PRIVACY_PATH, TERMS_PATH } from '../pages/legal/LegalPages';
+import { AttackAlarm, incomingThreats } from './AttackAlarm';
 
 function ResourceBar() {
   const { overview, liveResources } = useGame();
@@ -127,12 +128,13 @@ export function Layout() {
   const logo = firstAsset(['logo']);
   const unread = overview?.unreadMessages ?? 0;
   const isTrader = (overview?.branch ?? profile?.branch) === 'TRADER';
+  const underAttack = incomingThreats(overview).attacks.length;
 
-  const link = (to: string, label: string, extra?: string) => (
+  const link = (to: string, label: string, extra?: string, badgeClass = '') => (
     <li>
       <NavLink to={to} className={({ isActive }) => (isActive ? 'active' : undefined)}>
         {label}
-        {extra && <span className="menu-badge">{extra}</span>}
+        {extra && <span className={`menu-badge ${badgeClass}`.trim()}>{extra}</span>}
       </NavLink>
     </li>
   );
@@ -153,7 +155,7 @@ export function Layout() {
       <div className="game-body">
         <nav className="game-menu">
           <ul>
-            {link('/overview', t('menu.overview'))}
+            {link('/overview', t('menu.overview'), underAttack ? `${underAttack}!` : undefined, 'danger')}
             {link('/resources', t('menu.resources'))}
             {link('/buildings', t('menu.buildings'))}
             {link('/research', t('menu.research'))}
@@ -204,6 +206,7 @@ export function Layout() {
           </ul>
         </nav>
         <main className="game-content">
+          <AttackAlarm />
           <ResourceBar />
           <AccountNotices />
           {error && <div className="notice error">{error}</div>}
