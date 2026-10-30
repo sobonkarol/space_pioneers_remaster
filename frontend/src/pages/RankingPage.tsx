@@ -55,6 +55,7 @@ export function RankingPage() {
                 <th>{t('common.rank')}</th>
                 <th>{type === 'players' ? t('common.player') : t('alliance.name')}</th>
                 <th>{t('common.alliance')}</th>
+                {type === 'players' && <th>{t('ranking.branch')}</th>}
                 {type === 'alliances' && <th>{t('alliance.members')}</th>}
                 <th className="right">{t('common.points')}</th>
               </tr>
@@ -78,6 +79,11 @@ export function RankingPage() {
                     )}
                   </td>
                   <td>{row.allianceTag && <Link to={`/alliance/${row.allianceId}`}>[{row.allianceTag}]</Link>}</td>
+                  {type === 'players' && (
+                    <td className={`branch-cell branch-${(row.branch ?? 'NONE').toLowerCase()}`}>
+                      {row.branch && row.branch !== 'NONE' ? t(`settings.branch.${row.branch}`) : '–'}
+                    </td>
+                  )}
                   {type === 'alliances' && <td>{row.members}</td>}
                   <td className="right">{fmt(row.points)}</td>
                 </tr>

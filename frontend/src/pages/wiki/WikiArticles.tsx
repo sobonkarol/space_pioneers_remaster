@@ -808,7 +808,7 @@ export const ARTICLES: Article[] = [
     lead: (cfg) => (
       <>
         Od {fmt(cfg.branchMinPoints)} punktów można wybrać specjalizację: <b>handlarza</b> albo <b>wojownika</b>. Wybór jest
-        <b> ostateczny</b>, nie da się go później zmienić.
+        <b> ostateczny</b>, nie da się go później zmienić. Specjalizację każdego gracza widać w rankingu graczy.
       </>
     ),
     sections: [

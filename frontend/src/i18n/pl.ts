@@ -248,6 +248,7 @@ export const pl = {
     'market.done': 'Wymieniono {paid} na {received}.',
     'market.rates': 'Kursy: 3 metalu = 2 kryształu = 1 trytu',
     'settings.branch': 'Specjalizacja',
+    'ranking.branch': 'Specjalizacja',
     'settings.branch.NONE': 'brak',
     'settings.branch.TRADER': 'Handlarz',
     'settings.branch.WARRIOR': 'Wojownik',
