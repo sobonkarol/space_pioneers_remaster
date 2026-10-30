@@ -52,17 +52,19 @@ public final class RankingService extends ServiceBase {
                 double[] u = points.unitPoints(units);
                 player.setScore(new Score(buildings, points.researchPoints(player.getResearch()), u[0], u[1]));
             }
+            // administratorzy maja punkty (widza je u siebie), ale nie biora udzialu w rankingu
             players.sort(Comparator.comparingDouble((Player p) -> p.getScore().total()).reversed()
                     .thenComparingLong(Player::getId));
-            for (int i = 0; i < players.size(); i++) {
-                players.get(i).setRank(i + 1);
-                store.save(players.get(i));
+            int rank = 0;
+            for (Player player : players) {
+                player.setRank(player.isAdmin() ? 0 : ++rank);
+                store.save(player);
             }
             List<Alliance> alliances = new ArrayList<>(store.alliances());
             for (Alliance a : alliances) {
                 Score s = Score.ZERO;
                 for (Player p : players) {
-                    if (p.getAllianceId() != null && p.getAllianceId() == a.getId()) s = s.plus(p.getScore());
+                    if (!p.isAdmin() && p.getAllianceId() != null && p.getAllianceId() == a.getId()) s = s.plus(p.getScore());
                 }
                 a.setScore(s);
             }
@@ -116,7 +118,7 @@ public final class RankingService extends ServiceBase {
                 rows.add(new Views.RankingRow(offset + i + 1, x.getId(), x.getUsername(), tag, x.getAllianceId(),
                         Math.floor(metric.applyAsDouble(x.getScore())), null));
             }
-            return new Views.RankingPage("players", category, p, PAGE_SIZE, store.playerCount(), rows);
+            return new Views.RankingPage("players", category, p, PAGE_SIZE, store.rankedPlayerCount(), rows);
         });
     }
 

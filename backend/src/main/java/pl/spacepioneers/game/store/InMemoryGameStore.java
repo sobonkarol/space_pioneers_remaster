@@ -226,9 +226,14 @@ public class InMemoryGameStore implements GameStore {
     }
 
     @Override
+    public int rankedPlayerCount() {
+        return (int) state.players.values().stream().filter(p -> !p.isAdmin()).count();
+    }
+
+    @Override
     public List<Player> playersByScore(String category, int offset, int limit) {
         java.util.function.ToDoubleFunction<Player> metric = pl -> scoreOf(pl.getScore(), category);
-        return state.players.values().stream()
+        return state.players.values().stream().filter(p -> !p.isAdmin())
                 .sorted(Comparator.comparingDouble(metric).reversed().thenComparingLong(Player::getId))
                 .skip(offset).limit(limit).map(Json::copy).toList();
     }

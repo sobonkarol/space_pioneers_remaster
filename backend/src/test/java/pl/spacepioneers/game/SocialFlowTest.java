@@ -99,6 +99,9 @@ public class SocialFlowTest {
 
     @Test
     public void rankingCountsEverything() {
+        // pierwszy gracz serwera jest administratorem - ma punkty, ale nie bierze udzialu w rankingu
+        Player admin = f.register("Szef");
+        f.setUnits(admin.getHomePlanetId(), Map.of("battleship", 50L));
         Player p = f.register("Karol");
         Player q = f.register("Anna");
         f.setBuildings(p.getHomePlanetId(), Map.of("metal_mine", 2));
@@ -115,6 +118,11 @@ public class SocialFlowTest {
         Views.RankingPage page = f.game.ranking().page("players", "total", 1);
         assertEquals(2, page.total());
         assertEquals("Anna", page.rows().get(0).name());
+        assertEquals(2, page.rows().size());
+        Player ra = f.player(admin.getId());
+        assertTrue("administrator ma punkty", ra.getScore().total() > rq.getScore().total());
+        assertEquals(0, ra.getRank());
+        assertTrue("administrator poza rankingiem", page.rows().stream().noneMatch(r -> r.name().equals("Szef")));
         Views.RankingPage research = f.game.ranking().page("players", "research", 1);
         assertEquals("Karol", research.rows().get(0).name());
         assertThrows(GameException.class, () -> f.game.ranking().page("players", "bogus", 1));

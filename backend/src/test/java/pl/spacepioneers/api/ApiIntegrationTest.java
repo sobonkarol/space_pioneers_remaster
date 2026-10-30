@@ -145,7 +145,7 @@ class ApiIntegrationTest {
         mvc.perform(get("/api/galaxy/1/1").header("Authorization", bearer(a)))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.rows.length()").value(15));
         mvc.perform(get("/api/ranking").header("Authorization", bearer(a)))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.total").value(2));
+                .andExpect(status().isOk()).andExpect(jsonPath("$.total").value(1)); // pierwszy gracz (administrator) poza rankingiem
         assertThat(coords).isNotBlank();
         mvc.perform(delete("/api/messages/999999").header("Authorization", bearer(a))).andExpect(status().isNotFound());
     }

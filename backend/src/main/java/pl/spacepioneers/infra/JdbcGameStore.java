@@ -209,6 +209,15 @@ public class JdbcGameStore implements GameStore {
         return n == null ? 0 : n;
     }
 
+    /** Administratorzy (flaga admin w danych gracza) nie wystepuja w rankingu. */
+    private static final String RANKED = "coalesce((data ->> 'admin')::boolean, false) = false";
+
+    @Override
+    public int rankedPlayerCount() {
+        Integer n = jdbc.queryForObject("select count(*) from players where " + RANKED, Integer.class);
+        return n == null ? 0 : n;
+    }
+
     @Override
     public List<Player> playersByScore(String category, int offset, int limit) {
         String order = switch (category == null ? "total" : category) {
@@ -216,7 +225,7 @@ public class JdbcGameStore implements GameStore {
                     "coalesce((data -> 'score' ->> '" + category + "')::double precision, 0)";
             default -> "score_total";
         };
-        return jdbc.query("select data from players order by " + order + " desc, id offset ? limit ?",
+        return jdbc.query("select data from players where " + RANKED + " order by " + order + " desc, id offset ? limit ?",
                 data(Player.class), offset, limit);
     }
 
