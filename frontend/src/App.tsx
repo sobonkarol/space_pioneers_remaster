@@ -6,6 +6,7 @@ import { language, subscribeLanguage } from './i18n';
 import { loadAssetManifest } from './lib/assets';
 import { PilloryPage, ResetPasswordPage, VerifyEmailPage } from './pages/AccountLinkPages';
 import { AdminPage } from './pages/AdminPage';
+import { BOARD_BASE, BoardCategoryPage, BoardIndexPage, BoardThreadPage } from './pages/board/BoardPages';
 import { AlliancePage } from './pages/AlliancePage';
 import { AuthPage } from './pages/AuthPage';
 import { BuddiesPage } from './pages/BuddiesPage';
@@ -41,6 +42,9 @@ function Routing() {
         <Route path="/verify" element={<VerifyEmailPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/pillory" element={<PilloryPage />} />
+        <Route path={BOARD_BASE} element={<BoardIndexPage />} />
+        <Route path={`${BOARD_BASE}/watek/:threadId`} element={<BoardThreadPage />} />
+        <Route path={`${BOARD_BASE}/:category`} element={<BoardCategoryPage />} />
         <Route path="*" element={<AuthPage />} />
       </Routes>
     );
@@ -50,6 +54,9 @@ function Routing() {
       <Routes>
         <Route path="/verify" element={<VerifyEmailPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path={BOARD_BASE} element={<BoardIndexPage />} />
+        <Route path={`${BOARD_BASE}/watek/:threadId`} element={<BoardThreadPage />} />
+        <Route path={`${BOARD_BASE}/:category`} element={<BoardCategoryPage />} />
         <Route element={<Layout />}>
           <Route path="/overview" element={<OverviewPage />} />
           <Route path="/resources" element={<ResourcesPage />} />

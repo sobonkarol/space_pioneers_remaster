@@ -182,4 +182,20 @@ class AccountApiTest {
         mvc.perform(get("/api/admin/stats").header("Authorization", a)).andExpect(jsonPath("$.players").value(1));
         login("Oszust", "haslo12345", 403);
     }
+
+    @Test
+    void publicBoardReadableWithoutLoginWritableOnlyLoggedIn() throws Exception {
+        JsonNode auth = register("Forumowicz");
+        mvc.perform(get("/api/board")).andExpect(status().isOk()).andExpect(jsonPath("$.loggedIn").value(false));
+        mvc.perform(post("/api/board/threads").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"category\":\"GENERAL\",\"title\":\"x\",\"text\":\"y\"}")).andExpect(status().isUnauthorized());
+        MvcResult r = mvc.perform(post("/api/board/threads").header("Authorization", bearer(auth))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"category\":\"BUGS\",\"title\":\"Błąd\",\"text\":\"Opis\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("NEW")).andReturn();
+        long id = json.readTree(r.getResponse().getContentAsString()).get("id").asLong();
+        mvc.perform(get("/api/board/threads/" + id)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.posts[0].text").value("Opis")).andExpect(jsonPath("$.canReply").value(false));
+        mvc.perform(get("/api/board").header("Authorization", bearer(auth))).andExpect(jsonPath("$.loggedIn").value(true));
+    }
 }

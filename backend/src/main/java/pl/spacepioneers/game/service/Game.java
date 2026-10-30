@@ -22,6 +22,7 @@ public final class Game {
     private final ForumService forum;
     private final SearchService search;
     private final SimulatorService simulator;
+    private final BoardService board;
 
     public Game(GameContext ctx) {
         this.ctx = ctx;
@@ -45,6 +46,7 @@ public final class Game {
         this.forum = new ForumService(ctx, world);
         this.search = new SearchService(ctx, world);
         this.simulator = new SimulatorService(ctx);
+        this.board = new BoardService(ctx, world);
     }
 
     /** Obsluguje zalegle zdarzenia (wywolywane cyklicznie przez harmonogram). */
@@ -70,4 +72,5 @@ public final class Game {
     public ForumService forum() { return forum; }
     public SearchService search() { return search; }
     public SimulatorService simulator() { return simulator; }
+    public BoardService board() { return board; }
 }

@@ -92,7 +92,7 @@ jobs:
             UNIVERSE_NEWBIE_POINTS=0 RANKING_INTERVAL_MS=5000 nohup java -jar backend/target/space-pioneers-backend-*.jar > server.log 2>&1 &
           for i in $(seq 1 90); do curl -sf localhost:8080/api/stats && break; sleep 1; done
       - run: |
-          for t in gameplay advanced account social tools; do node e2e/$t.e2e.mjs; done
+          for t in gameplay advanced account social tools board; do node e2e/$t.e2e.mjs; done
         working-directory: frontend
       - if: failure()
         run: tail -200 server.log
