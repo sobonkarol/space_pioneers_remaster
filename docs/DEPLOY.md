@@ -21,7 +21,7 @@ Dopóki w repozytorium nie ma sekretu `DEPLOY_SSH_KEY`, job `deploy` tylko wypis
 ```bash
 ssh-keygen -t ed25519 -f ~/.ssh/github_deploy -N "" -C "github-deploy"
 echo "command=\"cd $HOME/space_pioneers_remaster && bash deploy/deploy.sh\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty $(cat ~/.ssh/github_deploy.pub)" >> ~/.ssh/authorized_keys
-cat ~/.ssh/github_deploy          # klucz prywatny - skopiuj całość (z liniami BEGIN/END)
+base64 -w0 ~/.ssh/github_deploy; echo   # klucz prywatny jako jedna linia - skopiuj ją do DEPLOY_SSH_KEY
 ssh-keyscan 149.56.209.82 2>/dev/null   # odcisk serwera (do sekretu DEPLOY_KNOWN_HOSTS)
 ```
 Dzięki `command=...` nawet ktoś, kto zdobyłby ten klucz, może tylko zaktualizować grę do wersji z GitHuba. Nie dostanie
@@ -31,7 +31,7 @@ powłoki na serwerze.
 
 | sekret | wartość |
 |---|---|
-| `DEPLOY_SSH_KEY` | zawartość `~/.ssh/github_deploy` (klucz prywatny) |
+| `DEPLOY_SSH_KEY` | jedna linia z `base64 -w0 ~/.ssh/github_deploy` (klucz prywatny; działa też cały plik z liniami BEGIN/END) |
 | `DEPLOY_HOST` | `149.56.209.82` |
 | `DEPLOY_USER` | `ubuntu` |
 | `DEPLOY_PATH` | `/home/ubuntu/space_pioneers_remaster` |
@@ -45,7 +45,8 @@ ma być `gra dziala (<commit>)`. Kolejne aktualizacje dzieją się same, ok. 5 m
 - W adnotacjach joba jest odcisk klucza z sekretu (`Klucz z sekretu: 256 SHA256:...`). Porównaj go z wynikiem
   `ssh-keygen -lf ~/.ssh/github_deploy.pub` na serwerze. Jeśli się różnią, w `DEPLOY_SSH_KEY` jest inny klucz.
 - `sudo journalctl -u ssh --since "15 min ago"` na serwerze pokazuje, dlaczego serwer odrzucił połączenie.
-- `DEPLOY_SSH_KEY nie jest poprawnym kluczem`: sekret jest ucięty. Wklej całość pliku, z liniami BEGIN i END.
+- `DEPLOY_SSH_KEY nie jest poprawnym kluczem`: sekret jest ucięty albo zniekształcony. Wklej jedną linię z
+  `base64 -w0 ~/.ssh/github_deploy`.
 
 ## Wyłączenie
 
