@@ -136,7 +136,14 @@ try {
   check(msgs.some((m) => m.subject === `Ogłoszenie ${stamp}`), 'ogłoszenie dotarło do gracza');
   await a.reload();
   await a.waitForSelector('text=Dziennik administracji');
-  const logText = await a.locator('.panel:has-text("Dziennik administracji")').textContent();
+  // panel pojawia sie przed danymi - czekamy, az wczytaja sie wpisy (na wolnym CI to chwila)
+  const logPanel = a.locator('.panel:has-text("Dziennik administracji")');
+  let logText = '';
+  for (let i = 0; i < 40; i++) {
+    logText = (await logPanel.textContent()) ?? '';
+    if (logText.includes('Blokada') && logText.includes('Zdjęcie blokady') && logText.includes('Ogłoszenie')) break;
+    await sleep(250);
+  }
   check(logText.includes('Blokada') && logText.includes('Zdjęcie blokady') && logText.includes('Ogłoszenie'), 'dziennik zawiera działania');
   await a.screenshot({ path: `${SHOTS}/c06-admin-log.png`, fullPage: true });
 

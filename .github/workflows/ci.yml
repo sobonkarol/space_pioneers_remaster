@@ -102,3 +102,39 @@ jobs:
         with:
           name: e2e-shots
           path: frontend/e2e-shots
+
+  # Auto-deploy: po zielonym CI na mainie GitHub laczy sie z serwerem przez SSH i uruchamia deploy/deploy.sh.
+  # Wylaczony, dopoki w repozytorium nie ma sekretu DEPLOY_SSH_KEY (docs/DEPLOY.md).
+  deploy:
+    needs: [backend, frontend, docker, e2e]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy
+      cancel-in-progress: false
+    steps:
+      - name: Sprawdz konfiguracje
+        id: cfg
+        env:
+          KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "::notice title=Auto-deploy::Wylaczony - brak sekretu DEPLOY_SSH_KEY (docs/DEPLOY.md)"
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Aktualizacja gry na serwerze
+        if: steps.cfg.outputs.enabled == 'true'
+        env:
+          KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DIR: ${{ secrets.DEPLOY_PATH }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          if [ -n "$KNOWN_HOSTS" ]; then printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts; else ssh-keyscan -H "$HOST" > ~/.ssh/known_hosts 2>/dev/null; fi
+          ssh -i ~/.ssh/deploy -o StrictHostKeyChecking=yes -o ConnectTimeout=20 "${DEPLOY_USER:-ubuntu}@$HOST" \
+            "cd ${DIR:-~/space_pioneers_remaster} && bash deploy/deploy.sh"
