@@ -86,3 +86,11 @@ gatunku (SP powstało jako alternatywa dla OGame). Wszystkie liczby siedzą w pl
   tabela szybkich dział i kalkulator lotów.
 - Tabele (koszty, czasy, produkcja, energia, punkty, prędkości) wylicza przeglądarka z `/api/config` wzorami przepisanymi
   z silnika w `frontend/src/pages/wiki/wikiMath.ts`. Zmiana wzoru w silniku wymaga zmiany tam (pilnuje tego `wikiMath.test.ts`).
+
+## Opis sojuszu w HTML
+- Opis sojuszu (do 20 000 znaków) może zawierać HTML jak w klasycznych grach: formatowanie, `font`, `center`, tabele,
+  listy, `hr`, obrazki (tylko https), linki (nowa karta, `nofollow`), `marquee` i bezpieczne style (kolory, wyrównanie,
+  rozmiary, ramki).
+- Serwer czyści HTML przy zapisie i odczycie białą listą (jsoup, `SafeHtml`). Przeglądarka czyści go drugi raz (DOMPurify).
+  Skrypty, ramki, formularze, zdarzenia, `javascript:`, `url()` i `position` są usuwane. Zwykły tekst zachowuje podział linii.
+- Polityka CSP dopuszcza obrazki z adresów https (`img-src 'self' data: https:`). Skrypty nadal tylko z własnego serwera.

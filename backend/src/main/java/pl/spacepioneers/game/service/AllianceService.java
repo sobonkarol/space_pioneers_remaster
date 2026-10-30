@@ -1,5 +1,6 @@
 package pl.spacepioneers.game.service;
 
+import pl.spacepioneers.game.text.SafeHtml;
 import pl.spacepioneers.game.GameException;
 import pl.spacepioneers.game.model.Alliance;
 import pl.spacepioneers.game.model.AllianceApplication;
@@ -88,7 +89,7 @@ public final class AllianceService extends ServiceBase {
                                 other == null ? "?" : other.getName(), t.type().name(), t.status().name(),
                                 t.proposedBy() == allianceId, t.createdAt());
                     }).toList();
-            return new AllianceView(a.getId(), a.getTag(), a.getName(), a.getDescription(), a.getHomepage(),
+            return new AllianceView(a.getId(), a.getTag(), a.getName(), SafeHtml.clean(a.getDescription()), a.getHomepage(),
                     a.isOpenForApplications(), a.getCreatedAt(), Math.floor(a.getScore().total()), a.getRank(),
                     members.size(), memberViews, apps, treaties,
                     member ? viewer.getAllianceRank().name() : null);
@@ -234,7 +235,8 @@ public final class AllianceService extends ServiceBase {
         txRun(now -> {
             Player leader = requireLeader(leaderId);
             Alliance a = ctx.store().alliance(leader.getAllianceId()).orElseThrow();
-            if (description != null) a.setDescription(MessageService.clean(description, 5000));
+            // opis w HTML jak w klasycznych grach - zapisujemy juz oczyszczony (biala lista znacznikow)
+            if (description != null) a.setDescription(SafeHtml.clean(MessageService.clean(description, 20_000)));
             if (homepage != null) {
                 String h = MessageService.clean(homepage, 200);
                 if (!h.isEmpty() && !h.startsWith("https://") && !h.startsWith("http://")) {

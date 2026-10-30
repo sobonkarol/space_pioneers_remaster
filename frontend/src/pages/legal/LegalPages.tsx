@@ -302,6 +302,10 @@ export function PrivacyPage() {
         </li>
         <li>Organy publiczne, jeśli zażądają tego na podstawie przepisów prawa.</li>
       </ul>
+      <p>
+        Opisy sojuszy mogą zawierać obrazki wstawione przez graczy z innych serwerów. Przeglądarka pobiera je bezpośrednio
+        z tych serwerów, które widzą wtedy Twój adres IP, tak jak przy każdej stronie z obrazkami z zewnątrz.
+      </p>
 
       <h2>5. Przekazywanie danych poza EOG</h2>
       <p>
