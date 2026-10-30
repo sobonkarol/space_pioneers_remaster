@@ -135,7 +135,7 @@ try {
   const msgs = await apiGet(p, '/messages?type=SYSTEM');
   check(msgs.some((m) => m.subject === `Ogłoszenie ${stamp}`), 'ogłoszenie dotarło do gracza');
   await a.reload();
-  await a.waitForSelector('text=Dziennik administracji');
+  await a.waitForSelector('.panel:has-text("Dziennik administracji") td:has-text("Ogłoszenie")');
   const logText = await a.locator('.panel:has-text("Dziennik administracji")').textContent();
   check(logText.includes('Blokada') && logText.includes('Zdjęcie blokady') && logText.includes('Ogłoszenie'), 'dziennik zawiera działania');
   await a.screenshot({ path: `${SHOTS}/c06-admin-log.png`, fullPage: true });

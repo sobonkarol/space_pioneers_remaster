@@ -67,8 +67,14 @@ public final class Views {
             String branch,
             boolean canChooseBranch,
             boolean vacation,
-            int forumUnread
+            int forumUnread,
+            List<PlanetActivity> otherPlanets,
+            String researchPlanetName
     ) {
+    }
+
+    /** Co dzieje sie na innej planecie gracza: budowa i stocznia (puste, gdy nic). */
+    public record PlanetActivity(PlanetRef planet, List<BuildQueueItem> buildQueue, List<ShipyardItem> shipyardQueue) {
     }
 
     /**

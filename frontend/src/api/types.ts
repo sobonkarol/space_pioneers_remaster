@@ -98,6 +98,14 @@ export interface Overview {
   canChooseBranch: boolean;
   vacation: boolean;
   forumUnread: number;
+  otherPlanets: PlanetActivity[];
+  researchPlanetName?: string;
+}
+
+export interface PlanetActivity {
+  planet: PlanetRef;
+  buildQueue: BuildQueueItem[];
+  shipyardQueue: ShipyardItem[];
 }
 
 export type Branch = 'NONE' | 'TRADER' | 'WARRIOR';

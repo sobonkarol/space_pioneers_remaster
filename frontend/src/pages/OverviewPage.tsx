@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { PlanetImage } from '../components/AssetImage';
-import { Countdown, ErrorBox, InfoBox, Loading, Panel, useAction } from '../components/common';
+import { ActivityPanel } from '../components/ActivityPanel';
+import { ErrorBox, InfoBox, Loading, Panel, useAction } from '../components/common';
 import { FleetTable } from '../components/FleetTable';
-import { nameOf, t } from '../i18n';
+import { t } from '../i18n';
 import { fmt } from '../lib/format';
 import { useGame } from '../state/game';
 import { useSession } from '../state/session';
@@ -16,10 +17,13 @@ export function OverviewPage() {
   const [renaming, setRenaming] = useState(false);
   const [newName, setNewName] = useState('');
 
+  // po wejsciu na przeglad zawsze swiezy stan (budowy zlecone na innych stronach)
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
   if (!overview) return <Loading />;
   const o = overview;
-  const build = o.buildQueue.find((b) => b.start);
-  const shipyard = o.shipyardQueue[0];
 
   const rename = async () => {
     const ok = await action.run(() => api.put(`/planets/${o.planet.id}/name`, { name: newName }));
@@ -54,6 +58,8 @@ export function OverviewPage() {
         </InfoBox>
       )}
       <ErrorBox error={action.error} />
+
+      <ActivityPanel overview={o} onRefresh={refresh} />
 
       <Panel title={t('overview.events')}>
         <FleetTable fleets={o.fleets} onRecall={recall} onEvent={refresh} busy={action.busy} />
@@ -116,45 +122,6 @@ export function OverviewPage() {
                 <th>{t('overview.points')}</th>
                 <td>
                   {fmt(o.points)} ({t('overview.rankOf', { rank: o.rank || '-', total: o.playerCount })})
-                </td>
-              </tr>
-              <tr>
-                <th>{t('overview.building')}</th>
-                <td>
-                  {build ? (
-                    <>
-                      {nameOf(build.building)} ({build.demolish ? t('build.demolish') : `${t('common.level')} ${build.level}`}) —{' '}
-                      <Countdown until={build.end} onDone={refresh} />
-                    </>
-                  ) : (
-                    <Link to="/buildings">{t('overview.idle')}</Link>
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <th>{t('overview.research')}</th>
-                <td>
-                  {o.research ? (
-                    <>
-                      {nameOf(o.research.research)} ({t('common.level')} {o.research.level}) —{' '}
-                      <Countdown until={o.research.end} onDone={refresh} />
-                    </>
-                  ) : (
-                    <Link to="/research">{t('overview.idle')}</Link>
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <th>{t('overview.shipyard')}</th>
-                <td>
-                  {shipyard ? (
-                    <>
-                      {nameOf(shipyard.unit)} ({fmt(shipyard.done)}/{fmt(shipyard.count)}) —{' '}
-                      <Countdown until={shipyard.finishAt} onDone={refresh} />
-                    </>
-                  ) : (
-                    <Link to="/shipyard">{t('overview.idle')}</Link>
-                  )}
                 </td>
               </tr>
             </tbody>

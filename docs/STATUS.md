@@ -24,7 +24,9 @@ Scenariusze E2E w przeglądarce (`frontend/e2e/`), wszystkie bez błędów JS:
   zdjęcie blokady, ogłoszenie, dziennik;
 - `social` — forum sojuszu (wątek, odpowiedź, licznik nowych wpisów, przypięcie, zamknięcie, edycja), notatki,
   archiwum wiadomości;
-- `tools` — wyszukiwarka i symulator walki.
+- `tools` — wyszukiwarka i symulator walki;
+- `overview` — aktualne działania na przeglądzie: budowa z kolejką, badanie, stocznia, budowy na innych planetach,
+  paski postępu.
 
 ## Braki i ograniczenia (dokładna lista)
 

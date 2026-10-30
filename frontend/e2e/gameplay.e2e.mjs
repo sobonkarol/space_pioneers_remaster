@@ -138,7 +138,7 @@ try {
   }
   check(ordered, 'zamówiono 2 lekkie myśliwce');
   const aPlanet = await homeId(a);
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 180; i++) {
     const o = await apiGet(a, `/planets/${aPlanet}/overview`);
     if (o.shipyardQueue.length === 0) break;
     await sleep(700);

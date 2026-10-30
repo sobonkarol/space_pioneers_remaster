@@ -62,21 +62,35 @@ public final class PlanetService extends ServiceBase {
 
             ResearchJob job = player.getResearchJob();
             int playerCount = store.playerCount();
+            List<Views.PlanetActivity> others = new ArrayList<>();
+            String researchPlanet = null;
+            for (Planet other : store.planetsOf(playerId)) {
+                if (job != null && other.getId() == job.planetId()) researchPlanet = other.getName();
+                if (other.getId() == planet.getId()) continue;
+                if (other.getBuildQueue().isEmpty() && other.getShipyardQueue().isEmpty()) continue;
+                if (!other.getShipyardQueue().isEmpty()) {
+                    world.advance(other, player, now); // postep stoczni do teraz
+                    store.save(other);
+                }
+                others.add(new Views.PlanetActivity(ref(other),
+                        other.getBuildQueue().stream().map(PlanetService::queueItem).toList(),
+                        other.getShipyardQueue().stream().map(PlanetService::shipyardItem).toList()));
+            }
+            others.sort(Comparator.comparing(a -> a.planet().coordinates()));
             return new Views.Overview(now, playerId, player.getUsername(), ref(planet), planetRefs(playerId),
                     Economy.usedFields(snap), ctx.economy().maxFields(snap),
                     planet.getTemperatureMin(), planet.getTemperatureMax(),
                     new Views.ResourceState(planet.getResources().floor(), prod.perHour(), cap,
                             prod.energyProduced(), prod.energyUsed(), prod.efficiency()),
                     planet.getBuildQueue().stream().map(PlanetService::queueItem).toList(),
-                    planet.getShipyardQueue().stream().map(o -> new Views.ShipyardItem(o.id(), o.unit(), o.count(),
-                            o.done(), o.secondsPerUnit(), o.progressStart(), o.finishAt())).toList(),
+                    planet.getShipyardQueue().stream().map(PlanetService::shipyardItem).toList(),
                     job == null ? null : new Views.ResearchInProgress(job.research(), job.level(), job.planetId(),
                             job.start(), job.end()),
                     fleets,
                     Math.floor(player.getScore().total()), player.getRank(), playerCount,
                     store.unreadCount(playerId), player.getBranch().name(),
                     player.getBranch() == Branch.NONE && player.getScore().total() >= Rules.BRANCH_MIN_POINTS,
-                    player.inVacation(), forumUnread(player));
+                    player.inVacation(), forumUnread(player), others, researchPlanet);
         });
     }
 
@@ -122,6 +136,10 @@ public final class PlanetService extends ServiceBase {
 
     static Views.BuildQueueItem queueItem(BuildOrder o) {
         return new Views.BuildQueueItem(o.id(), o.building(), o.level(), o.demolish(), o.cost(), o.start(), o.end());
+    }
+
+    static Views.ShipyardItem shipyardItem(pl.spacepioneers.game.model.ShipyardOrder o) {
+        return new Views.ShipyardItem(o.id(), o.unit(), o.count(), o.done(), o.secondsPerUnit(), o.progressStart(), o.finishAt());
     }
 
     private int forumUnread(Player p) {
