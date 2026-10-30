@@ -35,5 +35,29 @@ services:
     ports:
       - "8080:8080"
 
+  # Codzienna kopia bazy (o BACKUP_HOUR, czas polski) + wysylka poza serwer przez rclone.
+  # Kopie lokalne: ./backups, konfiguracja chmury: ./backup-config/rclone.conf (docs/BACKUP.md).
+  backup:
+    build: ./deploy/backup
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGUSER: spacepioneers
+      PGPASSWORD: ${DB_PASSWORD:-zmien-mnie}
+      PGDATABASE: spacepioneers
+      TZ: Europe/Warsaw
+      BACKUP_HOUR: ${BACKUP_HOUR:-4}
+      BACKUP_REMOTE: ${BACKUP_REMOTE:-}
+      BACKUP_KEEP_DAILY: ${BACKUP_KEEP_DAILY:-7}
+      BACKUP_KEEP_WEEKLY: ${BACKUP_KEEP_WEEKLY:-4}
+      BACKUP_REMOTE_DAYS: ${BACKUP_REMOTE_DAYS:-30}
+      RCLONE_CONFIG: /config/rclone.conf
+    volumes:
+      - ./backups:/backups
+      - ./backup-config:/config
+    restart: unless-stopped
+
 volumes:
   db-data:
