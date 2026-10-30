@@ -140,7 +140,7 @@ export function Layout() {
     <div className="game-shell">
       <header className="game-header">
         <div className="logo-area" onClick={() => navigate('/overview')} role="link" tabIndex={0}>
-          {logo ? <img src={logo} alt="Space Pioneers" className="logo-img" /> : <span className="logo-text">Space Pioneers</span>}
+          {logo ? <img src={logo} alt="Space Pioneers Remaster" className="logo-img" /> : <span className="logo-text">Space Pioneers Remaster</span>}
           <span className="universe-name">{config?.universeName}</span>
         </div>
         <div className="header-right">

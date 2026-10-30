@@ -17,7 +17,7 @@ function AuthFrame({ title, children }: { title: string; children: ReactNode }) 
     <div className="auth-page">
       <div className="auth-box">
         <div className="auth-logo">
-          {logo ? <img src={logo} alt="Space Pioneers" /> : <h1 className="logo-text big">Space Pioneers</h1>}
+          {logo ? <img src={logo} alt="Space Pioneers Remaster" /> : <h1 className="logo-text big">Space Pioneers Remaster</h1>}
         </div>
         <h2 className="auth-heading">{title}</h2>
         {children}
