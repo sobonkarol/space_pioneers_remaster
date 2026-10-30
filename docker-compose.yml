@@ -29,7 +29,7 @@ services:
       LEGAL_OPERATOR: ${LEGAL_OPERATOR:-}
       LEGAL_ADDRESS: ${LEGAL_ADDRESS:-}
       LEGAL_EMAIL: ${LEGAL_EMAIL:-}
-      # gracze sterowani przez komputer (docs/BOTS.md)
+      # gracze sterowani przez komputer (README.md, rozdz. 10)
       BOTS_ENABLED: ${BOTS_ENABLED:-false}
       BOTS_TARGET: ${BOTS_TARGET:-50}
       BOTS_PER_WEEK: ${BOTS_PER_WEEK:-5}
@@ -44,7 +44,7 @@ services:
       - "8080:8080"
 
   # Codzienna kopia bazy (o BACKUP_HOUR, czas polski) + wysylka poza serwer przez rclone.
-  # Kopie lokalne: ./backups, konfiguracja chmury: ./backup-config/rclone.conf (docs/BACKUP.md).
+  # Kopie lokalne: ./backups, konfiguracja chmury: ./backup-config/rclone.conf (README.md, rozdz. 16).
   backup:
     build: ./deploy/backup
     depends_on:

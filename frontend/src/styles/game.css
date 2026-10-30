@@ -1,7 +1,7 @@
 /*
  * Space Pioneers Remaster - motyw klasyczny.
  * Uklad: naglowek z logo, menu po lewej, pasek surowcow nad trescia, panele z tabelami.
- * Gdy wgrane zostana oryginalne grafiki, tlo/logo/ikony pochodza z manifestu (patrz docs/ASSETS.md).
+ * Gdy wgrane zostana oryginalne grafiki, tlo/logo/ikony pochodza z manifestu (patrz README.md, rozdz. 12).
  */
 :root {
   --bg: #04070d;
