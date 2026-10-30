@@ -134,7 +134,15 @@ jobs:
           KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
         run: |
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
-          printf '%s\n' "$KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
-          if [ -n "$KNOWN_HOSTS" ]; then printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts; else ssh-keyscan -H "$HOST" > ~/.ssh/known_hosts 2>/dev/null; fi
-          ssh -i ~/.ssh/deploy -o StrictHostKeyChecking=yes -o ConnectTimeout=20 "${DEPLOY_USER:-ubuntu}@$HOST" \
-            "cd ${DIR:-~/space_pioneers_remaster} && bash deploy/deploy.sh"
+          # klucz wklejony z Windowsa ma \r na koncu linii - SSH uznaje go wtedy za nieczytelny
+          printf '%s\n' "$KEY" | tr -d '\r' > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          if ! ssh-keygen -y -f ~/.ssh/deploy > ~/.ssh/deploy.pub 2>/dev/null; then
+            echo "::error title=Auto-deploy::DEPLOY_SSH_KEY nie jest poprawnym kluczem prywatnym - wklej cala zawartosc ~/.ssh/github_deploy (z liniami BEGIN i END)"
+            exit 1
+          fi
+          # odcisk do porownania z: ssh-keygen -lf ~/.ssh/github_deploy.pub (na serwerze)
+          echo "::notice title=Auto-deploy::Klucz z sekretu: $(ssh-keygen -lf ~/.ssh/deploy.pub)"
+          if [ -n "$KNOWN_HOSTS" ]; then printf '%s\n' "$KNOWN_HOSTS" | tr -d '\r' > ~/.ssh/known_hosts; else ssh-keyscan -H "$HOST" > ~/.ssh/known_hosts 2>/dev/null; fi
+          ssh -i ~/.ssh/deploy -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=20 \
+            "${DEPLOY_USER:-ubuntu}@$(echo "$HOST" | tr -d '\r[:space:]')" "cd ${DIR:-~/space_pioneers_remaster} && bash deploy/deploy.sh" \
+            || { code=$?; echo "::error title=Auto-deploy::SSH zakonczony kodem $code - porownaj odcisk klucza z serwerem (docs/DEPLOY.md)"; exit $code; }
