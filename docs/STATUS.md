@@ -14,7 +14,8 @@
 | Wydajność | `loadtest/load.mjs`, wyniki w `docs/LOADTEST.md` | ~350 zapytań/s bez błędów na 2 vCPU |
 
 Testy: `mvn test` — 187 testów (silnik, scenariusze w pamięci i te same scenariusze na PostgreSQL, API).
-Scenariusze E2E w przeglądarce (`frontend/e2e/`), wszystkie bez błędów JS:
+Scenariusze E2E w przeglądarce (`frontend/e2e/`), wszystkie bez błędów JS. Serwer testowy startuje z przyspieszeniem ×2000
+i surowcami startowymi `UNIVERSE_START_RESOURCES=1000000` (tylko CI), więc cały pakiet trwa ok. 1 minuty:
 - `gameplay` — rejestracja dwóch graczy, rozbudowa 11 poziomów budynków, 2 badania, budowa myśliwców, atak,
   raport walki u obu stron, sojusz z przyjęciem członka, galaktyka, ranking;
 - `advanced` — znajomi, ekspedycja z galaktyki (reguła astrofizyki), obrona sojusznicza ze stacjonowaniem

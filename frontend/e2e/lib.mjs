@@ -81,13 +81,13 @@ export async function upgrade(page, key, path = '/buildings', timeoutMs = 120000
       await button.click();
       break;
     }
-    await sleep(1000);
+    await sleep(500);
     await page.reload();
   }
   while (Date.now() < deadline) {
     const level = (await apiGet(page, listPath)).find((o) => o.key === key).level;
     if (level > before) return level;
-    await sleep(700);
+    await sleep(250);
   }
   throw new Error(`Nie udalo sie rozbudowac ${key}`);
 }
@@ -105,16 +105,16 @@ export async function buildShips(page, key, count) {
       await page.click(`tr[data-key="${key}"] .order-box button.btn`);
       ordered = true;
     } else {
-      await sleep(1000);
+      await sleep(500);
       await page.reload();
     }
   }
   if (!ordered) throw new Error(`Nie udalo sie zamowic ${key}`);
   const planet = await homeId(page);
-  for (let i = 0; i < 120; i++) {
+  for (let i = 0; i < 360; i++) {
     const d = await apiGet(page, `/planets/${planet}/fleet-dispatch`);
     if ((d.ships[key] ?? 0) >= count) return;
-    await sleep(700);
+    await sleep(250);
   }
   throw new Error(`Statki ${key} nie zostaly zbudowane`);
 }

@@ -35,13 +35,7 @@ try {
   check(buddies.length === 1 && buddies[0].status === 'ACCEPTED', 'znajomość zaakceptowana');
 
   console.log('2. Ekspedycja bez astrofizyki - reguła z serwera w interfejsie');
-  await upgrade(a, 'solar_plant');
-  await upgrade(a, 'metal_mine');
-  await upgrade(a, 'solar_plant');
-  await upgrade(a, 'crystal_mine');
-  await upgrade(a, 'tritium_synthesizer');
-  await upgrade(a, 'solar_plant');
-  await upgrade(a, 'tritium_synthesizer');
+  // tylko wymagania lekkiego mysliwca - pelna rozbudowe gospodarki sprawdza scenariusz gameplay
   await upgrade(a, 'robotics_factory');
   await upgrade(a, 'robotics_factory');
   await upgrade(a, 'shipyard');
@@ -80,7 +74,7 @@ try {
   for (let i = 0; i < 120 && !holding; i++) {
     const fleets = await apiGet(a, '/fleets');
     holding = fleets.find((f) => f.mission === 'HOLD' && f.status === 'HOLDING');
-    if (!holding) await sleep(1000);
+    if (!holding) await sleep(300);
   }
   check(holding !== null, 'flota stacjonuje u znajomego');
   await a.goto(`${BASE}/fleet`);
@@ -104,8 +98,9 @@ try {
   const moonId = Number(sql("select nextval('planet_seq')"));
   const [mg, ms, mp] = bCoords.split(':').map(Number);
   const data = {
-    id: moonId, moon: true, name: 'Księżyc', units: {}, fields: 1, galaxy: mg, system: ms, ownerId: bId, position: mp,
-    buildings: {}, createdAt: new Date().toISOString(), homeworld: false,
+    id: moonId, moon: true, name: 'Księżyc', units: {}, fields: 20, galaxy: mg, system: ms, ownerId: bId, position: mp,
+    // fabryka robotow 9 skraca budowe bazy ksiezycowej z ~45 s do ~4 s (pola powiekszone, zeby bylo miejsce)
+    buildings: { robotics_factory: 9 }, createdAt: new Date().toISOString(), homeworld: false,
     resources: { metal: 200000, crystal: 200000, tritium: 100000 }, buildQueue: [], lastUpdate: new Date().toISOString(),
     planetType: 'moon', imageVariant: 3, shipyardQueue: [], temperatureMax: 20, temperatureMin: -20, productionPercent: {},
   };

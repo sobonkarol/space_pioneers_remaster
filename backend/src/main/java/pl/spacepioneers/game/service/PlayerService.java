@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 public final class PlayerService extends ServiceBase {
 
     public static final Resources START_RESOURCES = Resources.of(500, 500, 0);
+    private Resources startResources = START_RESOURCES;
     public static final Duration VACATION_MINIMUM = Duration.ofHours(48);
     private static final Pattern USERNAME = Pattern.compile("^[\\p{L}\\p{N}_.-]{3,20}$");
     private static final Pattern EMAIL = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
@@ -39,6 +40,11 @@ public final class PlayerService extends ServiceBase {
                           boolean vacation, Instant vacationMinimumEnd, String language, double points, int rank,
                           Long allianceId, String allianceRank, long homePlanetId, boolean admin,
                           Long pendingApplicationAllianceId, boolean emailVerified, Instant deletionAt) {
+    }
+
+    /** Surowce startowe nowych graczy (zmieniane tylko w testach E2E, zob. UniverseProperties#startResources). */
+    public void setStartResources(Resources resources) {
+        this.startResources = resources;
     }
 
     /**
@@ -75,7 +81,7 @@ public final class PlayerService extends ServiceBase {
             planet.setPlanetType(PlanetGenerator.planetType(home.position()));
             planet.setImageVariant(traits.imageVariant());
             planet.setHomeworld(true);
-            planet.setResources(START_RESOURCES);
+            planet.setResources(startResources);
             planet.setCreatedAt(now);
             planet.setLastUpdate(now);
             player.setHomePlanetId(planet.getId());
