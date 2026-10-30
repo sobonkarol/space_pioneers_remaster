@@ -1,6 +1,6 @@
 #!/bin/bash
 # Aktualizacja gry na serwerze: pobranie maina, kopia bazy, przebudowa kontenerow, sprawdzenie, ze gra wstala.
-# Uruchamiane automatycznie z GitHub Actions po zielonym CI na mainie (docs/DEPLOY.md), mozna tez recznie:
+# Uruchamiane automatycznie z GitHub Actions po zielonym CI na mainie (README.md, rozdz. 14), mozna tez recznie:
 #   bash deploy/deploy.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."

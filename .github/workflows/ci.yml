@@ -104,7 +104,7 @@ jobs:
           path: frontend/e2e-shots
 
   # Auto-deploy: po zielonym CI na mainie GitHub laczy sie z serwerem przez SSH i uruchamia deploy/deploy.sh.
-  # Wylaczony, dopoki w repozytorium nie ma sekretu DEPLOY_SSH_KEY (docs/DEPLOY.md).
+  # Wylaczony, dopoki w repozytorium nie ma sekretu DEPLOY_SSH_KEY (README.md, rozdz. 14).
   deploy:
     needs: [backend, frontend, docker, e2e]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -119,7 +119,7 @@ jobs:
           KEY: ${{ secrets.DEPLOY_SSH_KEY }}
         run: |
           if [ -z "$KEY" ]; then
-            echo "::notice title=Auto-deploy::Wylaczony - brak sekretu DEPLOY_SSH_KEY (docs/DEPLOY.md)"
+            echo "::notice title=Auto-deploy::Wylaczony - brak sekretu DEPLOY_SSH_KEY (README.md, rozdz. 14)"
             echo "enabled=false" >> "$GITHUB_OUTPUT"
           else
             echo "enabled=true" >> "$GITHUB_OUTPUT"
@@ -154,4 +154,4 @@ jobs:
           if [ -n "$KNOWN_HOSTS" ]; then printf '%s\n' "$KNOWN_HOSTS" | tr -d '\r' > ~/.ssh/known_hosts; else ssh-keyscan -H "$HOST" > ~/.ssh/known_hosts 2>/dev/null; fi
           ssh -i ~/.ssh/deploy -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=20 \
             "${DEPLOY_USER:-ubuntu}@$(echo "$HOST" | tr -d '\r[:space:]')" "cd ${DIR:-~/space_pioneers_remaster} && bash deploy/deploy.sh" \
-            || { code=$?; echo "::error title=Auto-deploy::SSH zakonczony kodem $code - porownaj odcisk klucza z serwerem (docs/DEPLOY.md)"; exit $code; }
+            || { code=$?; echo "::error title=Auto-deploy::SSH zakonczony kodem $code - porownaj odcisk klucza z serwerem (README.md, rozdz. 14)"; exit $code; }

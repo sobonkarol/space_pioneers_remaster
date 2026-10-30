@@ -1,5 +1,5 @@
 {
-  "_comment": "Definicje budynkow. Koszt poziomu L = baseCost * costFactor^(L-1). Wartosci sa rekonstrukcja (zrodlo: docs/GAME_RULES.md) i moga zostac podmienione danymi z oryginalu.",
+  "_comment": "Definicje budynkow. Koszt poziomu L = baseCost * costFactor^(L-1). Wartosci sa rekonstrukcja (opis: README.md, rozdz. 5) i moga zostac podmienione danymi z oryginalu.",
   "buildings": [
     {
       "key": "metal_mine",

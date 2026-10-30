@@ -53,7 +53,7 @@ spacepioneers:
     operator: ${LEGAL_OPERATOR:}
     address: ${LEGAL_ADDRESS:}
     email: ${LEGAL_EMAIL:}
-  # gracze sterowani przez komputer (docs/BOTS.md); domyslnie wylaczeni
+  # gracze sterowani przez komputer (README.md, rozdz. 10); domyslnie wylaczeni
   bots:
     enabled: ${BOTS_ENABLED:false}
     target: ${BOTS_TARGET:50}
