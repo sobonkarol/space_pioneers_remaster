@@ -72,3 +72,10 @@ gatunku (SP powstało jako alternatywa dla OGame). Wszystkie liczby siedzą w pl
 - Forum sojuszu widoczne tylko dla członków; założyciel i oficerowie przypinają, zamykają i usuwają wątki
   i wpisy; autor edytuje i usuwa własne wpisy (usunięcie pierwszego wpisu usuwa wątek). 20 wpisów na stronę,
   nowe wpisy oznaczane w menu i na liście wątków.
+
+## Forum gry
+- Publiczne forum pod `/forum-gry` (otwierane z menu w nowej karcie): działy Ogłoszenia, Dyskusja ogólna,
+  Pomysły i propozycje, Zgłoszenia błędów, Pomoc. Czytać może każdy, pisać zalogowani gracze (konto z gry).
+- Wątki w Ogłoszeniach zakładają tylko administratorzy. Administratorzy przyklejają, zamykają i usuwają wątki
+  oraz nadają zgłoszeniom błędów status: nowy, potwierdzony, naprawiony, odrzucony.
+- Autor edytuje i usuwa własne wpisy; między wpisami jednego gracza musi minąć 15 sekund.

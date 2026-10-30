@@ -6,6 +6,8 @@ import pl.spacepioneers.game.model.AllianceApplication;
 import pl.spacepioneers.game.model.AttackUnion;
 import pl.spacepioneers.game.model.Buddy;
 import pl.spacepioneers.game.model.DebrisField;
+import pl.spacepioneers.game.model.BoardPost;
+import pl.spacepioneers.game.model.BoardThread;
 import pl.spacepioneers.game.model.Fleet;
 import pl.spacepioneers.game.model.ForumPost;
 import pl.spacepioneers.game.model.ForumThread;
@@ -175,6 +177,31 @@ public interface GameStore {
     void save(Note note);
 
     void deleteNote(long id);
+
+    // --- publiczne forum gry
+
+    Optional<BoardThread> boardThread(long id);
+
+    /** Watki kategorii: przypiete najpierw, potem od najnowszego wpisu. */
+    List<BoardThread> boardThreads(BoardThread.Category category, int offset, int limit);
+
+    int boardThreadCount(BoardThread.Category category);
+
+    /** Najnowsze watki ze wszystkich kategorii (podsumowanie forum). */
+    List<BoardThread> latestBoardThreads(int limit);
+
+    void save(BoardThread thread);
+
+    /** Usuwa watek wraz z wpisami. */
+    void deleteBoardThread(long id);
+
+    Optional<BoardPost> boardPost(long id);
+
+    List<BoardPost> boardPosts(long threadId, int offset, int limit);
+
+    void save(BoardPost post);
+
+    void deleteBoardPost(long id);
 
     // --- forum sojuszu
 

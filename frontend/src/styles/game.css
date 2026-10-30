@@ -343,3 +343,51 @@ textarea { width: 100%; resize: vertical; }
 .sim-tech { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin-bottom: 8px; }
 .sim-tech label { display: flex; flex-direction: column; font-size: 11px; }
 @media (max-width: 800px) { .sim-sides { grid-template-columns: 1fr; } }
+
+/* ---- publiczne forum gry (styl klasycznych for) ---- */
+.board-page { max-width: 1100px; margin: 0 auto; padding: 10px 12px 20px; }
+.board-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  border-bottom: 2px solid #f0a030; padding-bottom: 8px; }
+.board-logo { display: flex; align-items: flex-end; gap: 10px; text-decoration: none; }
+.board-logo img { max-height: 60px; }
+.board-logo span { font-family: Georgia, 'Times New Roman', serif; font-size: 26px; font-style: italic; color: #f0b050;
+  text-shadow: 0 2px 2px #000; }
+.board-user { font-size: 12px; color: #b8c8dc; }
+.board-crumbs { margin: 10px 0; font-size: 12px; padding: 6px 10px; background: rgba(20, 40, 70, 0.6); border: 1px solid #2a3d5c; }
+.board-main { display: flex; flex-direction: column; gap: 14px; }
+.board-table { width: 100%; border-collapse: collapse; border: 1px solid #3a5478; background: rgba(8, 16, 30, 0.85); }
+.board-table th { background: linear-gradient(180deg, #2b4f80, #17304f); color: #fff; text-align: left; padding: 6px 8px;
+  font-size: 12px; border-bottom: 1px solid #3a5478; }
+.board-table td { padding: 8px; border-top: 1px solid #1f3352; vertical-align: top; }
+.board-table tr:nth-child(even) td { background: rgba(255, 255, 255, 0.025); }
+.board-table .num { width: 70px; text-align: center; }
+.board-table .last { width: 260px; }
+.board-table .icon { width: 40px; font-size: 22px; text-align: center; }
+.board-table tr.unread a { font-weight: bold; }
+.board-cat-name { font-size: 15px; font-weight: bold; }
+.board-new { color: #f0c040; font-size: 10px; text-transform: uppercase; }
+.board-pin { color: #f0a030; font-weight: bold; }
+.board-status { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 3px; text-transform: uppercase;
+  border: 1px solid; vertical-align: middle; }
+.board-status.st-new { color: #ffb070; border-color: #c06020; }
+.board-status.st-confirmed { color: #ffe080; border-color: #b09020; }
+.board-status.st-fixed { color: #8fe08f; border-color: #3c8a3c; }
+.board-status.st-rejected { color: #aaa; border-color: #666; }
+.board-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.board-toolbar h2 { margin: 0; font-size: 18px; color: #f0b050; }
+.board-form { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid #3a5478;
+  background: rgba(8, 16, 30, 0.85); }
+.board-form label { display: flex; flex-direction: column; gap: 4px; }
+.board-posts .board-author { width: 150px; border-right: 1px solid #1f3352; }
+.board-admin { color: #ff8a5c; }
+.board-post-head { border-bottom: 1px dashed #2a3d5c; padding-bottom: 4px; margin-bottom: 6px; display: flex; gap: 8px; }
+.board-post-actions { margin-left: auto; display: flex; gap: 8px; }
+.board-text { white-space: pre-wrap; line-height: 1.55; word-break: break-word; }
+.board-mod { display: flex; gap: 8px; align-items: center; font-size: 12px; padding: 6px 10px; border: 1px dashed #c06020; }
+.board-mod .btn.danger { margin-top: 0; }
+.board-pager { font-size: 12px; display: flex; gap: 6px; align-items: center; }
+.board-footer { text-align: center; font-size: 11px; color: #6c7c92; margin-top: 20px; }
+@media (max-width: 700px) {
+  .board-table .last, .board-posts .board-author { width: auto; }
+  .board-table th.last, .board-table td.last { display: none; }
+}

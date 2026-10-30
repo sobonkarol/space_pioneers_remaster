@@ -36,6 +36,10 @@ public class Player {
     private Instant deletionAt;
     /** Ostatni przeczytany wpis w kazdym watku forum sojuszu (do oznaczania nowych wpisow). */
     private Map<Long, Long> forumRead = new HashMap<>();
+    /** Ostatni przeczytany wpis w watkach publicznego forum gry. */
+    private Map<Long, Long> boardRead = new HashMap<>();
+    /** Chwila ostatniego wpisu na publicznym forum (ochrona przed zalewaniem). */
+    private Instant lastBoardPostAt;
 
     public Player() {
     }
@@ -120,4 +124,8 @@ public class Player {
     public void setDeletionAt(Instant deletionAt) { this.deletionAt = deletionAt; }
     public Map<Long, Long> getForumRead() { return forumRead; }
     public void setForumRead(Map<Long, Long> forumRead) { this.forumRead = forumRead == null ? new HashMap<>() : new HashMap<>(forumRead); }
+    public Map<Long, Long> getBoardRead() { return boardRead; }
+    public void setBoardRead(Map<Long, Long> boardRead) { this.boardRead = boardRead == null ? new HashMap<>() : new HashMap<>(boardRead); }
+    public Instant getLastBoardPostAt() { return lastBoardPostAt; }
+    public void setLastBoardPostAt(Instant lastBoardPostAt) { this.lastBoardPostAt = lastBoardPostAt; }
 }

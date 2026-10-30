@@ -176,6 +176,11 @@ export function Layout() {
           </ul>
           <ul>
             {link('/settings', t('menu.settings'))}
+            <li>
+              <a href="/forum-gry" target="_blank" rel="noopener">
+                {t('menu.board')} ↗
+              </a>
+            </li>
             {link('/pillory', t('menu.pillory'))}
             {link('/help', t('menu.help'))}
             {profile?.admin && link('/admin', t('menu.admin'))}

@@ -7,6 +7,8 @@ import pl.spacepioneers.game.model.AttackUnion;
 import pl.spacepioneers.game.model.Buddy;
 import pl.spacepioneers.game.model.BuildOrder;
 import pl.spacepioneers.game.model.DebrisField;
+import pl.spacepioneers.game.model.BoardPost;
+import pl.spacepioneers.game.model.BoardThread;
 import pl.spacepioneers.game.model.Fleet;
 import pl.spacepioneers.game.model.ForumPost;
 import pl.spacepioneers.game.model.ForumThread;
@@ -53,6 +55,8 @@ public class InMemoryGameStore implements GameStore {
         Map<Long, Note> notes = new TreeMap<>();
         Map<Long, ForumThread> threads = new TreeMap<>();
         Map<Long, ForumPost> posts = new TreeMap<>();
+        Map<Long, BoardThread> boardThreads = new TreeMap<>();
+        Map<Long, BoardPost> boardPosts = new TreeMap<>();
 
         State copy() {
             State s = new State();
@@ -70,6 +74,8 @@ public class InMemoryGameStore implements GameStore {
             s.notes = new TreeMap<>(notes);
             s.threads = new TreeMap<>(threads);
             s.posts = new TreeMap<>(posts);
+            s.boardThreads = new TreeMap<>(boardThreads);
+            s.boardPosts = new TreeMap<>(boardPosts);
             return s;
         }
     }
@@ -421,6 +427,67 @@ public class InMemoryGameStore implements GameStore {
     @Override
     public void deleteNote(long id) {
         state.notes.remove(id);
+    }
+
+    // --- publiczne forum
+    private static final Comparator<BoardThread> BOARD_ORDER = Comparator.comparing(BoardThread::pinned).reversed()
+            .thenComparing(Comparator.comparing(BoardThread::lastPostAt).reversed())
+            .thenComparing(Comparator.comparingLong(BoardThread::id).reversed());
+
+    @Override
+    public Optional<BoardThread> boardThread(long id) {
+        return co(state.boardThreads.get(id));
+    }
+
+    @Override
+    public List<BoardThread> boardThreads(BoardThread.Category category, int offset, int limit) {
+        return state.boardThreads.values().stream().filter(t -> t.category() == category).sorted(BOARD_ORDER)
+                .skip(offset).limit(limit).map(Json::copy).toList();
+    }
+
+    @Override
+    public int boardThreadCount(BoardThread.Category category) {
+        return (int) state.boardThreads.values().stream().filter(t -> t.category() == category).count();
+    }
+
+    @Override
+    public List<BoardThread> latestBoardThreads(int limit) {
+        return state.boardThreads.values().stream()
+                .sorted(Comparator.comparing(BoardThread::lastPostAt).reversed().thenComparing(Comparator.comparingLong(BoardThread::id).reversed()))
+                .limit(limit).map(Json::copy).toList();
+    }
+
+    @Override
+    public void save(BoardThread thread) {
+        state.boardThreads.put(thread.id(), c(thread));
+    }
+
+    @Override
+    public void deleteBoardThread(long id) {
+        state.boardThreads.remove(id);
+        state.boardPosts.values().removeIf(p -> p.threadId() == id);
+    }
+
+    @Override
+    public Optional<BoardPost> boardPost(long id) {
+        return co(state.boardPosts.get(id));
+    }
+
+    @Override
+    public List<BoardPost> boardPosts(long threadId, int offset, int limit) {
+        return state.boardPosts.values().stream().filter(p -> p.threadId() == threadId)
+                .sorted(Comparator.comparing(BoardPost::createdAt).thenComparingLong(BoardPost::id))
+                .skip(offset).limit(limit).map(Json::copy).toList();
+    }
+
+    @Override
+    public void save(BoardPost post) {
+        state.boardPosts.put(post.id(), c(post));
+    }
+
+    @Override
+    public void deleteBoardPost(long id) {
+        state.boardPosts.remove(id);
     }
 
     // --- forum

@@ -108,7 +108,7 @@ export function AuthPage() {
         </form>
         )}
         <p className="auth-switch">
-          <Link to="/pillory">{t('menu.pillory')}</Link>
+          <Link to="/forum-gry">{t('menu.board')}</Link> · <Link to="/pillory">{t('menu.pillory')}</Link>
         </p>
       </div>
     </div>

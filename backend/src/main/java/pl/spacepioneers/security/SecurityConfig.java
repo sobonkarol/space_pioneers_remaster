@@ -58,6 +58,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/verify",
                                 "/api/auth/forgot-password", "/api/auth/reset-password", "/api/config",
                                 "/api/stats", "/api/pillory", "/api/dev/outbox", "/actuator/health").permitAll()
+                        // publiczne forum: czytanie bez logowania
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/board", "/api/board/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(rateLimit, UsernamePasswordAuthenticationFilter.class)

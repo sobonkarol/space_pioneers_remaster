@@ -371,6 +371,7 @@ export const pl = {
     'forum.send': 'Wyślij',
     'forum.lockedHint': 'Wątek jest zamknięty - odpowiadać mogą tylko założyciel i oficerowie.',
     'menu.pillory': 'Pręgierz',
+    'menu.board': 'Forum gry',
     'menu.admin': 'Administracja',
     'account.backToGame': 'Powrót do gry',
     'account.backToLogin': 'Powrót do logowania',
