@@ -49,7 +49,7 @@ spacepioneers:
     # tylko srodowiska testowe: ostatnie e-maile pod /api/dev/outbox
     dev-outbox: ${MAIL_DEV_OUTBOX:false}
   universe:
-    name: ${UNIVERSE_NAME:Galaktyka 1}
+    name: ${UNIVERSE_NAME:Uniwersum 1}
     galaxies: ${UNIVERSE_GALAXIES:5}
     systems: ${UNIVERSE_SYSTEMS:200}
     positions: 15

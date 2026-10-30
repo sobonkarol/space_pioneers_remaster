@@ -21,7 +21,7 @@ services:
       DB_URL: jdbc:postgresql://db:5432/spacepioneers
       DB_USER: spacepioneers
       DB_PASSWORD: ${DB_PASSWORD:-zmien-mnie}
-      UNIVERSE_NAME: ${UNIVERSE_NAME:-Galaktyka 1}
+      UNIVERSE_NAME: ${UNIVERSE_NAME:-Uniwersum 1}
       UNIVERSE_SPEED: ${UNIVERSE_SPEED:-1}
       PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8080}
       MAIL_FROM: ${MAIL_FROM:-no-reply@spacepioneers.local}

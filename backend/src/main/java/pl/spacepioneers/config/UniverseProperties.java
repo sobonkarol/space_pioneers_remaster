@@ -35,6 +35,6 @@ public record UniverseProperties(
     }
 
     public String displayName() {
-        return name == null ? "Galaktyka 1" : name;
+        return name == null ? "Uniwersum 1" : name;
     }
 }
