@@ -9,6 +9,21 @@ mkdirSync(SHOTS, { recursive: true });
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 export const errors = [];
 
+// Na GitHub Actions pierwszy blad scenariusza trafia do adnotacji (widocznych w PR bez pobierania logow).
+let lastError = '';
+const originalError = console.error;
+console.error = (...args) => {
+  if (!lastError) lastError = args.map((a) => (a instanceof Error ? a.message : String(a))).join(' ').split('\n')[0];
+  originalError(...args);
+};
+process.on('exit', () => {
+  if (process.exitCode && process.env.GITHUB_ACTIONS) {
+    const script = (process.argv[1] ?? '').split('/').pop();
+    const msg = (lastError || errors.join(' | ') || 'nieznany blad').replace(/\r?\n/g, ' ').slice(0, 500);
+    console.log(`::error title=E2E ${script}::${msg}`);
+  }
+});
+
 export async function launch() {
   let executablePath = process.env.CHROME_PATH;
   let args = [];
