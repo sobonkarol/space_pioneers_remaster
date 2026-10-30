@@ -2,7 +2,7 @@
 
 export const pl = {
   ui: {
-    'app.title': 'Space Pioneers',
+    'app.title': 'Space Pioneers Remaster',
     'app.subtitle': 'Kosmiczna gra strategiczna w przeglądarce',
     'auth.login': 'Zaloguj',
     'auth.register': 'Zarejestruj',

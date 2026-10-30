@@ -1,9 +1,9 @@
 import { glowFilter, id, linear, radial, resetIds, shade, svg } from './lib.mjs';
 
-/** Logo: planeta z orbita i napis SPACE PIONEERS w metalicznej stylizacji. */
+/** Logo: planeta z orbita, napis SPACE PIONEERS w metalicznej stylizacji i plakietka REMASTER. */
 function logo() {
   resetIds();
-  const W = 620;
+  const W = 680;
   const H = 150;
   const defs = [];
   const metalText = id('mt');
@@ -26,7 +26,14 @@ function logo() {
   s += `</g>`;
   s += `<text x="150" y="78" font-family="'Trebuchet MS', 'DejaVu Sans', Verdana, sans-serif" font-size="58" font-weight="bold" letter-spacing="6" fill="url(#${metalText})" stroke="#0c1a2c" stroke-width="1.5" filter="url(#${shadow})">SPACE</text>`;
   s += `<text x="152" y="128" font-family="'Trebuchet MS', 'DejaVu Sans', Verdana, sans-serif" font-size="40" font-weight="bold" letter-spacing="9" fill="url(#${orange})" stroke="#2a1404" stroke-width="1" filter="url(#${shadow})">PIONEERS</text>`;
-  s += `<rect x="150" y="88" width="440" height="3" fill="url(#${orange})" opacity="0.8"/>`;
+  s += `<rect x="150" y="88" width="510" height="3" fill="url(#${orange})" opacity="0.8"/>`;
+  // plakietka REMASTER obok PIONEERS
+  const tag = id('tg');
+  defs.push(linear(tag, [[0, '#1d3a5e'], [1, '#0a1626']]));
+  s += `<g filter="url(#${shadow})">`;
+  s += `<rect x="478" y="100" width="182" height="32" rx="4" fill="url(#${tag})" stroke="url(#${metalText})" stroke-width="1.5"/>`;
+  s += `<text x="571" y="123" text-anchor="middle" font-family="'Trebuchet MS', 'DejaVu Sans', Verdana, sans-serif" font-size="20" font-weight="bold" letter-spacing="4" fill="url(#${metalText})">REMASTER</text>`;
+  s += `</g>`;
   return { markup: svg(W, H, defs, s), w: W, h: H };
 }
 

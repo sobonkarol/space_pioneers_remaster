@@ -50,7 +50,7 @@ export function AuthPage() {
     <div className="auth-page">
       <div className="auth-box">
         <div className="auth-logo">
-          {logo ? <img src={logo} alt="Space Pioneers" /> : <h1 className="logo-text big">Space Pioneers</h1>}
+          {logo ? <img src={logo} alt="Space Pioneers Remaster" /> : <h1 className="logo-text big">Space Pioneers Remaster</h1>}
           <p className="auth-subtitle">{t('app.subtitle')}</p>
         </div>
         {stats && (
