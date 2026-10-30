@@ -204,7 +204,7 @@ class AccountApiTest {
         mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"Bezzgody\",\"email\":\"bez@example.com\",\"password\":\"haslo12345\"}"))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("terms_required"));
-        mvc.perform(get("/api/config")).andExpect(jsonPath("$.legal.termsVersion").value(1));
+        mvc.perform(get("/api/config")).andExpect(jsonPath("$.legal.termsVersion").value(pl.spacepioneers.game.service.PlayerService.TERMS_VERSION));
 
         JsonNode auth = register("Zgodny");
         assertThat(auth.at("/profile/termsAccepted").asBoolean()).isTrue();
@@ -218,7 +218,7 @@ class AccountApiTest {
         JsonNode data = json.readTree(r.getResponse().getContentAsString());
         assertThat(data.at("/account/username").asText()).isEqualTo("Zgodny");
         assertThat(data.at("/account/email").asText()).isEqualTo("zgodny@example.com");
-        assertThat(data.at("/account/termsVersion").asInt()).isEqualTo(1);
+        assertThat(data.at("/account/termsVersion").asInt()).isEqualTo(pl.spacepioneers.game.service.PlayerService.TERMS_VERSION);
         assertThat(data.get("planets").size()).isEqualTo(1);
         assertThat(data.get("messages").size()).isGreaterThan(0);
         assertThat(r.getResponse().getContentAsString()).doesNotContain("passwordHash").doesNotContain("$2a$");

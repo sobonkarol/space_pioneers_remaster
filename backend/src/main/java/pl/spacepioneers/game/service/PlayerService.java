@@ -29,7 +29,7 @@ public final class PlayerService extends ServiceBase {
      * Aktualna wersja regulaminu i polityki prywatnosci. Podniesienie wersji (przy zmianie tresci dokumentow
      * w frontend/src/pages/legal) wymusza ponowna akceptacje przy nastepnym wejsciu do gry.
      */
-    public static final int TERMS_VERSION = 1;
+    public static final int TERMS_VERSION = 2;
     public static final Resources START_RESOURCES = Resources.of(500, 500, 0);
     private Resources startResources = START_RESOURCES;
     public static final Duration VACATION_MINIMUM = Duration.ofHours(48);

@@ -28,13 +28,14 @@ public final class AdminService extends ServiceBase {
         this.accounts = accounts;
     }
 
-    public record ServerStats(int players, int online15m, int active24h, int banned, int pendingDeletion,
+    public record ServerStats(int players, int bots, int online15m, int active24h, int banned, int pendingDeletion,
                               int unverified, int planets, int moons, int fleetsInFlight, int alliances, Instant now) {
     }
 
     public record PlayerRow(long id, String username, String email, boolean emailVerified, boolean admin,
                             double points, int rank, Instant createdAt, Instant lastActivity, Instant bannedUntil,
-                            String banReason, boolean vacation, Instant deletionAt, String allianceTag, int planets) {
+                            String banReason, boolean vacation, Instant deletionAt, String allianceTag, int planets,
+                            String bot) {
     }
 
     public record PlanetRow(long id, String name, String coordinates, boolean moon, int fieldsUsed, int fields) {
@@ -66,7 +67,7 @@ public final class AdminService extends ServiceBase {
             List<Player> players = ctx.store().players();
             List<Planet> planets = ctx.store().allPlanets();
             int moons = (int) planets.stream().filter(Planet::isMoon).count();
-            return new ServerStats(players.size(),
+            return new ServerStats(players.size(), (int) players.stream().filter(Player::isBot).count(),
                     (int) players.stream().filter(p -> active(p, now, Duration.ofMinutes(15))).count(),
                     (int) players.stream().filter(p -> active(p, now, Duration.ofHours(24))).count(),
                     (int) players.stream().filter(p -> p.banned(now)).count(),
@@ -119,7 +120,8 @@ public final class AdminService extends ServiceBase {
         return new PlayerRow(p.getId(), p.getUsername(), p.getEmail(), p.isEmailVerified(), p.isAdmin(),
                 Math.floor(p.getScore().total()), p.getRank(), p.getCreatedAt(), p.getLastActivity(),
                 p.banned(now) ? p.getBannedUntil() : null, p.banned(now) ? p.getBanReason() : null,
-                p.inVacation(), p.getDeletionAt(), tag, ctx.store().planetsOf(p.getId()).size());
+                p.inVacation(), p.getDeletionAt(), tag, ctx.store().planetsOf(p.getId()).size(),
+                p.isBot() ? p.getBot().getPersonality().name() : null);
     }
 
     /**

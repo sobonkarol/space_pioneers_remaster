@@ -174,6 +174,10 @@ export function TermsPage() {
           Przerwy techniczne mogą się zdarzyć. W razie awarii stan Gry może zostać odtworzony z ostatniej kopii zapasowej.
         </li>
         <li>
+          Oprócz ludzi w Grze występują gracze sterowani przez komputer. Grają według tych samych zasad co ludzie (te same
+          koszty, czasy i ochrona nowych graczy), nie mają żadnych ułatwień i nie są osobno oznaczeni.
+        </li>
+        <li>
           Konto, surowce, statki i inne elementy Gry nie mają wartości pieniężnej i nie podlegają wymianie na pieniądze ani
           odszkodowaniu.
         </li>
