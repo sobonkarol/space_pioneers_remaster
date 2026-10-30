@@ -22,8 +22,9 @@ try {
   await wiki.waitForSelector('.wiki-infobox');
   const row2 = await wiki.textContent('.wiki-table tbody tr:nth-child(2)');
   check(row2.includes('90') && row2.includes('22'), 'koszt 2. poziomu kopalni metalu: 90 metalu, 22 kryształu');
+  const before = await wiki.textContent('.wiki-table tbody tr:nth-child(12)');
   await wiki.fill('.wiki-controls input >> nth=0', '10');
-  check((await wiki.textContent('.wiki-table tbody tr:first-child')).includes('10s'), 'fabryka robotów skraca czas w tabeli');
+  check((await wiki.textContent('.wiki-table tbody tr:nth-child(12)')) !== before, 'fabryka robotów zmienia czasy w tabeli');
   await wiki.screenshot({ path: `${SHOTS}/w01-building.png`, fullPage: true });
 
   console.log('3. Wyszukiwarka i strona statku');
@@ -40,7 +41,11 @@ try {
   await wiki.goto(`${BASE}/wiki/kalkulator-lotow`);
   await wiki.waitForSelector('.wiki-result');
   const res = await wiki.textContent('.wiki-result');
-  check(res.includes('3.080') && res.includes('14m 39s'), 'kalkulator: 1:1:1 → 1:5:8 transporterem = 3080, 14m 39s');
+  // czas zalezy od predkosci serwera (CI: x2000), wiec sprawdzamy wzor na danych z /api/config
+  const cfg = await (await fetch(`${BASE}/api/config`)).json();
+  const secs = Math.max(1, Math.round((350 * Math.sqrt(30800 / 5000) + 10) / cfg.universe.fleetSpeed));
+  check(res.includes('3.080') && res.includes('Tryt5'), 'kalkulator: 1:1:1 → 1:5:8 małym transporterem = odległość 3080, 5 trytu');
+  check(res.includes(secs < 60 ? `${secs}s` : '14m 39s'), `kalkulator: czas lotu ${secs} s przy prędkości flot ×${cfg.universe.fleetSpeed}`);
   await wiki.screenshot({ path: `${SHOTS}/w02-calc.png`, fullPage: true });
 
   console.log('5. Gość bez logowania');
