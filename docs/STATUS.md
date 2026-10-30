@@ -8,7 +8,7 @@
 | Logika gry | kolejki budowy/badań/stoczni; misje: atak, transport, stacjonowanie, kolonizacja, recykling, szpiegostwo, obrona sojusznicza, ekspedycja, atak rakietowy; ataki sojusznicze (do 8 flot), zawracanie; księżyce z bazą, falangą i teleporterem; urlop, specjalizacje, sojusze i dyplomacja, znajomi, ranking, wiadomości z archiwum, notatki, forum sojuszu, wyszukiwarka, symulator walki | scenariusze w pamięci **i na PostgreSQL** |
 | Konto i administracja | potwierdzanie e-mail, reset hasła, zmiana adresu, usuwanie konta po 7 dniach, panel administratora (statystyki, gracze, blokady, uprawnienia, ogłoszenia, dziennik), pręgierz | scenariusze + API |
 | Backend | Spring Boot 3.4, Java 21, Flyway (V1–V5), JSONB, blokada doradcza dla zapisów, odczyty bez blokady, harmonogram zdarzeń, sesje tokenowe (SHA-256), BCrypt, trwała blokada logowania, limity zapytań, SMTP | MockMvc + PostgreSQL |
-| Frontend | React 19 + TypeScript: wszystkie widoki gry, panel administratora, strony bez logowania (potwierdzenie e-mail, nowe hasło, pręgierz); wersja polska | vitest + 5 scenariuszy E2E w przeglądarce |
+| Frontend | React 19 + TypeScript: wszystkie widoki gry, panel administratora, strony bez logowania (potwierdzenie e-mail, nowe hasło, pręgierz, forum gry, wiki gry z tabelami liczonymi z danych serwera); wersja polska | vitest + 6 scenariuszy E2E w przeglądarce |
 | Oprawa | własne logo, tło, ikony, grafiki 19 budynków, 14 badań, 13 statków, 10 obron i rakiet, 55 planet i księżyców — generowane programowo, statki/budynki/badania/obrona jako rendery 3D (`docs/ASSETS.md`) | podgląd w E2E |
 | Wdrożenie | Dockerfile, docker-compose, CI w GitHub Actions: testy backendu na PostgreSQL, testy i build frontendu, budowa obrazu Dockera, E2E | CI zielone na każdym PR |
 | Wydajność | `loadtest/load.mjs`, wyniki w `docs/LOADTEST.md` | ~350 zapytań/s bez błędów na 2 vCPU |
@@ -24,7 +24,8 @@ Scenariusze E2E w przeglądarce (`frontend/e2e/`), wszystkie bez błędów JS:
   zdjęcie blokady, ogłoszenie, dziennik;
 - `social` — forum sojuszu (wątek, odpowiedź, licznik nowych wpisów, przypięcie, zamknięcie, edycja), notatki,
   archiwum wiadomości;
-- `tools` — wyszukiwarka i symulator walki.
+- `tools` — wyszukiwarka i symulator walki;
+- `board` — publiczne forum gry.
 
 ## Braki i ograniczenia (dokładna lista)
 
