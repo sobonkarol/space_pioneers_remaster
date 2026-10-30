@@ -135,9 +135,18 @@ jobs:
         run: |
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
           # klucz wklejony z Windowsa ma \r na koncu linii - SSH uznaje go wtedy za nieczytelny
-          printf '%s\n' "$KEY" | tr -d '\r' > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          # klucz moze byc wklejony jako jedna linia base64 (zalecane: base64 -w0 ~/.ssh/github_deploy) albo jako plik
+          # z liniami BEGIN/END; w drugim przypadku odtwarzamy podzial linii, gdyby schowek go zgubil
+          k="$(printf '%s' "$KEY" | tr -d '\r')"
+          if printf '%s' "$k" | grep -q 'BEGIN OPENSSH PRIVATE KEY'; then
+            body="$(printf '%s' "$k" | sed -e 's/-----BEGIN OPENSSH PRIVATE KEY-----//' -e 's/-----END OPENSSH PRIVATE KEY-----//' | tr -d ' \n\t')"
+            { echo '-----BEGIN OPENSSH PRIVATE KEY-----'; printf '%s' "$body" | fold -w 70; echo; echo '-----END OPENSSH PRIVATE KEY-----'; } > ~/.ssh/deploy
+          else
+            printf '%s' "$k" | tr -d ' \n\t' | base64 -d > ~/.ssh/deploy 2>/dev/null || true
+          fi
+          chmod 600 ~/.ssh/deploy
           if ! ssh-keygen -y -f ~/.ssh/deploy > ~/.ssh/deploy.pub 2>/dev/null; then
-            echo "::error title=Auto-deploy::DEPLOY_SSH_KEY nie jest poprawnym kluczem prywatnym - wklej cala zawartosc ~/.ssh/github_deploy (z liniami BEGIN i END)"
+            echo "::error title=Auto-deploy::DEPLOY_SSH_KEY nie jest poprawnym kluczem prywatnym - wklej wynik: base64 -w0 ~/.ssh/github_deploy (jedna linia)"
             exit 1
           fi
           # odcisk do porownania z: ssh-keygen -lf ~/.ssh/github_deploy.pub (na serwerze)
